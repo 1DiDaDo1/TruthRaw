@@ -11,6 +11,7 @@
 #include "bound_uncertainty_admission_v0_79.h"
 #include "output_acutance_v0_81.h"
 #include "presentation_gamut_fit_v0_1.h"
+#include "presentation_censored_chroma_fallback_v0_1.h"
 #include "presentation_highlight_chroma_rolloff_v0_1.h"
 #include "presentation_illuminant_warmth_retention_v0_1.h"
 #include "presentation_natural_light_field_tone_v0_1.h"
@@ -62,6 +63,7 @@ namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
 namespace illumination_state = truthraw::illumination_state::v0_82;
 namespace hdr_authority = truthraw::hdr_authority::v0_83;
 namespace presentation_gamut = truthraw::presentation_gamut_fit::v0_1;
+namespace presentation_censored_chroma = truthraw::presentation_censored_chroma_fallback::v0_1;
 namespace presentation_highlight = truthraw::presentation_highlight_chroma_rolloff::v0_1;
 namespace presentation_illuminant_warmth = truthraw::presentation_illuminant_warmth_retention::v0_1;
 namespace presentation_natural_light_field = truthraw::presentation_natural_light_field_tone::v0_1;
@@ -605,6 +607,32 @@ private:
             return count>0u;
         };
 
+        const auto highlightCensorFractionAt=[&](int px,int py) noexcept -> float {
+            const int radius=reconstructionSupportRadius_;
+            const int ax0=std::max(sx0,px-radius);
+            const int ay0=std::max(sy0,py-radius);
+            const int ax1=std::min(sx1,px+radius+1);
+            const int ay1=std::min(sy1,py+radius+1);
+            const int lx0=ax0-sx0;
+            const int ly0=ay0-sy0;
+            const int lx1=ax1-sx0;
+            const int ly1=ay1-sy0;
+            const std::uint32_t count=
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly1)*highlightIntegralWidth+lx1] -
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly0)*highlightIntegralWidth+lx1] -
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly1)*highlightIntegralWidth+lx0] +
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly0)*highlightIntegralWidth+lx0];
+            const std::uint32_t area=static_cast<std::uint32_t>(
+                std::max(0,ax1-ax0)*std::max(0,ay1-ay0));
+            if(area==0u) return 0.0f;
+            return std::clamp(
+                static_cast<float>(count)/static_cast<float>(area),0.0f,1.0f);
+        };
+
         // Build a deterministic integral image from already-rendered RGB.
         // Censored samples are excluded: this stage is a View/Appearance
         // neighbourhood cue, never clipped-radiance recovery or light-transport proof.
@@ -803,6 +831,7 @@ private:
                     static_cast<std::size_t>(y-sy0)*sw+static_cast<std::size_t>(x-sx0);
                 const bool censored=supportMask[si]!=0u;
                 const bool highlightCensored=highlightCensoredAt(x,y);
+                const float highlightCensorFraction=highlightCensorFractionAt(x,y);
 
                 if((flags_&kFlagHdr)!=0 && hdrPipelineEnabled_ && !censored) {
                     const int qx=x/2-qx0;
@@ -858,6 +887,16 @@ private:
                         return StreamStatus::error(
                             StreamStatusCode::SinkFailed,
                             "full-res Natural Light local field tone failed");
+                    }
+                    // CENSORED output chromaticity is not scene colour truth. Contract
+                    // only the unsupported chroma component in proportion to the
+                    // reconstruction-support CENSOR fraction. Luminance is retained;
+                    // accepted source-white warmth is deliberately applied afterwards.
+                    if(!presentation_censored_chroma::apply(
+                            r,g,b,highlightCensorFraction)) {
+                        return StreamStatus::error(
+                            StreamStatusCode::SinkFailed,
+                            "full-res censored chroma fallback failed");
                     }
                     // Natural Light may retain a bounded fraction of a warm
                     // source-white appearance. This is presentation-only and
