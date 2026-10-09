@@ -1,7 +1,6 @@
 #include <jni.h>
 
 #include "draw_jpeg444_q100_encoder.h"
-#include "full_frame_streaming_presentation_diagnostics_v0_1.h"
 #include "presentation_gamut_fit_v0_1.h"
 #include "presentation_highlight_chroma_rolloff_v0_1.h"
 #include "presentation_illuminant_warmth_retention_v0_1.h"
@@ -19,8 +18,6 @@ namespace {
 constexpr jlong kMagic = 0x44524a34; // DRJ4
 constexpr jint kRequiredQuality = 100;
 
-namespace streaming_presentation_diag =
-    truthraw::streaming_v0_1::presentation_diagnostics_v0_1;
 namespace presentation_gamut = truthraw::presentation_gamut_fit::v0_1;
 namespace presentation_highlight = truthraw::presentation_highlight_chroma_rolloff::v0_1;
 namespace presentation_warmth = truthraw::presentation_illuminant_warmth_retention::v0_1;
@@ -55,7 +52,6 @@ bool write_all(WriterContext *context, const std::uint8_t *bytes, std::size_t si
 }
 
 std::string build_diagnostic_app15(int width, int height) {
-    const auto streaming = streaming_presentation_diag::take_snapshot_and_reset();
     const auto gamut = presentation_gamut::take_diagnostics_snapshot_and_reset();
     const auto highlight = presentation_highlight::take_diagnostics_snapshot_and_reset();
     const auto warmth = presentation_warmth::take_diagnostics_snapshot_and_reset();
@@ -73,12 +69,10 @@ std::string build_diagnostic_app15(int width, int height) {
     };
     add("frame_scoped", frameScoped ? 1u : 0u);
     add("pixels", pixels);
-    add("stream_pre_clamp_negative_any", streaming.preClampNegativeAny);
-    add("stream_pre_clamp_g_negative_rb_positive", streaming.preClampGreenNegativeRbPositive);
-    add("stream_pre_clamp_green_min", streaming.preClampGreenStrictMin);
-    add("stream_post_clamp_g_boundary_rb_positive", streaming.postClampGreenBoundaryRbPositive);
     add("early_negative_any", gamut.nonnegativeNegativeInput);
     add("early_g_negative_rb_positive", gamut.nonnegativeGreenNegativeRbPositive);
+    add("early_g_boundary_input_rb_positive", gamut.nonnegativeGreenBoundaryInputRbPositive);
+    add("early_g_boundary_input_rb_high", gamut.nonnegativeGreenBoundaryInputRbHigh);
     add("early_g_boundary_after_fit", gamut.nonnegativeGreenBoundaryAfterFit);
     add("final_unit_calls", gamut.unitCalls);
     add("final_out_of_range", gamut.unitOutOfRangeInput);
@@ -92,6 +86,7 @@ std::string build_diagnostic_app15(int width, int height) {
     add("highlight_white_candidates", highlight.censoredWhiteCandidates);
     add("highlight_severe_applied", highlight.censoredSevereApplied);
     add("highlight_neutral_applied", highlight.censoredNearNeutralApplied);
+    payload += "sealed_streaming_module_modified=0\n";
     payload += "pixel_mutation_by_diagnostics=0\n";
     payload += "scientific_writeback=0\n";
 
