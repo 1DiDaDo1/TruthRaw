@@ -77,13 +77,16 @@ highlight_call = bridge.index('r,g,b,highlightCensored)', highlight_def)
 if highlight_def >= highlight_call:
     raise SystemExit("highlight authority boolean is not defined before use")
 
-# Ensure the new stricter highlight authority does not become a hidden input to
-# the earlier pre-acutance/restoration or HDR stages.
-preacutance_start = bridge.index('std::vector<float> preAcutance(')
-final_loop_start = bridge.index('        for(int y=y0;y<y1;++y) {', bridge.index('std::vector<std::uint8_t> coreRgb('))
+# Scope the isolation audit to the actual finalizeCoreTile implementation. The
+# file contains other rendering code with similar names, so a global first-match
+# range would create false positives.
+finalize_start = bridge.index('    StreamStatus finalizeCoreTile(')
+preacutance_start = bridge.index('std::vector<float> preAcutance(', finalize_start)
+core_rgb_start = bridge.index('std::vector<std::uint8_t> coreRgb(', preacutance_start)
+final_loop_start = bridge.index('        for(int y=y0;y<y1;++y) {', core_rgb_start)
 pre_final_block = bridge[preacutance_start:final_loop_start]
 if 'highlightCensored' in pre_final_block:
-    raise SystemExit("highlight-only authority leaked into pre-acutance/detail stages")
+    raise SystemExit("highlight-only authority leaked into finalizeCoreTile pre-acutance/detail stages")
 
 # OutputChannelAuthority remains the scientific/authority reference for the
 # reconstruction-support censor concept. Presentation merely mirrors its support
