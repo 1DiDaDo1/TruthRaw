@@ -34,38 +34,51 @@ def main() -> None:
     )
     text = require_replace(text, ns_old, ns_new, "warmth namespace")
 
-    ctor_sig_old = (
-        "        float noiseSigmaAt2Pct,\n"
-        "        bool extendedLinearHeadroomInput)\n"
+    # Idempotence rule: later downstream presentation patches may extend the
+    # FullResNv21Sink constructor (for example with reconstruction support
+    # authority). Warmth owns only the source-white field; once that field is
+    # already present it must not require the historical exact signature.
+    source_white_arg = (
+        "presentation_illuminant_warmth::SourceWhitePoint presentationSourceWhite"
     )
-    ctor_sig_new = (
-        "        float noiseSigmaAt2Pct,\n"
-        "        presentation_illuminant_warmth::SourceWhitePoint presentationSourceWhite,\n"
-        "        bool extendedLinearHeadroomInput)\n"
-    )
-    text = require_replace(text, ctor_sig_old, ctor_sig_new, "sink constructor signature")
+    if source_white_arg not in text:
+        ctor_sig_old = (
+            "        float noiseSigmaAt2Pct,\n"
+            "        bool extendedLinearHeadroomInput)\n"
+        )
+        ctor_sig_new = (
+            "        float noiseSigmaAt2Pct,\n"
+            "        presentation_illuminant_warmth::SourceWhitePoint presentationSourceWhite,\n"
+            "        bool extendedLinearHeadroomInput)\n"
+        )
+        text = require_replace(text, ctor_sig_old, ctor_sig_new, "sink constructor signature")
 
-    ctor_init_old = (
-        "          noiseSigmaAt2Pct_(noiseSigmaAt2Pct),\n"
-        "          extendedLinearHeadroomInput_(extendedLinearHeadroomInput),\n"
-    )
-    ctor_init_new = (
-        "          noiseSigmaAt2Pct_(noiseSigmaAt2Pct),\n"
-        "          presentationSourceWhite_(presentationSourceWhite),\n"
-        "          extendedLinearHeadroomInput_(extendedLinearHeadroomInput),\n"
-    )
-    text = require_replace(text, ctor_init_old, ctor_init_new, "sink constructor initializer")
+    if "presentationSourceWhite_(presentationSourceWhite)" not in text:
+        ctor_init_old = (
+            "          noiseSigmaAt2Pct_(noiseSigmaAt2Pct),\n"
+            "          extendedLinearHeadroomInput_(extendedLinearHeadroomInput),\n"
+        )
+        ctor_init_new = (
+            "          noiseSigmaAt2Pct_(noiseSigmaAt2Pct),\n"
+            "          presentationSourceWhite_(presentationSourceWhite),\n"
+            "          extendedLinearHeadroomInput_(extendedLinearHeadroomInput),\n"
+        )
+        text = require_replace(text, ctor_init_old, ctor_init_new, "sink constructor initializer")
 
-    member_old = (
-        "    float noiseSigmaAt2Pct_=0.0f;\n"
-        "    bool extendedLinearHeadroomInput_=false;\n"
+    source_white_member = (
+        "presentation_illuminant_warmth::SourceWhitePoint presentationSourceWhite_{};"
     )
-    member_new = (
-        "    float noiseSigmaAt2Pct_=0.0f;\n"
-        "    presentation_illuminant_warmth::SourceWhitePoint presentationSourceWhite_{};\n"
-        "    bool extendedLinearHeadroomInput_=false;\n"
-    )
-    text = require_replace(text, member_old, member_new, "sink source-white member")
+    if source_white_member not in text:
+        member_old = (
+            "    float noiseSigmaAt2Pct_=0.0f;\n"
+            "    bool extendedLinearHeadroomInput_=false;\n"
+        )
+        member_new = (
+            "    float noiseSigmaAt2Pct_=0.0f;\n"
+            "    presentation_illuminant_warmth::SourceWhitePoint presentationSourceWhite_{};\n"
+            "    bool extendedLinearHeadroomInput_=false;\n"
+        )
+        text = require_replace(text, member_old, member_new, "sink source-white member")
 
     source_anchor = (
         "    // Selection is an explicit downstream output contract. flags==0 alone is\n"
@@ -85,18 +98,26 @@ def main() -> None:
     )
     text = require_replace(text, source_anchor, source_block, "source-white binding")
 
-    sink_call_old = (
-        "        *source,\n"
-        "        noiseSigma,\n"
-        "        pureExtendedLinearHeadroomCandidate);\n"
-    )
-    sink_call_new = (
-        "        *source,\n"
+    # Likewise, do not require the historical sink-call arity once source white
+    # is already wired. A later patch may insert additional independent args
+    # between presentationSourceWhite and the final headroom selector.
+    sink_source_white_marker = (
         "        noiseSigma,\n"
         "        presentationSourceWhite,\n"
-        "        pureExtendedLinearHeadroomCandidate);\n"
     )
-    text = require_replace(text, sink_call_old, sink_call_new, "sink source-white argument")
+    if sink_source_white_marker not in text:
+        sink_call_old = (
+            "        *source,\n"
+            "        noiseSigma,\n"
+            "        pureExtendedLinearHeadroomCandidate);\n"
+        )
+        sink_call_new = (
+            "        *source,\n"
+            "        noiseSigma,\n"
+            "        presentationSourceWhite,\n"
+            "        pureExtendedLinearHeadroomCandidate);\n"
+        )
+        text = require_replace(text, sink_call_old, sink_call_new, "sink source-white argument")
 
     warm_anchor = (
         "                } else {\n"
@@ -122,8 +143,11 @@ def main() -> None:
     required = [
         '#include "presentation_illuminant_warmth_retention_v0_1.h"',
         "namespace presentation_illuminant_warmth =",
+        source_white_arg,
         "presentationSourceWhite_(presentationSourceWhite)",
+        source_white_member,
         "presentationSourceWhite.known=",
+        sink_source_white_marker,
         warm_call_marker,
         "r,g,b,presentationSourceWhite_,naturalLightEnabled",
     ]
