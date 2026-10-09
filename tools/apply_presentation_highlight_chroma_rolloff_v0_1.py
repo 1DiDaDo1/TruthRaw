@@ -294,17 +294,29 @@ if highlight_integral_marker not in text:
         raise SystemExit("support-mask read anchor missing")
     text = text.replace(anchor, block, 1)
 
-# Preserve the original shared mask for restoration/HDR/local field and derive a
-# separate stricter boolean only for the highlight chroma guard.
-shared_censor = '                const bool censored=supportMask[si]!=0u;\n'
-highlight_censor = (
-    shared_censor +
-    '                const bool highlightCensored=highlightCensoredAt(x,y);\n'
-)
-if 'const bool highlightCensored=highlightCensoredAt(x,y);' not in text:
-    if shared_censor not in text:
-        raise SystemExit("shared centre-only censor anchor missing")
-    text = text.replace(shared_censor, highlight_censor, 1)
+# Preserve the original shared mask for restoration/HDR/local field. Derive the
+# stricter support-aware boolean only in the final output loop where the
+# highlight chroma guard is consumed. This prevents support-based highlight
+# authority from participating in restoration, exposure/shadow, acutance,
+# detail, HDR gating or Natural Light local-field decisions.
+highlight_censor_token = 'const bool highlightCensored=highlightCensoredAt(x,y);'
+if highlight_censor_token not in text:
+    final_loop_anchor = '''                const std::size_t si=
+                    static_cast<std::size_t>(y-sy0)*sw+static_cast<std::size_t>(x-sx0);
+                const bool censored=supportMask[si]!=0u;
+
+                if((flags_&kFlagHdr)!=0 && hdrPipelineEnabled_ && !censored) {
+'''
+    final_loop_replacement = '''                const std::size_t si=
+                    static_cast<std::size_t>(y-sy0)*sw+static_cast<std::size_t>(x-sx0);
+                const bool censored=supportMask[si]!=0u;
+                const bool highlightCensored=highlightCensoredAt(x,y);
+
+                if((flags_&kFlagHdr)!=0 && hdrPipelineEnabled_ && !censored) {
+'''
+    if final_loop_anchor not in text:
+        raise SystemExit("final output-loop censor anchor missing")
+    text = text.replace(final_loop_anchor, final_loop_replacement, 1)
 
 call_marker = 'presentation_highlight::apply_near_neutral_rolloff('
 if call_marker not in text:
@@ -361,7 +373,7 @@ required = (
     'std::max({3,localFieldRadius,reconstructionSupportRadius_})',
     'const auto highlightCensoredAt=',
     'const bool censored=supportMask[si]!=0u;',
-    'const bool highlightCensored=highlightCensoredAt(x,y);',
+    highlight_censor_token,
     'r,g,b,highlightCensored)',
     'std::max(0,reconstruction->requiredHalo())',
     'static_cast<float>(raw[local])>=source_.metadata().whiteLevel?1u:0u;',
@@ -378,6 +390,17 @@ write_block = text[write_start:write_end]
 for forbidden in ('supportPixels', 'saturatedPrefix', 'reconstructionSupportRadius_'):
     if forbidden in write_block:
         raise SystemExit(f"shared staged censor mask was broadened: {forbidden}")
+
+# The support-aware boolean itself must not exist in the pre-acutance/detail
+# portion of finalizeCoreTile. The helper/integral may exist there because it is
+# inert until queried by the final output loop.
+finalize_start = text.index('    StreamStatus finalizeCoreTile(')
+preacutance_start = text.index('std::vector<float> preAcutance(', finalize_start)
+core_rgb_start = text.index('std::vector<std::uint8_t> coreRgb(', preacutance_start)
+final_loop_start = text.index('        for(int y=y0;y<y1;++y) {', core_rgb_start)
+pre_final_block = text[preacutance_start:final_loop_start]
+if highlight_censor_token in pre_final_block:
+    raise SystemExit("highlight support authority leaked into pre-acutance/detail stage")
 
 # Restoration/HDR/local field must still use `censored`; only the highlight guard
 # gets `highlightCensored`.
