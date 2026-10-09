@@ -100,14 +100,88 @@ The Q100 / true-4:4:4 JPEG acceptance/regression boundary remains unchanged.
 
 Scientific promotion remains closed unless explicit independent evidence and the existing promotion gates justify a future decision.
 
-## CI state at handoff creation
+## Exact-head validation completed after handoff creation
 
-The source-law commit automatically started the repository CI matrix. At the moment this handoff was authored, relevant runs including Universal Intake, Raster-Independent Sample Lattice, Observation-World Field Separation, Canonical Integrity and the Free Raster APK workflow were queued or in progress. They must not be called green or red until an exact-head result exists.
+The first exact-head Free Raster build exposed a **tooling idempotence defect**, not a runtime-science or image-output defect. `tools/apply_presentation_illuminant_warmth_retention_v0_1.py` still expected the old text layout in which the warmth stage appeared immediately after the ADVANCED/PRO `else` branch. Natural Light Local Field Tone v0.1 had legitimately been inserted before warmth, while the actual warmth runtime call was already present.
+
+The generator was therefore hardened so an already-present `presentation_illuminant_warmth::apply(` call is treated as already applied, after which the existing ordering and one-call contract checks still run. The warmth regression was extended to lock the actual runtime order:
+
+`Natural Light Local Field Tone -> Warm Illuminant Retention -> Near-White Highlight Chroma Guard -> Gamut Fit`
+
+No image algorithm, `photo_export_bridge.cpp`, Scientific Master, sealed source, reconstruction authority or Local Field Tone parameter was changed by this tooling repair.
+
+Exact validated code head:
+
+`5d3fa07c4b55871cc82cc17d6bc0a4eb66b88177`
+
+Exact diff relative to the preceding Local Field Tone runtime head `0a489190c474fa765431064513c0f6e52f7b63fd` changes only:
+
+- this origin-independent evidence-law handoff;
+- `UniversalIdentityIndependenceV01.kt`;
+- the warmth patch generator;
+- the warmth regression test.
+
+The runtime image-processing bridge itself was not changed in this continuation.
+
+### Free Raster / downstream output gate
+
+Workflow: `D.RAW Free Raster v0.3 Finish APK`  
+Run: `37918298982`  
+Result: **SUCCESS**
+
+Proven green on exact validated code head:
+
+- deterministic Free Raster v0.3 integration contract;
+- presentation gamut-fit regression;
+- ADVANCED/PRO near-white highlight chroma-rolloff regression;
+- Warm Illuminant Retention v0.1 regression;
+- Natural Light Local Field Tone v0.1 regression;
+- PURE Float32 headroom regression;
+- presentation headroom wiring v0.2;
+- sealed Full-Frame Streaming integrity;
+- strict High-Fidelity JPEG codec regression with `pix_fmt=yuvj444p`;
+- Kotlin/unit tests;
+- NDK/C++ build;
+- APK verification and artifact upload.
+
+The workflow's runtime-wiring step reported:
+
+`Runtime wiring and presentation output guards already applied.`
+
+and retained exact HEAD `5d3fa07c4b55871cc82cc17d6bc0a4eb66b88177`, so it did not generate or push a hidden runtime rewrite.
+
+Candidate APK from this exact run:
+
+- bytes: `8,861,667`;
+- SHA-256: `a0d15951af12caf3b756b46fe0a5090879618f50f4bfb499940d49e6b1d8528b`;
+- artifact ID: `11611032828`;
+- artifact name: `draw-free-raster-v03-fullres-candidate-apk`;
+- artifact ZIP SHA-256: `382a3128d624161dd781d5fc0708b137512511f779fb0bfd4162c8a902ee02a3`.
+
+### Universal Intake gate
+
+Workflow run: `37918299238`  
+Result: **SUCCESS**
+
+The D.RAW vision contract, pinned Android/NDK environment, stable development signing identity, full arm64 APK assembly, APK verification and artifact upload all completed successfully on the same exact code head.
+
+Therefore the origin-independent evidence-law hardening is now mechanically compatible with the existing Universal Intake and downstream Free Raster/output cables.
+
+### PR state at validation
+
+PR #131 remains:
+
+- open;
+- draft;
+- unmerged;
+- mergeable=true.
+
+No scientific or product promotion follows automatically from these CI results.
 
 ## Next safe execution order
 
-1. Let exact-head CI establish whether the additive contract compiles and preserves all integrity gates.
+1. Keep `5d3fa07c4b55871cc82cc17d6bc0a4eb66b88177` as the exact validated code checkpoint for this origin-independent continuation.
 2. Keep Local Field Tone runtime unchanged until its pending real-device ADVANCED + Natural Light and PRO + Natural Light lamp-scene test is supplied.
-3. When that physical result arrives, compare it to the accepted Warm Illuminant ADV2/PRO reference and inspect local luminous-field impression, black protection, halo/seam behaviour, RGB-ratio stability, near-white magenta regression and PURE isolation.
+3. Compare that physical result to the accepted Warm Illuminant ADV2/PRO reference and inspect local luminous-field impression, black protection, halo/seam behaviour, RGB-ratio stability, near-white magenta regression and PURE isolation.
 4. Only after physical evidence may Local Field Tone move from CANDIDATE to PASS or be revised.
 5. Continue scientific reconstruction/geometry/light-transport work only through existing explicit authority, uncertainty, hold-out and promotion gates.
