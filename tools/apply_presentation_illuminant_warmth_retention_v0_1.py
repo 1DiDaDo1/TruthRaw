@@ -115,14 +115,16 @@ def main() -> None:
         "                    }\n"
         "                    const float mx=std::max(r,std::max(g,b));\n"
     )
-    text = require_replace(text, warm_anchor, warm_block, "ADVANCED/PRO warmth call")
+    warm_call_marker = "presentation_illuminant_warmth::apply("
+    if warm_call_marker not in text:
+        text = require_replace(text, warm_anchor, warm_block, "ADVANCED/PRO warmth call")
 
     required = [
         '#include "presentation_illuminant_warmth_retention_v0_1.h"',
         "namespace presentation_illuminant_warmth =",
         "presentationSourceWhite_(presentationSourceWhite)",
         "presentationSourceWhite.known=",
-        "presentation_illuminant_warmth::apply(",
+        warm_call_marker,
         "r,g,b,presentationSourceWhite_,naturalLightEnabled",
     ]
     for token in required:
@@ -131,13 +133,13 @@ def main() -> None:
 
     pure_pos = text.index("if(extendedLinearHeadroomInput_)")
     else_pos = text.index("                } else {", pure_pos)
-    warm_pos = text.index("presentation_illuminant_warmth::apply(", else_pos)
+    warm_pos = text.index(warm_call_marker, else_pos)
     highlight_pos = text.index("presentation_highlight::apply_near_neutral_rolloff(", warm_pos)
     gamut_pos = text.index("presentation_gamut::fit_unit_rgb_preserve_luminance(", highlight_pos)
     if not (pure_pos < else_pos < warm_pos < highlight_pos < gamut_pos):
         raise SystemExit("warmth stage ordering contract failed")
 
-    if text.count("presentation_illuminant_warmth::apply(") != 1:
+    if text.count(warm_call_marker) != 1:
         raise SystemExit("warmth apply must have exactly one runtime call")
 
     if text == original:
