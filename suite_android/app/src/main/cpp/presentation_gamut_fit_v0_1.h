@@ -1,7 +1,9 @@
 #pragma once
 
 #include <algorithm>
+#include <atomic>
 #include <cmath>
+#include <cstdint>
 
 namespace truthraw::presentation_gamut_fit::v0_1 {
 
@@ -24,6 +26,44 @@ constexpr double kLumaG = 0.7152;
 constexpr double kLumaB = 0.0722;
 constexpr double kEpsilon = 1e-12;
 
+// Temporary presentation diagnostics for the real-device colour/highlight
+// investigation. They are observation-only counters: no value below is used by
+// either gamut transform and no scientific state or authority is modified.
+struct DiagnosticsSnapshot final {
+    std::uint64_t nonnegativeNegativeInput = 0u;
+    std::uint64_t nonnegativeGreenNegativeRbPositive = 0u;
+    std::uint64_t nonnegativeGreenBoundaryAfterFit = 0u;
+    std::uint64_t unitCalls = 0u;
+    std::uint64_t unitOutOfRangeInput = 0u;
+    std::uint64_t unitGreenNegativeRbPositive = 0u;
+};
+
+namespace diagnostics_detail {
+inline std::atomic<std::uint64_t> nonnegativeNegativeInput{0u};
+inline std::atomic<std::uint64_t> nonnegativeGreenNegativeRbPositive{0u};
+inline std::atomic<std::uint64_t> nonnegativeGreenBoundaryAfterFit{0u};
+inline std::atomic<std::uint64_t> unitCalls{0u};
+inline std::atomic<std::uint64_t> unitOutOfRangeInput{0u};
+inline std::atomic<std::uint64_t> unitGreenNegativeRbPositive{0u};
+} // namespace diagnostics_detail
+
+inline DiagnosticsSnapshot take_diagnostics_snapshot_and_reset() noexcept {
+    DiagnosticsSnapshot out{};
+    out.nonnegativeNegativeInput =
+        diagnostics_detail::nonnegativeNegativeInput.exchange(0u, std::memory_order_relaxed);
+    out.nonnegativeGreenNegativeRbPositive =
+        diagnostics_detail::nonnegativeGreenNegativeRbPositive.exchange(0u, std::memory_order_relaxed);
+    out.nonnegativeGreenBoundaryAfterFit =
+        diagnostics_detail::nonnegativeGreenBoundaryAfterFit.exchange(0u, std::memory_order_relaxed);
+    out.unitCalls =
+        diagnostics_detail::unitCalls.exchange(0u, std::memory_order_relaxed);
+    out.unitOutOfRangeInput =
+        diagnostics_detail::unitOutOfRangeInput.exchange(0u, std::memory_order_relaxed);
+    out.unitGreenNegativeRbPositive =
+        diagnostics_detail::unitGreenNegativeRbPositive.exchange(0u, std::memory_order_relaxed);
+    return out;
+}
+
 inline bool finite_rgb(float r, float g, float b) noexcept {
     return std::isfinite(r) && std::isfinite(g) && std::isfinite(b);
 }
@@ -39,7 +79,18 @@ inline bool fit_nonnegative_preserve_luminance(
     float& g,
     float& b) noexcept {
     if (!finite_rgb(r, g, b)) return false;
-    if (r >= 0.0f && g >= 0.0f && b >= 0.0f) return true;
+
+    const bool negativeInput = r < 0.0f || g < 0.0f || b < 0.0f;
+    const bool greenNegativeRbPositive = g < 0.0f && r > 0.0f && b > 0.0f;
+    if (negativeInput) {
+        diagnostics_detail::nonnegativeNegativeInput.fetch_add(1u, std::memory_order_relaxed);
+    }
+    if (greenNegativeRbPositive) {
+        diagnostics_detail::nonnegativeGreenNegativeRbPositive.fetch_add(
+            1u, std::memory_order_relaxed);
+    }
+
+    if (!negativeInput) return true;
 
     const double y = luminance709(r, g, b);
     if (!std::isfinite(y)) return false;
@@ -73,6 +124,10 @@ inline bool fit_nonnegative_preserve_luminance(
     r = fit(r);
     g = fit(g);
     b = fit(b);
+    if (greenNegativeRbPositive && g <= 1.0e-7f && r > 0.0f && b > 0.0f) {
+        diagnostics_detail::nonnegativeGreenBoundaryAfterFit.fetch_add(
+            1u, std::memory_order_relaxed);
+    }
     return finite_rgb(r, g, b);
 }
 
@@ -81,11 +136,21 @@ inline bool fit_unit_rgb_preserve_luminance(
     float& g,
     float& b) noexcept {
     if (!finite_rgb(r, g, b)) return false;
-    if (r >= 0.0f && r <= 1.0f &&
-        g >= 0.0f && g <= 1.0f &&
-        b >= 0.0f && b <= 1.0f) {
-        return true;
+
+    diagnostics_detail::unitCalls.fetch_add(1u, std::memory_order_relaxed);
+    const bool outOfRange =
+        r < 0.0f || r > 1.0f ||
+        g < 0.0f || g > 1.0f ||
+        b < 0.0f || b > 1.0f;
+    if (outOfRange) {
+        diagnostics_detail::unitOutOfRangeInput.fetch_add(1u, std::memory_order_relaxed);
     }
+    if (g < 0.0f && r > 0.0f && b > 0.0f) {
+        diagnostics_detail::unitGreenNegativeRbPositive.fetch_add(
+            1u, std::memory_order_relaxed);
+    }
+
+    if (!outOfRange) return true;
 
     const double y = luminance709(r, g, b);
     if (!std::isfinite(y)) return false;
