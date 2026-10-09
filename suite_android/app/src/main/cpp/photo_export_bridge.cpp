@@ -343,20 +343,10 @@ public:
             }
         }
 
-        const int radius=reconstructionSupportRadius_;
-        const int rx0=std::max(0,r.x0-radius);
-        const int ry0=std::max(0,r.y0-radius);
-        const int rx1=std::min(sourceWidth_,r.x1+radius);
-        const int ry1=std::min(sourceHeight_,r.y1+radius);
-        const int rw=rx1-rx0;
-        const int rh=ry1-ry0;
-        const std::size_t supportPixels=
-            static_cast<std::size_t>(rw)*static_cast<std::size_t>(rh);
-
-        TileRect rawRect{rx0,ry0,rx1,ry1,rx0,ry0,rx1,ry1};
-        std::vector<std::uint16_t> raw(supportPixels);
+        TileRect rawRect{r.x0,r.y0,r.x1,r.y1,r.x0,r.y0,r.x1,r.y1};
+        std::vector<std::uint16_t> raw(pixels);
         std::vector<float> gain;
-        if(source_.metadata().hasGainField) gain.resize(supportPixels);
+        if(source_.metadata().hasGainField) gain.resize(pixels);
         const auto rawStatus=source_.readRawTile(
             rawRect,
             raw.data(),
@@ -365,58 +355,17 @@ public:
             source_.metadata().hasGainField?gain.size():0u);
         if(!rawStatus) return rawStatus;
 
-        // Same conservative support rule as OutputChannelAuthority v0.84:
-        // any saturated CFA sample in the reconstruction support marks the
-        // dense RGB output pixel CENSORED for downstream colour authority.
-        // This map never modifies scratch RGB/luminance/detail samples.
-        const int prefixW=rw+1;
-        std::vector<std::uint32_t> saturatedPrefix(
-            static_cast<std::size_t>(prefixW)*static_cast<std::size_t>(rh+1),0u);
-        for(int yy=0;yy<rh;++yy) {
-            std::uint32_t rowCount=0u;
-            for(int xx=0;xx<rw;++xx) {
-                const std::size_t ri=
-                    static_cast<std::size_t>(yy)*static_cast<std::size_t>(rw)+
-                    static_cast<std::size_t>(xx);
-                rowCount += static_cast<float>(raw[ri])>=source_.metadata().whiteLevel?1u:0u;
-                saturatedPrefix[
-                    static_cast<std::size_t>(yy+1)*static_cast<std::size_t>(prefixW)+
-                    static_cast<std::size_t>(xx+1)] =
-                    saturatedPrefix[
-                        static_cast<std::size_t>(yy)*static_cast<std::size_t>(prefixW)+
-                        static_cast<std::size_t>(xx+1)] + rowCount;
-            }
-        }
-        const auto saturated_count = [&](int ax0,int ay0,int ax1,int ay1) {
-            const int lx0=ax0-rx0;
-            const int ly0=ay0-ry0;
-            const int lx1=ax1-rx0;
-            const int ly1=ay1-ry0;
-            return
-                saturatedPrefix[
-                    static_cast<std::size_t>(ly1)*static_cast<std::size_t>(prefixW)+lx1] -
-                saturatedPrefix[
-                    static_cast<std::size_t>(ly0)*static_cast<std::size_t>(prefixW)+lx1] -
-                saturatedPrefix[
-                    static_cast<std::size_t>(ly1)*static_cast<std::size_t>(prefixW)+lx0] +
-                saturatedPrefix[
-                    static_cast<std::size_t>(ly0)*static_cast<std::size_t>(prefixW)+lx0];
-        };
-
         std::vector<std::uint8_t> maskRow(static_cast<std::size_t>(w));
         for(int y=0;y<h;++y) {
-            const int sy=r.y0+y;
             for(int x=0;x<w;++x) {
-                const int sx=r.x0+x;
-                const int ax0=std::max(0,sx-radius);
-                const int ay0=std::max(0,sy-radius);
-                const int ax1=std::min(sourceWidth_,sx+radius+1);
-                const int ay1=std::min(sourceHeight_,sy+radius+1);
+                const std::size_t local=
+                    static_cast<std::size_t>(y)*static_cast<std::size_t>(w)+
+                    static_cast<std::size_t>(x);
                 maskRow[static_cast<std::size_t>(x)] =
-                    saturated_count(ax0,ay0,ax1,ay1)>0u?1u:0u;
+                    static_cast<float>(raw[local])>=source_.metadata().whiteLevel?1u:0u;
             }
             const std::uint64_t pixelIndex=
-                static_cast<std::uint64_t>(sy)*sourceWidth_+r.x0;
+                static_cast<std::uint64_t>(r.y0+y)*sourceWidth_+r.x0;
             if(!pwrite_all(
                     fd_,
                     scratchMaskOffset_+pixelIndex,
@@ -594,7 +543,8 @@ private:
         const int localFieldRadius=naturalLightFieldEnabled
             ? std::clamp(std::min(sourceWidth_,sourceHeight_)/128,12,32)
             : 3;
-        const int supportHalo=std::max(3,localFieldRadius);
+        const int supportHalo=
+            std::max({3,localFieldRadius,reconstructionSupportRadius_});
         const int sx0=std::max(0,x0-supportHalo);
         const int sy0=std::max(0,y0-supportHalo);
         const int sx1=std::min(sourceWidth_,x1+supportHalo);
@@ -608,6 +558,52 @@ private:
         if(!st) return st;
         st=readMaskRect(sx0,sy0,sx1,sy1,supportMask);
         if(!st) return st;
+
+        // Highlight chroma authority is stricter than the historical shared
+        // centre-sample mask. Build a local integral image from that unchanged
+        // mask so only the highlight-colour guard sees reconstruction support.
+        // Restoration, HDR and Natural Light field tone continue to consume the
+        // original centre-only `censored` state below.
+        const int highlightIntegralWidth=sw+1;
+        std::vector<std::uint32_t> highlightCensorIntegral(
+            static_cast<std::size_t>(highlightIntegralWidth)*
+            static_cast<std::size_t>(sh+1),0u);
+        for(int hy=0;hy<sh;++hy) {
+            std::uint32_t rowCount=0u;
+            for(int hx=0;hx<sw;++hx) {
+                const std::size_t si=
+                    static_cast<std::size_t>(hy)*static_cast<std::size_t>(sw)+
+                    static_cast<std::size_t>(hx);
+                rowCount += supportMask[si]!=0u?1u:0u;
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(hy+1)*highlightIntegralWidth+
+                    static_cast<std::size_t>(hx+1)] =
+                    highlightCensorIntegral[
+                        static_cast<std::size_t>(hy)*highlightIntegralWidth+
+                        static_cast<std::size_t>(hx+1)] + rowCount;
+            }
+        }
+        const auto highlightCensoredAt=[&](int px,int py) noexcept -> bool {
+            const int radius=reconstructionSupportRadius_;
+            const int ax0=std::max(sx0,px-radius);
+            const int ay0=std::max(sy0,py-radius);
+            const int ax1=std::min(sx1,px+radius+1);
+            const int ay1=std::min(sy1,py+radius+1);
+            const int lx0=ax0-sx0;
+            const int ly0=ay0-sy0;
+            const int lx1=ax1-sx0;
+            const int ly1=ay1-sy0;
+            const std::uint32_t count=
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly1)*highlightIntegralWidth+lx1] -
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly0)*highlightIntegralWidth+lx1] -
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly1)*highlightIntegralWidth+lx0] +
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly0)*highlightIntegralWidth+lx0];
+            return count>0u;
+        };
 
         // Build a deterministic integral image from already-rendered RGB.
         // Censored samples are excluded: this stage is a View/Appearance
@@ -806,6 +802,7 @@ private:
                 const std::size_t si=
                     static_cast<std::size_t>(y-sy0)*sw+static_cast<std::size_t>(x-sx0);
                 const bool censored=supportMask[si]!=0u;
+                const bool highlightCensored=highlightCensoredAt(x,y);
 
                 if((flags_&kFlagHdr)!=0 && hdrPipelineEnabled_ && !censored) {
                     const int qx=x/2-qx0;
@@ -879,7 +876,7 @@ private:
                         r*=sc; g*=sc; b*=sc;
                     }
                     if(!presentation_highlight::apply_near_neutral_rolloff(
-                            r,g,b,censored)) {
+                            r,g,b,highlightCensored)) {
                         return StreamStatus::error(
                             StreamStatusCode::SinkFailed,
                             "full-res presentation highlight chroma roll-off failed");
