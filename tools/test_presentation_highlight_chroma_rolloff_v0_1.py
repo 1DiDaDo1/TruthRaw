@@ -78,15 +78,22 @@ if highlight_def >= highlight_call:
     raise SystemExit("highlight authority boolean is not defined before use")
 
 # Scope the isolation audit to the actual finalizeCoreTile implementation. The
-# file contains other rendering code with similar names, so a global first-match
-# range would create false positives.
+# support-query helper itself is intentionally built before pre-acutance, but the
+# highlight-only boolean and highlight call must not participate in detail/HDR.
 finalize_start = bridge.index('    StreamStatus finalizeCoreTile(')
 preacutance_start = bridge.index('std::vector<float> preAcutance(', finalize_start)
 core_rgb_start = bridge.index('std::vector<std::uint8_t> coreRgb(', preacutance_start)
 final_loop_start = bridge.index('        for(int y=y0;y<y1;++y) {', core_rgb_start)
 pre_final_block = bridge[preacutance_start:final_loop_start]
-if 'highlightCensored' in pre_final_block:
-    raise SystemExit("highlight-only authority leaked into finalizeCoreTile pre-acutance/detail stages")
+for forbidden in (
+    'const bool highlightCensored=',
+    'r,g,b,highlightCensored)',
+    'presentation_highlight::apply_near_neutral_rolloff(',
+):
+    if forbidden in pre_final_block:
+        raise SystemExit(
+            f"highlight-only authority leaked into finalizeCoreTile pre-acutance/detail stages: {forbidden}"
+        )
 
 # OutputChannelAuthority remains the scientific/authority reference for the
 # reconstruction-support censor concept. Presentation merely mirrors its support
