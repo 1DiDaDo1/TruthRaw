@@ -228,6 +228,7 @@ public:
         truthraw::streaming_v0_1::IRawTileSource& source,
         float noiseSigmaAt2Pct,
         presentation_illuminant_warmth::SourceWhitePoint presentationSourceWhite,
+        int reconstructionSupportRadius,
         bool extendedLinearHeadroomInput)
         : fd_(fd),
           flags_(flags),
@@ -235,6 +236,7 @@ public:
           source_(source),
           noiseSigmaAt2Pct_(noiseSigmaAt2Pct),
           presentationSourceWhite_(presentationSourceWhite),
+          reconstructionSupportRadius_(reconstructionSupportRadius),
           extendedLinearHeadroomInput_(extendedLinearHeadroomInput),
           detailMix_(advanced_controls::detail_mix(static_cast<std::uint32_t>(flags))),
           colorFullnessMix_(advanced_controls::color_fullness_mix(static_cast<std::uint32_t>(flags))),
@@ -256,7 +258,8 @@ public:
         bool diagnosticsEnabled) override {
         if (begun_ || fd_ < 0 || width <= 0 || height <= 0 ||
             !valid_orientation(orientation) || diagnosticsEnabled ||
-            !std::isfinite(noiseSigmaAt2Pct_) || noiseSigmaAt2Pct_ < 0.0f) {
+            !std::isfinite(noiseSigmaAt2Pct_) || noiseSigmaAt2Pct_ < 0.0f ||
+            reconstructionSupportRadius_ < 0) {
             return StreamStatus::error(
                 StreamStatusCode::InvalidArgument,
                 "invalid full-res staged begin frame");
@@ -340,10 +343,20 @@ public:
             }
         }
 
-        TileRect rawRect{r.x0,r.y0,r.x1,r.y1,r.x0,r.y0,r.x1,r.y1};
-        std::vector<std::uint16_t> raw(pixels);
+        const int radius=reconstructionSupportRadius_;
+        const int rx0=std::max(0,r.x0-radius);
+        const int ry0=std::max(0,r.y0-radius);
+        const int rx1=std::min(sourceWidth_,r.x1+radius);
+        const int ry1=std::min(sourceHeight_,r.y1+radius);
+        const int rw=rx1-rx0;
+        const int rh=ry1-ry0;
+        const std::size_t supportPixels=
+            static_cast<std::size_t>(rw)*static_cast<std::size_t>(rh);
+
+        TileRect rawRect{rx0,ry0,rx1,ry1,rx0,ry0,rx1,ry1};
+        std::vector<std::uint16_t> raw(supportPixels);
         std::vector<float> gain;
-        if(source_.metadata().hasGainField) gain.resize(pixels);
+        if(source_.metadata().hasGainField) gain.resize(supportPixels);
         const auto rawStatus=source_.readRawTile(
             rawRect,
             raw.data(),
@@ -352,17 +365,58 @@ public:
             source_.metadata().hasGainField?gain.size():0u);
         if(!rawStatus) return rawStatus;
 
+        // Same conservative support rule as OutputChannelAuthority v0.84:
+        // any saturated CFA sample in the reconstruction support marks the
+        // dense RGB output pixel CENSORED for downstream colour authority.
+        // This map never modifies scratch RGB/luminance/detail samples.
+        const int prefixW=rw+1;
+        std::vector<std::uint32_t> saturatedPrefix(
+            static_cast<std::size_t>(prefixW)*static_cast<std::size_t>(rh+1),0u);
+        for(int yy=0;yy<rh;++yy) {
+            std::uint32_t rowCount=0u;
+            for(int xx=0;xx<rw;++xx) {
+                const std::size_t ri=
+                    static_cast<std::size_t>(yy)*static_cast<std::size_t>(rw)+
+                    static_cast<std::size_t>(xx);
+                rowCount += static_cast<float>(raw[ri])>=source_.metadata().whiteLevel?1u:0u;
+                saturatedPrefix[
+                    static_cast<std::size_t>(yy+1)*static_cast<std::size_t>(prefixW)+
+                    static_cast<std::size_t>(xx+1)] =
+                    saturatedPrefix[
+                        static_cast<std::size_t>(yy)*static_cast<std::size_t>(prefixW)+
+                        static_cast<std::size_t>(xx+1)] + rowCount;
+            }
+        }
+        const auto saturated_count = [&](int ax0,int ay0,int ax1,int ay1) {
+            const int lx0=ax0-rx0;
+            const int ly0=ay0-ry0;
+            const int lx1=ax1-rx0;
+            const int ly1=ay1-ry0;
+            return
+                saturatedPrefix[
+                    static_cast<std::size_t>(ly1)*static_cast<std::size_t>(prefixW)+lx1] -
+                saturatedPrefix[
+                    static_cast<std::size_t>(ly0)*static_cast<std::size_t>(prefixW)+lx1] -
+                saturatedPrefix[
+                    static_cast<std::size_t>(ly1)*static_cast<std::size_t>(prefixW)+lx0] +
+                saturatedPrefix[
+                    static_cast<std::size_t>(ly0)*static_cast<std::size_t>(prefixW)+lx0];
+        };
+
         std::vector<std::uint8_t> maskRow(static_cast<std::size_t>(w));
         for(int y=0;y<h;++y) {
+            const int sy=r.y0+y;
             for(int x=0;x<w;++x) {
-                const std::size_t local=
-                    static_cast<std::size_t>(y)*static_cast<std::size_t>(w)+
-                    static_cast<std::size_t>(x);
+                const int sx=r.x0+x;
+                const int ax0=std::max(0,sx-radius);
+                const int ay0=std::max(0,sy-radius);
+                const int ax1=std::min(sourceWidth_,sx+radius+1);
+                const int ay1=std::min(sourceHeight_,sy+radius+1);
                 maskRow[static_cast<std::size_t>(x)] =
-                    static_cast<float>(raw[local])>=source_.metadata().whiteLevel?1u:0u;
+                    saturated_count(ax0,ay0,ax1,ay1)>0u?1u:0u;
             }
             const std::uint64_t pixelIndex=
-                static_cast<std::uint64_t>(r.y0+y)*sourceWidth_+r.x0;
+                static_cast<std::uint64_t>(sy)*sourceWidth_+r.x0;
             if(!pwrite_all(
                     fd_,
                     scratchMaskOffset_+pixelIndex,
@@ -937,6 +991,7 @@ private:
     truthraw::streaming_v0_1::IRawTileSource& source_;
     float noiseSigmaAt2Pct_=0.0f;
     presentation_illuminant_warmth::SourceWhitePoint presentationSourceWhite_{};
+    int reconstructionSupportRadius_=0;
     bool extendedLinearHeadroomInput_=false;
     float detailMix_=0.0f;
     float colorFullnessMix_=0.0f;
@@ -1291,6 +1346,7 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
         *source,
         noiseSigma,
         presentationSourceWhite,
+        std::max(0,reconstruction->requiredHalo()),
         pureExtendedLinearHeadroomCandidate);
     StreamingResult stream;
     StreamStatus processed;
