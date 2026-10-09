@@ -21,7 +21,8 @@ In a new chat:
 4. distinguish scientific state, physically accepted runtime behavior, CI/build provenance and later documentation-only commits;
 5. never infer scientific promotion from visual quality, Lightroom similarity, a successful JPEG/APK build or user acceptance of Appearance;
 6. **do not reopen the purple/magenta-highlight investigation unless a real regression appears** — the user has accepted the current fix as standard project behavior;
-7. treat the new yellow-TV-subtitle observation as a separate colour/Appearance investigation, not as a highlight regression.
+7. treat the yellow-TV-subtitle observation as a separate colour/Appearance investigation, not as a highlight regression;
+8. for emissive-display colour work, explicitly consider spectral observer mismatch, display-subpixel/CFA sampling and temporal exposure integration before blaming the final output transform.
 
 ### Frozen base
 
@@ -68,6 +69,8 @@ Keep PR #131 draft and unmerged until remaining broader product acceptance is ex
 - SOURCE/SENSOR, WORLD/SCENE and VIEW/OUTPUT spaces remain distinct.
 - Downstream output may never authorize scientific writeback.
 - APK/GCam/computational-RAW behavior may not determine TruthRaw scientific truth, calibration or evidence.
+- A deterministic 3x3 colour transform is not automatically exact human colorimetry for every possible incident spectrum.
+- Self-emitted radiance, reflected/transmitted radiance and unresolved mixtures must not be assumed physically equivalent merely because all can be represented by RGB triplets.
 
 Canonical architecture:
 
@@ -98,15 +101,21 @@ Future decisions must remain synchronized with current primary/standard/universi
 - photography, RAW/CFA imaging and sensor metrology;
 - lens optics, PSF/OTF/MTF, sampling and real optical resolution;
 - radiometry, photometry, artificial illumination, falloff, shadow/penumbra and light transport;
+- **self-emissive light sources, spectral power distributions, spectral rendering, metamerism and camera-vs-human observer mismatch**;
 - camera/color calibration, black/white level, clipping/censoring and gauge/reference theory;
 - human vision, luminance adaptation, contrast, colour appearance and viewing conditions;
 - 3D/projective geometry, camera models, single-view ambiguity, stereo/epipolar geometry and physically based rendering/animation;
+- **rendering-equation separation of emitted radiance from reflected/scattered radiance**;
 - stop-motion, temporal sampling, exposure interval, motion blur and temporal aliasing;
+- **temporal light modulation, PWM, display scanout/refresh, rolling shutter and exposure integration**;
+- **display subpixel lattices interacting with lens PSF, sensor aperture, CFA phase and reconstruction**;
 - architecture, perspective, scale and scene geometry;
 - restoration/conservation: authenticity, minimal intervention, reversibility/retreatability and documentation/provenance;
 - scene-referred versus display-referred pipelines.
 
 Theory may inform models/tests; it may never create MEASURED authority or silently promote UNKNOWN.
+
+For emissive sources, especially displays/LED/OLED/virtual-production style sources, a valid future colour decision must consider that narrowband spectra can be colorimetrically harder for a trichromatic camera than ordinary broadband reflected-light scenes.
 
 ---
 
@@ -421,7 +430,7 @@ It may guide qualitative judgments about warmth, tone, shade transparency and em
 
 ---
 
-## 12. New separate colour target — yellow TV subtitles
+## 12. Separate colour target — yellow TV subtitles
 
 User states the TV subtitles in the supplied scene are **yellow in reality**.
 
@@ -466,13 +475,98 @@ The +90° source/output mapping was verified against the same JPEG: correct mapp
 
 Therefore the visible yellow-to-near-white discrepancy is **not solely created by the final per-channel clamp**; the current chromatic relationship at those coordinates is already B-dominant before that clamp.
 
-However, do not yet call this a color-matrix or reconstruction defect. Exact subtitle-pixel authority is not independently resolved, and an emissive TV introduces possible CFA/subpixel sampling, clipping/censoring, temporal modulation/PWM, exposure-interval and uncertainty effects.
+Do not yet call this a color-matrix or reconstruction defect. Exact subtitle-pixel authority is not independently resolved.
 
 Status:
 
-**NEW SEPARATE APPEARANCE/COLOR INVESTIGATION TARGET — EMISSIVE YELLOW TV SUBTITLES**
+**SEPARATE APPEARANCE/COLOR INVESTIGATION TARGET — EMISSIVE YELLOW TV SUBTITLES**
 
 Do not modify the accepted Censored Chroma Fallback to solve this.
+
+### 12.1 Binding research experience — emissive display spectral / spatial / temporal distinction
+
+Detailed handoff:
+
+`docs/handoff/DRAW_44489_EMISSIVE_DISPLAY_SPECTRAL_SPATIOTEMPORAL_RESEARCH_2026-10-10.md`
+
+This research is now part of the 44489 decision boundary.
+
+#### A. Emission is physically distinct from reflection
+
+In physically based rendering / 3D light transport, outgoing radiance contains an emitted term separate from reflected/scattered light. A TV/OLED/LED pixel is therefore not physically equivalent to a yellow wall or object illuminated by a lamp.
+
+Relevant conceptual distinction:
+
+`self-emitted display radiance -> lens -> sensor`
+
+versus
+
+`illuminant -> surface reflectance/transmission -> lens -> sensor`.
+
+Future D.RAW work must preserve this distinction without relying on semantic object labels such as “TV”.
+
+#### B. Spectral observer mismatch is a serious hypothesis
+
+Display primaries may be spectrally narrow or structured. Three camera CFA channels do not uniquely recover the source SPD, and ordinary camera spectral sensitivities generally do not exactly satisfy the ideal Luther-Ives colorimetric condition.
+
+Therefore:
+
+**a fixed camera-RGB -> XYZ matrix can be valid over its admitted calibration distribution yet still be uncertain or wrong for unusual/narrowband emissive spectra.**
+
+A deterministic finite XYZ/RGB value does not by itself prove exact human chromaticity for such a source.
+
+This is especially relevant because the current yellow subtitle pixels are already strongly B-dominant before final display clamping.
+
+#### C. Display subpixels x optics x CFA is a serious hypothesis
+
+A display has an RGB subpixel lattice. The camera has lens PSF/MTF, pixel aperture and CFA phase. Small high-contrast coloured glyphs can therefore be sampled differently per channel.
+
+Potential chain:
+
+`display RGB subpixels -> lens PSF/MTF -> sensor aperture -> CFA phase -> demosaic/reconstruction -> colour transform`.
+
+This can produce chromatic errors for small yellow letters even if a large uniform yellow field would reproduce much better.
+
+#### D. Stop-motion / exposure integration makes time relevant
+
+A nominally static frame integrates light over a finite exposure interval. Displays and LEDs may use PWM, scanout, refresh cadence, frame-rate control or other temporal modulation. Rolling shutter gives different rows different time windows.
+
+Therefore human vision and one camera RAW need not integrate a displayed yellow stimulus identically.
+
+Do not dismiss temporal modulation merely because the photographed scene is visually static or used in stop-motion.
+
+#### E. Current ranked hypotheses — NOT promoted facts
+
+Research priority only:
+
+1. spectral observer mismatch / narrowband emissive spectrum versus fixed camera->XYZ;
+2. display subpixel lattice x lens PSF x CFA sampling/reconstruction;
+3. display PWM/scanout/refresh x exposure interval/rolling shutter;
+4. clipping/censoring/uncertainty affecting colour formation;
+5. final JPEG/sRGB clamp or accepted highlight Appearance as primary cause — currently much weaker for this PURE case.
+
+No one of these is promoted by this capsule.
+
+#### F. Correct experimental discriminator
+
+A future controlled display target should compare large uniform red/green/blue/yellow/white fields with the same colours as small glyphs/lines, across repeated sealed RAW captures and materially different exposure duration where practical.
+
+Interpretation guide:
+
+- large yellow fails consistently -> spectral/matrix or clipping/authority becomes stronger;
+- large yellow works but small yellow glyphs fail -> display-subpixel/CFA/PSF sampling becomes stronger;
+- repeated captures or exposure-duration changes alter chromaticity -> temporal/PWM/scanout becomes stronger;
+- only high-radiance cases fail -> clipping/censoring/authority becomes stronger.
+
+All conclusions remain observation-bound and must preserve uncertainty.
+
+#### G. Architectural warning
+
+The yellow subtitle may be the first strong real-device example where D.RAW's current trichromatic colour formation is being asked to represent a **narrowband, spatially sampled and temporally modulated emissive source with more colorimetric certainty than the sealed evidence supports**.
+
+This is a **research hypothesis / architecture warning**, not a new scientific state or promotion.
+
+Future architecture may need explicit uncertainty for emissive-like spectral cases, but no semantic “screen detector”, no vendor-specific truth, no generated colour recovery and no scientific writeback are authorized.
 
 ---
 
@@ -487,6 +581,8 @@ The primary scientific reconstruction direction remains:
 Candidate model bank may include constant, affine plane, direction/edge-aware, periodic/texture only if real hold-outs justify, and `NO_SUITABLE_MODEL`.
 
 Genuine target-excluded real CFA hold-outs are mandatory. Record per-channel/aggregate error, bias, uncertainty coverage and scene strata. Visual preference cannot promote a scientific model.
+
+For emissive displays, future reconstruction/color work must additionally avoid treating a trichromatic finite result as stronger spectral/colorimetric knowledge than the observation supports.
 
 ---
 
@@ -517,17 +613,20 @@ Genuine target-excluded real CFA hold-outs are mandatory. Record per-channel/agg
 - broader source/device coverage;
 - positive same-process T5 branch.
 
-### New Appearance investigation
+### New Appearance / colour investigation
 
 - emissive yellow TV subtitle reproduction;
-- source-bound trace must distinguish CFA/support/authority, camera-native colour, XYZ/linear RGB, clipping and display temporal/sampling effects;
-- Lightroom lamp is qualitative appearance reference only.
+- source-bound trace must distinguish CFA/support/authority, camera-native colour, XYZ/linear RGB, clipping and final output;
+- explicitly investigate **spectral observer mismatch**, **display-subpixel x optics x CFA sampling**, and **temporal display modulation x exposure/rolling shutter**;
+- large-field-versus-small-glyph and exposure-duration tests are the preferred discriminators;
+- Lightroom lamp is qualitative Appearance reference only.
 
 ### Research / not promoted
 
 - Evidence-Weighted Local Radiance Reconstruction;
 - local model-bank promotion;
 - scientific denoise/reconstruction authority enrichment;
+- emissive-source spectral/colorimetric uncertainty model;
 - general metric 3D/material/illumination authority;
 - active multi-observation Free World graph authority.
 
@@ -540,7 +639,13 @@ Future chats must not:
 - reopen the accepted purple-highlight loop without a demonstrated regression;
 - weaken/remove the accepted Censored Chroma Fallback when investigating yellow subtitles;
 - add global hue-specific or indiscriminate desaturation hacks;
+- detect a “yellow subtitle” and recolour it by semantic/hue rule;
 - use Lightroom as scientific calibration or ground truth;
+- call a fixed 3x3 camera->XYZ result exact human colour truth for every possible spectrum;
+- infer an emissive source solely because an object looks like a television/screen;
+- ignore display subpixel/CFA/PSF interaction for small emissive glyphs;
+- ignore PWM/scanout/refresh/rolling-shutter exposure integration merely because a scene appears static;
+- turn spectral/spatial/temporal uncertainty into MEASURED authority;
 - add a conventional blur denoiser as the primary scientific solution;
 - call generic AI denoising scientific reconstruction;
 - use preview upscaling as full-res/master output;
@@ -565,6 +670,7 @@ Future chats must not:
 Read before new output/scientific decisions:
 
 - `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md` — this current capsule;
+- `docs/handoff/DRAW_44489_EMISSIVE_DISPLAY_SPECTRAL_SPATIOTEMPORAL_RESEARCH_2026-10-10.md`;
 - `docs/handoff/DRAW_44489_HIGHLIGHT_DEFAULT_AND_APPEARANCE_REFERENCES_2026-10-10.md`;
 - `docs/handoff/DRAW_44489_CENSORED_CHROMA_FALLBACK_V0_1_REAL_DEVICE_TARGETED_PASS_2026-10-09.md`;
 - `docs/handoff/DRAW_44489_CENSORED_CHROMA_FALLBACK_V0_1_CI_CANDIDATE_2026-10-09.md` — historical candidate provenance only;
@@ -593,10 +699,11 @@ When prose and code disagree, exact newer code plus explicit newer evidence wins
 4. Keep Censored Chroma Fallback v0.1 enabled by default in ADVANCED/PRO downstream Appearance.
 5. Do **not** schedule more highlight-specific testing now.
 6. Preserve Warm Illuminant, Natural Light, detail/acutance/HDR and PURE isolation exactly.
-7. If continuing colour work, investigate the yellow-TV-subtitle case separately from highlight handling and first resolve per-pixel authority/support and pre/post colour-stage values.
-8. Use the Lightroom lamp only as a qualitative human Appearance reference.
-9. Preserve Q100/true-4:4:4 codec regression.
-10. Continue scientific reconstruction only with real hold-outs/uncertainty and no promotion without evidence.
+7. If continuing colour work, investigate the yellow-TV-subtitle case separately and in this order: per-pixel authority/support -> camera-native/CFA relation -> large-field versus small-glyph behaviour -> spectral-camera/XYZ plausibility -> repeated/exposure-duration temporal test -> downstream display stages.
+8. Do not implement an emissive-source correction until the experiment distinguishes spectral, spatial, temporal and censoring hypotheses sufficiently to justify one.
+9. Use the Lightroom lamp only as a qualitative human Appearance reference.
+10. Preserve Q100/true-4:4:4 codec regression.
+11. Continue scientific reconstruction only with real hold-outs/uncertainty and no promotion without evidence.
 
 ---
 
@@ -604,6 +711,6 @@ When prose and code disagree, exact newer code plus explicit newer evidence wins
 
 The correct continuation point is now:
 
-**sealed scientific source/core unchanged -> source-agnostic evidence reading -> full-resolution shared presentation RGB24 sibling -> accepted Warm Illuminant behavior -> accepted authority-bound Censored Chroma Fallback v0.1 as standard ADVANCED/PRO Appearance behavior -> purple tele highlight considered solved and highlight-specific testing closed for now -> PURE remains isolated -> High-Fidelity Q100/true-4:4:4 stays green -> new separate colour question is user-verified yellow emissive TV subtitles that currently render near white/yellow-white -> Lightroom lamp image is qualitative Appearance reference only, never scientific calibration.**
+**sealed scientific source/core unchanged -> source-agnostic evidence reading -> full-resolution shared presentation RGB24 sibling -> accepted Warm Illuminant behavior -> accepted authority-bound Censored Chroma Fallback v0.1 as standard ADVANCED/PRO Appearance behavior -> purple tele highlight considered solved and highlight-specific testing closed for now -> PURE remains isolated -> High-Fidelity Q100/true-4:4:4 stays green -> new separate colour question is user-verified yellow emissive TV subtitles that currently render near white/yellow-white -> this case must now be treated as a possible spectral-observer + display-subpixel/CFA + temporal-exposure problem before any matrix/Appearance fix is attempted -> Lightroom lamp image is qualitative Appearance reference only, never scientific calibration.**
 
 PR #130 remains frozen. PR #131 remains open, draft and unmerged. No scientific candidate has been promoted and no scientific writeback has been enabled.
