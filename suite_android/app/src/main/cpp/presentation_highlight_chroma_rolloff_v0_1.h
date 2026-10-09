@@ -7,49 +7,44 @@
 
 namespace truthraw::presentation_highlight_chroma_rolloff::v0_1 {
 
-// Presentation-only near-white / censored white-boundary chroma roll-off.
+// Presentation-only support-aware highlight authority observer.
 //
-// Evidence boundary:
-// - never changes sealed source values or Scientific Master;
-// - never claims clipped/censored colour recovery;
-// - only contracts display chroma at the finite white boundary;
-// - is intended for downstream ADVANCED/PRO presentation output only.
+// IMPORTANT 2026-10-09 real-device correction:
+// the previous candidate contracted RGB chroma toward the Rec.709 luminance
+// axis for selected near-white/censored highlights. Real-device tele evidence
+// showed that this did not solve the broad purple highlight failure and could
+// remove colour information that may still be valid. Therefore this stage is
+// now pixel-preserving pass-through.
 //
-// Rationale:
-// a legal in-gamut RGB triplet can still carry unstable chroma very close to
-// display white. A hard/common RGB shoulder preserves that chroma exactly, so
-// a channel imbalance can remain visible as a pink/purple highlight.
+// The useful architecture is retained:
+// - `censored` is the stricter reconstruction-support highlight authority;
+// - it is consumed only at this final highlight-colour boundary;
+// - HDR, detail/acutance, restoration and Natural Light Local Field keep using
+//   their historical centre-sample censor state;
+// - no source/Scientific-Master mutation, evidence creation or promotion.
 //
-// v0.1 originally protected only near-neutral highlights. Real-device evidence
-// later exposed a second failure class: an actually censored bright sample can
-// arrive at presentation with R and B both near the white boundary while G has
-// collapsed far enough that the old minimum-channel gate deliberately skipped
-// it. The true censored chromaticity is not known, so this file still performs
-// no colour recovery. It adds only a bounded APPEARANCE contraction for that
-// specific white-boundary/censored magenta-collapse signature. Non-censored
-// saturated colours remain protected, and censored colours that do not match
-// this signature retain the original behaviour.
+// We continue to count the old candidate signatures diagnostically so a real
+// device can show where a hypothetical contraction would have triggered, while
+// guaranteeing that diagnostics never modify RGB.
 
 constexpr double kLumaR = 0.2126;
 constexpr double kLumaG = 0.7152;
 constexpr double kLumaB = 0.0722;
 
-// Temporary, presentation-only diagnostic counters. These counters observe the
-// already-authorized highlight path but never alter its decisions or pixels.
 struct DiagnosticsSnapshot final {
     std::uint64_t censoredCalls = 0u;
     std::uint64_t censoredGreenStrictMinInput = 0u;
     std::uint64_t censoredWhiteCandidates = 0u;
-    std::uint64_t censoredSevereApplied = 0u;
-    std::uint64_t censoredNearNeutralApplied = 0u;
+    std::uint64_t censoredSevereCandidates = 0u;
+    std::uint64_t censoredNearNeutralCandidates = 0u;
 };
 
 namespace diagnostics_detail {
 inline std::atomic<std::uint64_t> censoredCalls{0u};
 inline std::atomic<std::uint64_t> censoredGreenStrictMinInput{0u};
 inline std::atomic<std::uint64_t> censoredWhiteCandidates{0u};
-inline std::atomic<std::uint64_t> censoredSevereApplied{0u};
-inline std::atomic<std::uint64_t> censoredNearNeutralApplied{0u};
+inline std::atomic<std::uint64_t> censoredSevereCandidates{0u};
+inline std::atomic<std::uint64_t> censoredNearNeutralCandidates{0u};
 } // namespace diagnostics_detail
 
 inline DiagnosticsSnapshot take_diagnostics_snapshot_and_reset() noexcept {
@@ -60,10 +55,10 @@ inline DiagnosticsSnapshot take_diagnostics_snapshot_and_reset() noexcept {
         diagnostics_detail::censoredGreenStrictMinInput.exchange(0u, std::memory_order_relaxed);
     out.censoredWhiteCandidates =
         diagnostics_detail::censoredWhiteCandidates.exchange(0u, std::memory_order_relaxed);
-    out.censoredSevereApplied =
-        diagnostics_detail::censoredSevereApplied.exchange(0u, std::memory_order_relaxed);
-    out.censoredNearNeutralApplied =
-        diagnostics_detail::censoredNearNeutralApplied.exchange(0u, std::memory_order_relaxed);
+    out.censoredSevereCandidates =
+        diagnostics_detail::censoredSevereCandidates.exchange(0u, std::memory_order_relaxed);
+    out.censoredNearNeutralCandidates =
+        diagnostics_detail::censoredNearNeutralCandidates.exchange(0u, std::memory_order_relaxed);
     return out;
 }
 
@@ -78,18 +73,6 @@ inline double luminance709(float r, float g, float b) noexcept {
            kLumaB * static_cast<double>(b);
 }
 
-inline void contract_chroma_preserve_luminance(
-    float& r,
-    float& g,
-    float& b,
-    float y,
-    float amount) noexcept {
-    const float chromaScale = 1.0f - std::clamp(amount, 0.0f, 1.0f);
-    r = y + (r - y) * chromaScale;
-    g = y + (g - y) * chromaScale;
-    b = y + (b - y) * chromaScale;
-}
-
 inline bool apply_near_neutral_rolloff(
     float& r,
     float& g,
@@ -99,6 +82,9 @@ inline bool apply_near_neutral_rolloff(
         return false;
     }
 
+    const float r0 = r;
+    const float g0 = g;
+    const float b0 = b;
     const float mx = std::max(r, std::max(g, b));
     const float mn = std::min(r, std::min(g, b));
     const double yd = luminance709(r, g, b);
@@ -113,66 +99,54 @@ inline bool apply_near_neutral_rolloff(
         }
     }
 
-    // Real-device censored-white regression guard.
-    //
-    // Only a censored sample can enter this extension. The two opponent R/B
-    // channels must both sit at the white boundary, remain mutually balanced,
-    // and G must show the characteristic collapse. This intentionally does not
-    // turn into a blanket highlight desaturator: uncensored magenta, yellow,
-    // cyan and other legitimate saturated colours retain their colour.
+    // Retain detection of the former severe R/B-high, G-low censored-white
+    // signature as telemetry only. No chroma contraction is applied.
     if (censored && mx > 0.92f && y > 0.45f) {
         diagnostics_detail::censoredWhiteCandidates.fetch_add(
             1u, std::memory_order_relaxed);
         const float rbFloor = std::min(r, b);
         const float rbBalance = std::abs(r - b);
         const float greenDeficit = std::max(0.0f, 0.5f * (r + b) - g);
-
         const float whiteGate = smoothstep01((mx - 0.92f) / 0.08f);
         const float rbHighGate = smoothstep01((rbFloor - 0.86f) / 0.14f);
-        const float rbBalanceGate =
-            1.0f - smoothstep01(rbBalance / 0.28f);
-        const float deficitGate =
-            smoothstep01((greenDeficit - 0.10f) / 0.30f);
-        const float lowGreenGate =
-            smoothstep01((0.70f - g) / 0.22f);
-        const float lowLumaGuard =
-            smoothstep01((y - 0.45f) / 0.18f);
-
+        const float rbBalanceGate = 1.0f - smoothstep01(rbBalance / 0.28f);
+        const float deficitGate = smoothstep01((greenDeficit - 0.10f) / 0.30f);
+        const float lowGreenGate = smoothstep01((0.70f - g) / 0.22f);
+        const float lowLumaGuard = smoothstep01((y - 0.45f) / 0.18f);
         const float severeAmount = std::clamp(
             0.95f * whiteGate * rbHighGate * rbBalanceGate *
                 deficitGate * lowGreenGate * lowLumaGuard,
             0.0f,
             0.95f);
         if (severeAmount > 1.0e-7f) {
-            diagnostics_detail::censoredSevereApplied.fetch_add(
+            diagnostics_detail::censoredSevereCandidates.fetch_add(
                 1u, std::memory_order_relaxed);
-            contract_chroma_preserve_luminance(r, g, b, y, severeAmount);
-            return std::isfinite(r) && std::isfinite(g) && std::isfinite(b);
         }
     }
 
-    // Original v0.1 path: leave normal tones and strongly coloured highlights
-    // untouched unless the censored-white signature above was proven.
-    if (mx <= 0.92f || y <= 0.78f || mn <= 0.65f) {
-        return true;
+    // Retain detection of the former near-neutral roll-off as telemetry only.
+    if (mx > 0.92f && y > 0.78f && mn > 0.65f) {
+        const float maxGate = smoothstep01((mx - 0.92f) / 0.08f);
+        const float lumaGate = smoothstep01((y - 0.78f) / 0.18f);
+        const float minGate = smoothstep01((mn - 0.65f) / 0.25f);
+        const float authorityStrength = censored ? 1.0f : 0.60f;
+        const float amount = std::clamp(
+            maxGate * lumaGate * minGate * authorityStrength,
+            0.0f,
+            1.0f);
+        if (censored && amount > 1.0e-7f) {
+            diagnostics_detail::censoredNearNeutralCandidates.fetch_add(
+                1u, std::memory_order_relaxed);
+        }
     }
 
-    const float maxGate = smoothstep01((mx - 0.92f) / 0.08f);
-    const float lumaGate = smoothstep01((y - 0.78f) / 0.18f);
-    const float minGate = smoothstep01((mn - 0.65f) / 0.25f);
-    const float authorityStrength = censored ? 1.0f : 0.60f;
-    const float amount = std::clamp(
-        maxGate * lumaGate * minGate * authorityStrength,
-        0.0f,
-        1.0f);
-    if (amount <= 1.0e-7f) return true;
-
-    if (censored) {
-        diagnostics_detail::censoredNearNeutralApplied.fetch_add(
-            1u, std::memory_order_relaxed);
-    }
-    contract_chroma_preserve_luminance(r, g, b, y, amount);
-    return std::isfinite(r) && std::isfinite(g) && std::isfinite(b);
+    // Hard regression invariant: this authority/diagnostic boundary must not
+    // alter colour or luminance. Any future colour treatment needs new evidence
+    // and a separate reviewed candidate.
+    r = r0;
+    g = g0;
+    b = b0;
+    return true;
 }
 
 } // namespace truthraw::presentation_highlight_chroma_rolloff::v0_1
