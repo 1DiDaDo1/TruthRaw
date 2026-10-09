@@ -32,6 +32,8 @@ constexpr double kEpsilon = 1e-12;
 struct DiagnosticsSnapshot final {
     std::uint64_t nonnegativeNegativeInput = 0u;
     std::uint64_t nonnegativeGreenNegativeRbPositive = 0u;
+    std::uint64_t nonnegativeGreenBoundaryInputRbPositive = 0u;
+    std::uint64_t nonnegativeGreenBoundaryInputRbHigh = 0u;
     std::uint64_t nonnegativeGreenBoundaryAfterFit = 0u;
     std::uint64_t unitCalls = 0u;
     std::uint64_t unitOutOfRangeInput = 0u;
@@ -41,6 +43,8 @@ struct DiagnosticsSnapshot final {
 namespace diagnostics_detail {
 inline std::atomic<std::uint64_t> nonnegativeNegativeInput{0u};
 inline std::atomic<std::uint64_t> nonnegativeGreenNegativeRbPositive{0u};
+inline std::atomic<std::uint64_t> nonnegativeGreenBoundaryInputRbPositive{0u};
+inline std::atomic<std::uint64_t> nonnegativeGreenBoundaryInputRbHigh{0u};
 inline std::atomic<std::uint64_t> nonnegativeGreenBoundaryAfterFit{0u};
 inline std::atomic<std::uint64_t> unitCalls{0u};
 inline std::atomic<std::uint64_t> unitOutOfRangeInput{0u};
@@ -53,6 +57,10 @@ inline DiagnosticsSnapshot take_diagnostics_snapshot_and_reset() noexcept {
         diagnostics_detail::nonnegativeNegativeInput.exchange(0u, std::memory_order_relaxed);
     out.nonnegativeGreenNegativeRbPositive =
         diagnostics_detail::nonnegativeGreenNegativeRbPositive.exchange(0u, std::memory_order_relaxed);
+    out.nonnegativeGreenBoundaryInputRbPositive =
+        diagnostics_detail::nonnegativeGreenBoundaryInputRbPositive.exchange(0u, std::memory_order_relaxed);
+    out.nonnegativeGreenBoundaryInputRbHigh =
+        diagnostics_detail::nonnegativeGreenBoundaryInputRbHigh.exchange(0u, std::memory_order_relaxed);
     out.nonnegativeGreenBoundaryAfterFit =
         diagnostics_detail::nonnegativeGreenBoundaryAfterFit.exchange(0u, std::memory_order_relaxed);
     out.unitCalls =
@@ -82,11 +90,21 @@ inline bool fit_nonnegative_preserve_luminance(
 
     const bool negativeInput = r < 0.0f || g < 0.0f || b < 0.0f;
     const bool greenNegativeRbPositive = g < 0.0f && r > 0.0f && b > 0.0f;
+    const bool greenBoundaryRbPositive = g <= 1.0e-7f && r > 0.0f && b > 0.0f;
+    const bool greenBoundaryRbHigh = g <= 1.0e-7f && r >= 0.75f && b >= 0.75f;
     if (negativeInput) {
         diagnostics_detail::nonnegativeNegativeInput.fetch_add(1u, std::memory_order_relaxed);
     }
     if (greenNegativeRbPositive) {
         diagnostics_detail::nonnegativeGreenNegativeRbPositive.fetch_add(
+            1u, std::memory_order_relaxed);
+    }
+    if (greenBoundaryRbPositive) {
+        diagnostics_detail::nonnegativeGreenBoundaryInputRbPositive.fetch_add(
+            1u, std::memory_order_relaxed);
+    }
+    if (greenBoundaryRbHigh) {
+        diagnostics_detail::nonnegativeGreenBoundaryInputRbHigh.fetch_add(
             1u, std::memory_order_relaxed);
     }
 
