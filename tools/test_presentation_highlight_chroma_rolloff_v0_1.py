@@ -6,6 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CPP_DIR = ROOT / "suite_android" / "app" / "src" / "main" / "cpp"
 JAVA_DIR = ROOT / "suite_android" / "app" / "src" / "main" / "java" / "com" / "truthraw" / "adaptiveui"
 BRIDGE = CPP_DIR / "photo_export_bridge.cpp"
+AUTHORITY = CPP_DIR / "output_channel_authority_v0_84.cpp"
 HEADER = CPP_DIR / "presentation_highlight_chroma_rolloff_v0_1.h"
 PREVIEW = JAVA_DIR / "PreJpegRgb24PreviewRendererV01.kt"
 ADVANCED = JAVA_DIR / "TruthRawAdvanced.kt"
@@ -26,6 +27,63 @@ call_pos = bridge.index('presentation_highlight::apply_near_neutral_rolloff(', e
 gamut_pos = bridge.index('presentation_gamut::fit_unit_rgb_preserve_luminance', call_pos)
 if not (pure_pos < map_pos < else_pos < call_pos < gamut_pos):
     raise SystemExit("runtime guard is not isolated to ADVANCED/PRO presentation branch")
+
+# Presentation censor authority must use the same reconstruction-support concept
+# as OutputChannelAuthority v0.84. A centre CFA sample being below WhiteLevel is
+# insufficient when a neighbouring CFA phase used by dense RGB reconstruction
+# is clipped.
+for token in (
+    'int reconstructionSupportRadius_',
+    'const int radius=reconstructionSupportRadius_;',
+    'const auto saturated_count =',
+    'saturated_count(ax0,ay0,ax1,ay1)>0u?1u:0u',
+    'std::max(0,reconstruction->requiredHalo())',
+):
+    if token not in bridge:
+        raise SystemExit(f"support-based presentation censor contract missing: {token}")
+
+old_central_rule = (
+    'static_cast<float>(raw[local])>=source_.metadata().whiteLevel?1u:0u;'
+)
+if old_central_rule in bridge:
+    raise SystemExit("central-only presentation censor rule survived")
+
+mask_start = bridge.index('const int radius=reconstructionSupportRadius_;')
+mask_end = bridge.index('stagedPixels_+=pixels;', mask_start)
+mask_block = bridge[mask_start:mask_end]
+if 'scratchRgbOffset_' in mask_block or 'presentationRgbOffset_' in mask_block:
+    raise SystemExit("support-authority mask stage must not rewrite staged/presentation RGB")
+if 'scratchMaskOffset_' not in mask_block:
+    raise SystemExit("support-authority stage is not writing only the censor mask")
+
+authority = AUTHORITY.read_text(encoding="utf-8")
+for token in (
+    'binding.reconstructionSupportRadius',
+    'const auto saturated_count =',
+    'const bool censored=saturated_count(ax0,ay0,ax1,ay1)>0u;',
+):
+    if token not in authority:
+        raise SystemExit(f"OutputChannelAuthority support rule missing: {token}")
+
+# Tiny semantic lock: a non-clipped centre with a clipped neighbour is not
+# censored at radius 0 but is censored at radius 1. This is the exact failure
+# mode that the old centre-only presentation mask could miss.
+def support_censored(raw, width, height, x, y, radius, white):
+    x0 = max(0, x - radius)
+    y0 = max(0, y - radius)
+    x1 = min(width, x + radius + 1)
+    y1 = min(height, y + radius + 1)
+    return any(
+        raw[yy * width + xx] >= white
+        for yy in range(y0, y1)
+        for xx in range(x0, x1)
+    )
+
+synthetic = [0] * 9
+synthetic[1] = 100
+assert synthetic[4] < 100
+assert not support_censored(synthetic, 3, 3, 1, 1, 0, 100)
+assert support_censored(synthetic, 3, 3, 1, 1, 1, 100)
 
 # The Android UI preview must be a sampled sibling of the exact same native
 # pre-JPEG RGB24 output. It may not fall back to a separately coloured bitmap
@@ -106,9 +164,8 @@ int main() {
         assert(chroma(r2,g2,b2) < chroma(r1,g1,b1));
     }
     {
-        // New physical failure class: once G collapses below the old 0.65
-        // minimum-channel gate, a censored white-boundary R/B pair must still
-        // contract substantially while preserving Rec.709 luminance.
+        // Severe censored R/B-high G-collapse contracts chroma while preserving
+        // Rec.709 luminance: spatial/luminance detail is not flattened here.
         float r=1.0f,g=0.50f,b=1.0f;
         const double y0=h::luminance709(r,g,b);
         const float c0=chroma(r,g,b);
@@ -149,3 +206,5 @@ with tempfile.TemporaryDirectory() as td:
 
 print("PRESENTATION_HIGHLIGHT_CHROMA_ROLLOFF_V01_REGRESSION_PASS")
 print("PRESENTATION_HIGHLIGHT_PREVIEW_FULLRES_SHARED_RGB24_PASS")
+print("PRESENTATION_CENSOR_SUPPORT_AUTHORITY_V01_REGRESSION_PASS")
+print("PRESENTATION_CENSOR_SUPPORT_DETAIL_PRESERVATION_PASS")
