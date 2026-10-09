@@ -41,7 +41,7 @@ for token in patch_required:
 
 pure_pos = text.index("if(extendedLinearHeadroomInput_)")
 else_pos = text.index("                } else {", pure_pos)
-field_pos = text.index("presentation_natural_light_field_tone::apply(", else_pos)
+field_pos = text.index("presentation_natural_light_field::apply(", else_pos)
 warm_pos = text.index("presentation_illuminant_warmth::apply(", else_pos)
 highlight_pos = text.index("presentation_highlight::apply_near_neutral_rolloff(", warm_pos)
 gamut_pos = text.index("presentation_gamut::fit_unit_rgb_preserve_luminance(", highlight_pos)
