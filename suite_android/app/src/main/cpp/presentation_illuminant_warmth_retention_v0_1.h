@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cmath>
+#include <cstdint>
 
 namespace truthraw::presentation_illuminant_warmth_retention::v0_1 {
 
@@ -15,6 +17,36 @@ struct SourceWhitePoint final {
     double y = 0.0;
     double correlatedColorTemperatureK = 0.0;
 };
+
+// Temporary presentation diagnostics. Only bright inputs are counted so the
+// real-device highlight investigation can locate a green-channel collapse
+// without turning this appearance operation into a scientific inference.
+struct DiagnosticsSnapshot final {
+    std::uint64_t brightInputs = 0u;
+    std::uint64_t brightGreenStrictMinInput = 0u;
+    std::uint64_t brightGreenStrictMinOutput = 0u;
+    std::uint64_t brightGreenNegativeOutput = 0u;
+};
+
+namespace diagnostics_detail {
+inline std::atomic<std::uint64_t> brightInputs{0u};
+inline std::atomic<std::uint64_t> brightGreenStrictMinInput{0u};
+inline std::atomic<std::uint64_t> brightGreenStrictMinOutput{0u};
+inline std::atomic<std::uint64_t> brightGreenNegativeOutput{0u};
+} // namespace diagnostics_detail
+
+inline DiagnosticsSnapshot take_diagnostics_snapshot_and_reset() noexcept {
+    DiagnosticsSnapshot out{};
+    out.brightInputs =
+        diagnostics_detail::brightInputs.exchange(0u, std::memory_order_relaxed);
+    out.brightGreenStrictMinInput =
+        diagnostics_detail::brightGreenStrictMinInput.exchange(0u, std::memory_order_relaxed);
+    out.brightGreenStrictMinOutput =
+        diagnostics_detail::brightGreenStrictMinOutput.exchange(0u, std::memory_order_relaxed);
+    out.brightGreenNegativeOutput =
+        diagnostics_detail::brightGreenNegativeOutput.exchange(0u, std::memory_order_relaxed);
+    return out;
+}
 
 inline float smoothstep01(float x) noexcept {
     x = std::clamp(x, 0.0f, 1.0f);
@@ -66,6 +98,15 @@ inline bool apply(
 
     const float strength = retention_strength(white.correlatedColorTemperatureK);
     if (!(strength > 0.0f)) return true;
+
+    const bool diagnoseBright = std::max(r, std::max(g, b)) > 0.90f;
+    if (diagnoseBright) {
+        diagnostics_detail::brightInputs.fetch_add(1u, std::memory_order_relaxed);
+        if (g < r && g < b) {
+            diagnostics_detail::brightGreenStrictMinInput.fetch_add(
+                1u, std::memory_order_relaxed);
+        }
+    }
 
     // Current D.RAW presentation RGB is linear sRGB relative to D50. This is
     // the inverse of the D50->linear-sRGB matrix already used by the renderer.
@@ -152,6 +193,16 @@ inline bool apply(
     r = static_cast<float>(adaptedRgb[0]);
     g = static_cast<float>(adaptedRgb[1]);
     b = static_cast<float>(adaptedRgb[2]);
+    if (diagnoseBright) {
+        if (g < r && g < b) {
+            diagnostics_detail::brightGreenStrictMinOutput.fetch_add(
+                1u, std::memory_order_relaxed);
+        }
+        if (g < 0.0f) {
+            diagnostics_detail::brightGreenNegativeOutput.fetch_add(
+                1u, std::memory_order_relaxed);
+        }
+    }
     return std::isfinite(r) && std::isfinite(g) && std::isfinite(b);
 }
 
