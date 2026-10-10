@@ -1,246 +1,564 @@
-# D.RAW 44489 — current knowledge capsule
+# D.RAW 44489 — current knowledge capsule — 2026-10-10
 
-Purpose: binding recovery state for a new chat. Restore this file plus the live PR #130 state before changing or testing anything.
+Purpose: **binding recovery state for continuation code 44489**. Read this capsule completely before changing runtime code, scientific authority, promotion state, PR state, output contracts, colour/Appearance behavior or APK provenance.
 
 Project: **D.RAW** (`TruthRaw` remains repository/history naming)  
 Repository: `1DiDaDo1/TruthRaw`  
 Continuation code: **44489**  
-Recovery marker: **`[KCR-44489-2026-10-05-FOUNDATION-DEVICE-ROUND]`**  
-Active candidate branch: **`fix/android-exact-gauge-pass-artifact-v03`**  
-Active PR: **#130** — open, draft, not merged; last observed `mergeable=false`  
-Latest detailed device-round handoff: `docs/handoff/DRAW_44489_FOUNDATION_DEVICE_ROUND_2026-10-05.md`
+Permanent motto: **One Free World. Many sealed observations. One evidence law.**
 
-Always resolve live PR #130 HEAD before mutation. Documentation/checker commits may be newer than the exact runtime source used to build a tested APK; never force-reset to a remembered SHA.
+This capsule is synchronized from the current PR #131 capsule at head `8b930e9e0648df4d926da88840e07d600af94893` / capsule blob `a109d056361cf19af64f03a7d980b13d0c8d7074`, and adds the separate Evidence / Uncertainty / Authority research line started from frozen PR #130. It does **not** merge that science into PR #131 and does not alter any previously accepted Appearance or product behavior.
 
-## 1. Permanent scientific law
+---
+
+## 0. Recovery order and exact boundaries
+
+In a new chat:
+
+1. read this capsule completely;
+2. resolve live PR #131 and the separate evidence-authority research branch before changing either line;
+3. preserve frozen PR #130 / `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`;
+4. keep product/Appearance work and new scientific authority research separate until an explicit integration decision;
+5. distinguish scientific state, physically accepted runtime behavior, CI/build provenance and documentation-only commits;
+6. never infer scientific promotion from visual quality, Lightroom similarity, a successful APK/JPEG build or a user-accepted Appearance result;
+7. do not reopen the solved purple/magenta highlight unless a real regression appears;
+8. treat the yellow-TV-subtitle observation as a separate colour-science research target;
+9. preserve Natural Light Local Field Tone v0.1 as a downstream Appearance-only local luminous-field cue, not physical light transport.
+
+### Frozen scientific base
+
+PR #130 exact frozen reference:
+
+`4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`
+
+On that exact SHA:
+
+- Documentation Governance: proven SUCCESS;
+- Research Integrity Guard: no proven run on this exact head;
+- Lifecycle Contract: no proven run on this exact head.
+
+The latter two are neither red nor green on this SHA. Do not mutate/merge PR #130 or project workflow results from another SHA onto it.
+
+### Product / Appearance line
+
+PR #131:
+
+- branch `feat/draw-workspace-free-raster-v01`;
+- exact live head checked 2026-10-10: `8b930e9e0648df4d926da88840e07d600af94893`;
+- open;
+- draft;
+- unmerged;
+- mergeable at last check;
+- base `4e4f358a...`;
+- scope: Workspace / Free Raster / downstream output / Appearance.
+
+Keep PR #131 draft/unmerged until remaining product acceptance is explicit.
+
+### New scientific research line
+
+Branch:
+
+`research/evidence-uncertainty-authority-v01-2026-10-10`
+
+Base:
+
+`4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`
+
+Implementation checkpoint before this capsule update:
+
+`6a3c0653117e996087c191e46a897dd008a69b65`
+
+Purpose: strengthen already-existing source-agnostic research contracts where no new physical capture is needed, while keeping all physically unproven quantities explicitly UNKNOWN/unpromoted.
+
+No part of this branch is scientific promotion. No Scientific Master writeback is enabled.
+
+---
+
+## 1. Permanent scientific law — never relax
 
 - **Seal the evidence, not the thinking.**
 - **MEASURED != CALIBRATED_ESTIMATE != RECONSTRUCTED != CENSORED != UNKNOWN != APPEARANCE.**
-- Representation may become richer than the source; knowledge claims may never become richer than evidence.
+- Representation may become richer than source; knowledge claims may never become richer than evidence.
 - Direct CFA / RAW_SENSOR evidence is immutable and sealed.
-- One physical frame remains one physical frame; derived views never create additional captures.
-- Scientific Master is separate from export/presentation/Appearance.
-- `UNKNOWN` is valid and must never silently become zero, certainty or an estimate.
-- Precision, resolution, reconstruction, registration and performance never create authority.
-- Camera/lens/vendor/container identity may describe provenance or route parsing; it may not select scientific truth or calibration by name alone.
-- AI/ML/neural/generative inference is not allowed as scientific evidence.
-- SOURCE/SENSOR SPACE, WORLD/SCENE SPACE and VIEW/OUTPUT SPACE remain distinct.
-- **One Free World. Many sealed observations. One evidence law.**
+- One physical frame remains one physical frame; derived views do not create captures.
+- Scientific Master is separate from View / Appearance / Export.
+- `UNKNOWN` is valid and must not silently become zero, certainty or estimate.
+- CENSORED finite numbers are not automatically trustworthy chromaticity or radiance.
+- A finite decoded value is not automatically a reliable measurement.
+- A value below WhiteLevel is not automatically proven linear or pre-saturation reliable.
+- Precision, raster density, reconstruction, registration, visual similarity, JPEG quality and performance never create authority.
+- Camera/lens/vendor/container identity may describe provenance/routing/parsing but may not select scientific truth/calibration by name alone.
+- AI/ML/neural/generative inference is not admitted as scientific evidence.
+- SOURCE/SENSOR, WORLD/SCENE and VIEW/OUTPUT remain distinct spaces.
+- Downstream output may never authorize scientific writeback.
+- APK/GCam/computational-RAW behavior may not determine TruthRaw scientific truth, calibration or evidence.
+- A deterministic 3x3 colour transform is not exact human colorimetry for every possible spectrum merely because it is numerically valid.
+- Self-emitted radiance, reflected/transmitted radiance and unresolved mixtures are physically distinct.
+- Missing covariance may not be treated as zero covariance.
+- A covariance matrix used scientifically must be physically valid: symmetric, finite and positive semidefinite within numerical tolerance.
+- Raster upsampling / Free Raster density may never upgrade optical frequency authority.
+- Known exposure duration does not by itself prove per-row rolling-shutter timing, PWM phase or display-refresh relation.
 
 Canonical architecture:
 
-`readable source -> sealed Observation -> structural inspection -> Source Capability Envelope -> calibration/reconstruction with explicit authority -> Scientific Master -> Dynamic Authority + uncertainty -> Observation-bound TruthNegative -> Free World Observation Graph -> Deep Scene / Light Transport -> Room Capsule -> View / Appearance -> free raster projection`
+`Readable source -> sealed Observation -> structural inspection -> Source Capability Envelope -> source-bound calibration/reconstruction with explicit authority -> Scientific Master -> Dynamic Authority + multidimensional uncertainty -> observation-bound scientific representation -> Free World Observation Graph -> Deep Scene / Light Transport -> Room Capsule -> View / Appearance -> Unified Output -> Free Raster / Export`
 
-## 2. Scientific Master / Exact Gauge v0.3
+---
 
-Scientific Master remains the downstream scientific authority source. Exact Gauge Retained Artifact v0.3 is an execution/performance artifact, not a new evidence class.
+## 2. Source-agnostic Free World law
 
-Permanent v0.3 rules:
+Correct direction:
 
-- canonical v0.2 remains complete fallback before candidate semantic start;
-- v0.3 retains exact eligible Float32 gauge bits so the second Stage-2 reread can be avoided without changing the canonical result;
-- after semantic processing starts there is no replay into another scientific route;
-- explicit PassArtifact diagnostics are bound to Scientific-Master SHA-256;
-- route attribution is never inferred from timing or raw-read counts;
-- `candidate_applied=false`;
-- `source_values_modified=false`;
-- `creates_new_evidence=false`;
-- `scientific_writeback_allowed=false`.
-
-Real-device exports in the 2026-10-05 device round proved Exact Gauge v0.3 active for all four tested sources: explicit route attribution `EXACT_GAUGE_RETAINED_V0_3`, hash binding verified, one Stage-2 gauge pass, and 3072 avoided second-pass tile reads per source. Scientific firewalls remained closed.
-
-## 3. T5 / Room Capsule runtime corridor
-
-Existing route:
-
-`Scientific Master -> v0.4 Deep Scene Contribution -> v0.5 Deep Scene Binding -> v0.6 Light Transport -> existing Room Capsule host -> v0.7 Appearance Resolve`
-
-Room Capsule was never a missing architecture. Without admitted geometry/material/illumination world evidence it must be an **exact-preserving bypass**.
-
-`T5CorridorAuditV01` already interprets native corridor telemetry read-only/fail-closed. `TruthNegativeContinuousPreview.Ready` computes that existing audit once. `ResearchPerformanceT5CorridorBindingV01` carries only that precomputed object into Foundation diagnostics by exact source SHA.
-
-Permanent T5 binding rules:
-
-- process-local diagnostic transport only;
-- exact `source_sha256` binding;
-- no cross-observation reuse;
-- no second T5/Room-Capsule evaluation by Foundation;
-- `profile_run_binding_verified=false` unless independently proven — source binding is not equivalent to same-profiler-run evidence;
-- missing/mismatch/contradiction -> `UNKNOWN_FAIL_CLOSED`;
-- no new evidence, no writeback, no candidate application.
-
-## 4. 2026-10-05 real-device Foundation T5 result
-
-Four uploaded real-device exports used the same four source roots:
-
-- `4cb86b5f965b0cdfbe7e272304950dc8a15bda41802bda0ba2c1a85cc1184af5`
-- `f1f5158fad120f3bc1c8e2f5b12b9b55e0a32d9ee27c8c6ae99f90eeac7b1d15`
-- `7bc0db97b50a7ce4a7bafeb8262d9e1bb572bf02fb7b6f22ac6713b87f917d4f`
-- `31b21f4aa15ea54f92b74ae004699186c9f19bc53c2836b5a94114423b964431`
-
-Foundation physically exported `t5_corridor_audit_binding_v0_1` for all four roots. All four correctly reported:
-
-`UNKNOWN_FAIL_CLOSED / NO_PRECOMPUTED_RUNTIME_T5_AUDIT_FOR_SOURCE`
-
-with no recomputation, no cross-source reuse and no writeback/evidence creation.
-
-Conclusion: **the fail-closed branch of T5→Foundation plumbing is physically validated.**
-
-The positive branch `SOURCE_BOUND_PRECOMPUTED_T5_AUDIT_AVAILABLE` remains unproven because the device round did not first execute a matching `TruthNegativeContinuousPreview` T5 audit for those exact sources in the same app process.
-
-Do not “fix” this by running T5 automatically during Foundation export. The next test must precompute T5 intentionally and then export Foundation in the same living process.
-
-## 5. Route-aware tile-read attribution — defect found and repaired
-
-The same device Foundation export revealed a stale diagnostic assumption:
-
-- explicit PassArtifact telemetry correctly said Exact Gauge v0.3 was active;
-- measured RAW source calls were 3072 for 3072 reconstruction calls;
-- Exact Gauge reported one Stage-2 gauge pass and 3072 avoided second-pass reads;
-- old `ScientificMasterTileReadAttribution/0.1` still expected canonical-v0.2 `6144 = 2 × 3072`, so it reported `UNKNOWN_FAIL_CLOSED`.
-
-This was **diagnostic telemetry drift**, not a Scientific-Master or Exact-Gauge scientific failure.
-
-Repair code head:
-
-`6a8e01763ca8eb0f6d371c1588a7fbeb91f0af50`
-
-Only `FreeWorldPerformanceDiagnosticsV01` runtime diagnostic aggregation changed. It now follows:
-
-`explicit hash-bound PassArtifact route -> independent raw-read count reconciliation`
+`sealed readable observation -> inspect what is actually present -> derive only what evidence supports -> calibrated/reconstructed representation with explicit authority/uncertainty -> Free World representation`
 
 Never:
 
-`raw-read count -> route inference`.
+`camera/vendor/lens X -> therefore profile Y is scientific truth`.
 
-Admitted diagnostic outcomes:
+The existing `UniversalIdentityIndependenceV01` remains correct: format/identity may route parsing or acquisition, but cannot choose colour truth, optical truth, denoise strength, geometry truth or scientific model by name alone.
 
-- Exact Gauge v0.3 + one-pass footprint -> `EXACT_GAUGE_V0_3_ONE_PASS_RECONCILED`;
-- explicit canonical v0.2 fallback + two-pass footprint -> `CANONICAL_V0_2_TWO_PASS_RECONCILED`;
-- anything missing/contradictory/inconsistent -> `UNKNOWN_FAIL_CLOSED`.
+Multiple observations may later be linked only as separately sealed observations with preserved provenance.
 
-The historical two-pass expected count remains exportable for comparison, while `expected_active_route_raw_call_count` represents the route actually proven by PassArtifact diagnostics.
+---
 
-No change was made to canonical v0.2, Exact Gauge v0.3 core, sealed CFA, Scientific Master, reconstruction, T5 native runtime or Room Capsule.
+## 3. Interdisciplinary scientific foundation — permanent requirement
 
-## 6. Validation/build identity after tile-attribution repair
+Future decisions must stay synchronized with current primary/standard/university knowledge in:
 
-Route-aware integrity gate:
+- photography, RAW/CFA imaging and sensor metrology;
+- radiometric response / OECF, linearity, saturation and censoring;
+- noise statistics, variance/covariance, uncertainty propagation and coverage calibration;
+- lens optics, PSF/OTF/MTF/SFR, sampling, aliasing and real optical resolution;
+- radiometry, photometry, artificial illumination, falloff, shadow/penumbra and light transport;
+- spectral power distributions, metamerism and camera-vs-human observer mismatch;
+- camera/color calibration, black/white level and gauge/reference theory;
+- human vision, luminance adaptation, contrast, colour appearance and viewing conditions;
+- 3D/projective geometry, camera models, single-view ambiguity, stereo/epipolar geometry and physically based rendering;
+- rendering-equation separation of emitted from reflected/scattered radiance;
+- stop-motion, temporal sampling, exposure interval, motion blur and temporal aliasing;
+- PWM, display scanout/refresh, rolling shutter and exposure integration;
+- display subpixel lattices interacting with lens PSF, sensor aperture, CFA phase and reconstruction;
+- architecture, perspective, scale and scene geometry;
+- conservation/restoration principles: authenticity, minimal intervention, reversibility/retreatability and traceable provenance;
+- scene-referred versus display-referred pipelines.
 
-- workflow: `Scientific Master Tile-Read Attribution v0.1 Integrity`
-- run: `37298021441`
-- head: `665be2419b2d652206c624864edb864f86cdac4b`
-- result: **SUCCESS**
+Theory may define hypotheses, contracts and tests; it may never manufacture MEASURED authority.
 
-Android/APK build of runtime patch:
+---
 
-- workflow: `D.RAW Free World Research APK`
-- run: `37297805632`
-- exact runtime source head: `6a8e01763ca8eb0f6d371c1588a7fbeb91f0af50`
-- result: **SUCCESS**
-- artifact: `DRAW-free-world-research-debug-arm64-stable-signed`
-- artifact ID: `11339942673`
-- artifact ZIP SHA-256: `9eafa0490115f9ca3480beeb380a7dbb8dbe0637ae27a1c02dc565a20486a67c`
-- APK bytes: `8,588,087`
-- APK SHA-256: `8ded03cc38375afc2b41d49b7150ae757dac71039aa94f40f18f60fa23d45141`
-- signing certificate SHA-256: `a6288a4b7e9d18e908eeba37540cd962b687f2290f7e45d7c7ad3390ad61fd44`
-- versionCode: `26100127`
+## 4. Existing scientific foundation — retained
 
-This APK supersedes `90aeee... / bc203694...` specifically for the next Foundation diagnostics test.
+### Scientific Master / Exact Gauge Retained Artifact v0.3
 
-## 7. Same device round: authority/promotion remained closed
+Scientific Master remains the scientific authority source. Exact Gauge v0.3 is execution/performance only.
 
-Field-response repeatability remains descriptive only. Four observations are sufficient to compute metrics, but the export explicitly does **not** prove camera-system response, lens-only vignetting, separated illumination, sensor angular response or optical axis. Calibration remains unpromoted and correction gain unauthorized.
+Permanent rules include exact fallback, source-SHA binding, no semantic replay, no source mutation, `candidate_applied=false`, `creates_new_evidence=false`, `scientific_writeback_allowed=false`.
 
-Observation/world field separation remains read-only. World structure is not yet scientifically registered; camera/lens identity is not used as a calibration key; calibration and correction remain unpromoted.
+Historical telemetry-repair runtime:
 
-Foundation `ScientificPromotionState/0.1` remains:
+`6a8e01763ca8eb0f6d371c1588a7fbeb91f0af50`
+
+### T5 / Room Capsule
+
+Existing route:
+
+`Scientific Master -> v0.4 Deep Scene Contribution -> v0.5 Deep Scene Binding -> v0.6 Light Transport -> Room Capsule host -> v0.7 Appearance Resolve`
+
+Room Capsule does not imply known geometry/material/illumination. Missing/mismatch/contradiction remains `UNKNOWN_FAIL_CLOSED`. No cross-observation reuse and no second hidden T5 evaluation.
+
+### Scientific promotion
+
+Foundation remains:
 
 `NOT_PROMOTED_FAIL_CLOSED / NO_INTERNAL_PROMOTION_DECISION`
 
-World registration, world→source bridge, radiometric response, field response, colour, noise, optical support, temporal relation, geometry, world-space noise separation and scientific-denoise approvals remain false. Validated world→source mapping is not attached. No scientific writeback is allowed.
+Anchor-Constrained Local Reconstruction v0.1 remains NOT PROMOTED. The real tele hold-out showed broader affine coverage but worse aggregate MAE/RMSE/bias than baseline and under-covered uncertainty. The correct continuation remains deterministic local model selection with `NO_SUITABLE_MODEL` as valid output.
 
-## 8. Reconstruction result that must not be rediscovered
+---
 
-Anchor-Constrained Local Reconstruction v0.1 is **NOT PROMOTED**. The real tele hold-out showed worse aggregate MAE/RMSE/bias than baseline on directly comparable points and over-optimistic uncertainty despite better coverage and a small channel-2 benefit. Safety remained closed.
+## 5. NEW — Evidence / Uncertainty / Authority v0.1 implementation
 
-Future reconstruction direction remains deterministic local model selection from structural support, direction, CFA phase and uncertainty. Affine is only one optional model; `no suitable model` is valid.
+The following changes are now implemented on the separate research branch and require no user-supplied physical test merely to exist as conservative contracts/math. They do **not** claim the corresponding physical property is measured.
 
-## 9. Architecture status that remains open
+### 5.1 Covariance validity hardened
 
-- Universal source admission beyond the best-proven DNG path is incomplete.
-- Canonical Source Capability Envelope is not yet fully unified.
-- First-class standalone D.RAWnegative write→close→read→re-import→verify round-trip remains incomplete.
-- Free Raster productization at arbitrary full-resolution output remains partial.
-- Active multi-observation Free World Observation Graph remains the largest incomplete scientific block.
-- True metric 3D geometry is not generally admitted.
-- Material/illumination authority remains research-only without admitted evidence.
-- User-visible authority/uncertainty still trails internal telemetry.
-- Full-resolution/multi-observation memory/runtime scaling still needs physical proof.
+File:
 
-## 10. Exact next device test
+`suite_android/app/src/main/java/com/truthraw/adaptiveui/ScientificNoiseMathV01.kt`
 
-Use only the APK from runtime head `6a8e017...`, SHA-256:
+`validCovariance3x3()` now requires positive-semidefinite covariance, not only finite symmetric entries and non-negative diagonal variances.
 
-`8ded03cc38375afc2b41d49b7150ae757dac71039aa94f40f18f60fa23d45141`
+Implementation law:
 
-### Test A — route-aware tile-read attribution
+- 3x3 real symmetric covariance;
+- all principal 2x2 minors checked;
+- full determinant checked;
+- only tiny scale-relative floating-point negativity is tolerated;
+- materially negative principal minors fail closed;
+- no eigenvalue clipping;
+- no nearest-PSD projection;
+- no synthetic covariance repair.
 
-Run/export Foundation normally for the four sources. For each Exact Gauge v0.3 profile with 3072 reconstruction calls, expect:
+Existing `ColourCovarianceTransportCandidateV01` already calls this validator, so its explicitly supplied RGB covariance inputs inherit the stronger gate automatically.
 
-- `route_attribution = EXACT_GAUGE_RETAINED_V0_3`
-- `tile_read_attribution_v0_1.status = EXACT_GAUGE_V0_3_ONE_PASS_RECONCILED`
-- `expected_active_route_raw_call_count = 3072`
-- `aggregate_source_read_raw_call_count = 3072`
-- `pass_1_raw_call_count = 3072`
-- `pass_2_raw_call_count = 0`
-- `pass_2_raw_calls_avoided = 3072`
-- `raw_call_count_reconciles = true`
-- `optimization_applied = true`
-- all candidate/source/writeback/evidence firewalls remain closed.
+`ScientificNoiseTransportV01` now explicitly records:
 
-### Test B — positive T5→Foundation binding
+- `input_covariance_must_be_positive_semidefinite=true`;
+- `invalid_covariance_may_be_projected_to_psd_silently=false`;
+- `missing_covariance_may_be_assumed_zero=false`;
+- numeric Scientific-Master transport remains **not performed** / unpromoted.
 
-For one exact DNG/source SHA:
+### 5.2 Radiometric Reliability Envelope v0.1
 
-1. keep the app process alive;
-2. execute the source through PRO / D.RAWnegative / `TruthNegativeContinuousPreview` so T5 audit is actually computed and published;
-3. **do not restart or kill the app**;
-4. run/export Foundation including the same exact source;
-5. inspect that observation's `t5_corridor_audit_binding_v0_1`.
+New file:
 
-Expected positive state:
+`suite_android/app/src/main/java/com/truthraw/adaptiveui/RadiometricReliabilityEnvelopeV01.kt`
 
-- `SOURCE_BOUND_PRECOMPUTED_T5_AUDIT_AVAILABLE`
-- exact source SHA match;
-- `source_binding_verified=true`
-- `profile_run_binding_verified=false` remains intentionally false;
-- `t5_corridor_recomputed_by_binding=false`
-- nested T5 audit present;
-- Room Capsule exact-preserving bypass if no admitted world evidence;
-- exposure application count = 1;
-- physical frame count = 1;
-- independent evidence count = 1;
-- `candidate_applied=false`;
-- no new evidence/writeback.
+Purpose: prepare an evidence-bound near-censor / pre-saturation reliability layer without inventing a fixed percentage of WhiteLevel.
 
-If no matching in-process T5 preview was executed, `UNKNOWN_FAIL_CLOSED / NO_PRECOMPUTED_RUNTIME_T5_AUDIT_FOR_SOURCE` remains correct.
+It accepts only numerically admitted `RADIOMETRIC_RESPONSE` calibration-observation records through the existing admission gate and summarizes:
 
-## 11. Promotion/governance boundary
+- observed uncensored support;
+- observed censored support;
+- the bracket between the highest observed uncensored relative exposure and a later censored exposure when such evidence exists.
 
-Do **not** call PR #130 promoted or globally green from the local successful gates above. PR remains draft and wider governance/lifecycle/mergeability state must be re-evaluated before merge. Real-device positive T5 binding is still outstanding.
+Hard limits:
 
-No scientific promotion follows automatically from implementation availability, performance, geometric hypotheses, visual similarity or user-imported records.
+- `white_level_percentage_threshold_used=false`;
+- WhiteLevel alone does not prove reliability;
+- finite value alone does not prove reliability;
+- uncensored value alone does not prove linearity;
+- observed support is not promoted calibration;
+- `pre_saturation_reliability_boundary_proven=false`;
+- `chromatic_reliability_near_saturation_proven=false`;
+- no automatic weighting/correction is applied;
+- no candidate application or writeback.
 
-## 12. Recovery pointers
+`RadiometricResponseAtlasV01` now exposes `PRE_SATURATION_RELIABILITY` as a distinct axis and links the new envelope candidate while keeping response linearity and reliability unproven.
 
-Read in this order after `44489`:
+This is the correct architecture for the earlier lesson: **not literally clipped != proven reliable**.
 
-1. `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md`
-2. `docs/handoff/DRAW_44489_FOUNDATION_DEVICE_ROUND_2026-10-05.md`
-3. `docs/handoff/DRAW_44489_T5_FOUNDATION_TELEMETRY_READY_2026-10-05.md`
-4. `docs/handoff/DRAW_44489_T5_RUNTIME_AUDIT_READY_2026-10-05.md`
-5. `docs/handoff/DRAW_44489_TEST_START_2026-10-04.md`
-6. live PR #130 state
+### 5.3 Temporal authority hardened
 
-Historical negative experiments and older handoffs remain provenance and must not be rewritten away.
+`TemporalFootprintV01` still preserves source-bound exposure duration when present, but now explicitly separates it from:
+
+- readout start/end;
+- rolling-shutter row time;
+- row-resolved integration interval;
+- PWM phase relation;
+- display refresh relation;
+- motion path.
+
+All remain UNKNOWN unless separately proven.
+
+New hard flags remain false:
+
+- `rolling_shutter_readout_proven`;
+- `row_resolved_integration_support_proven`;
+- `pwm_phase_relation_proven`;
+- `display_refresh_relation_proven`;
+- `known_duration_implies_known_row_interval`;
+- `temporal_colour_correction_authorized`.
+
+Thus the yellow-display case cannot be “corrected for PWM” merely from exposure duration.
+
+### 5.4 Optical / spatial authority hardened
+
+`OpticalSupportAtlasV01` now makes the Free Raster boundary explicit:
+
+- `raster_upsampling_may_upgrade_spatial_authority=false`;
+- `unsupported_frequency_is_unknown=true`;
+- measured or source-bound calibrated support is required for a frequency claim;
+- field/focus dependence must remain explicit;
+- channel/wavelength dependence may not be collapsed without evidence;
+- `spatial_authority_map_promoted=false`;
+- inverse optics remains unauthorized.
+
+No SFR/MTF/PSF measurement has been invented or promoted.
+
+### 5.5 Colour spectral-domain authority
+
+New file:
+
+`suite_android/app/src/main/java/com/truthraw/adaptiveui/ColourDomainAuthorityV01.kt`
+
+Hard laws:
+
+- `fixed_3x3_is_universal_spectral_truth=false`;
+- finite RGB does not imply known human chromaticity;
+- numerically valid matrix does not imply calibration-domain validity;
+- source/calibration distribution binding is required;
+- unusual/narrowband emissive spectra may remain UNKNOWN/out-of-domain;
+- missing colour covariance is not zero;
+- semantic “screen” identity cannot define spectrum;
+- no automatic emissive colour correction is authorized.
+
+This captures the yellow-TV research lesson without modifying the accepted highlight fallback or PURE output.
+
+### 5.6 Multidimensional future reconstruction admission
+
+New file:
+
+`suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalObservationAuthorityAdmissionV02.kt`
+
+It does not replace or alter the current v0.1 model bank. Instead it defines the prospective evidence axes a future selector must respect:
+
+- CFA phase;
+- structure support;
+- direction support;
+- censor state;
+- radiometric reliability;
+- reconstruction uncertainty;
+- optical support;
+- temporal support.
+
+Hard laws:
+
+- a missing axis cannot upgrade authority;
+- UNKNOWN is valid;
+- finite neighbour values do not imply reliable support;
+- raster density does not imply optical support;
+- camera/lens/vendor identity cannot fill missing axes;
+- Appearance quality cannot fill missing axes;
+- hold-out target cannot drive pre-reveal admission;
+- `NO_SUITABLE_MODEL` is a valid result;
+- v0.1 selection outcomes are unchanged;
+- no winner is declared or applied.
+
+### 5.7 Free World uncertainty axes expanded
+
+`FreeWorldUncertaintyTransportV01` now explicitly carries separate axes for:
+
+- `RADIOMETRIC_RELIABILITY`;
+- `SPECTRAL_COLOUR_DOMAIN`;
+
+in addition to source measurement, radiometric response, noise/covariance, reconstruction, geometry, field response, colour, optical, temporal, restoration, light transport and Appearance.
+
+Unknown radiometric reliability cannot be treated as linearity, and unknown spectral-domain validity cannot be silently treated as in-domain.
+
+---
+
+## 6. Research CI for this line
+
+Workflow:
+
+`.github/workflows/evidence-uncertainty-authority-v01.yml`
+
+It performs:
+
+1. explicit fail-closed contract/invariant checks;
+2. Android SDK/NDK setup;
+3. full `:app:assembleDebug` compile of the research module.
+
+Historical first run `38054126896` failed in the newly written static invariant harness before Android compilation because one required check was whitespace-sensitive. This is a **test-harness failure, not evidence of a runtime/scientific failure**. The harness was corrected at commit `6a3c0653117e996087c191e46a897dd008a69b65` to normalize whitespace before key/value checks.
+
+Run #2 (`38054258605`) was started automatically from that corrected commit. Do not mark the branch green until that exact run is SUCCESS. If it fails, inspect and repair the actual failing stage before promotion claims. Regardless of CI, no physical calibration property is promoted by this branch.
+
+---
+
+## 7. Product/output architecture — retained from PR #131
+
+Current cable:
+
+`Input -> Universal Intake -> Scientific Core / Scientific Master -> PURE / ADVANCED / PRO -> Unified Output State -> Free Raster / Export`
+
+Full-resolution sibling cable:
+
+`admitted source/scientific cable -> full-resolution presentation render -> exact display-oriented RGB24 sibling -> { Free Raster backing artifact | High-Fidelity JPEG | future sibling outputs }`
+
+Rules:
+
+- UI preview is never full-resolution authority;
+- RGB24 sibling is emitted before JPEG chroma reduction;
+- Free Raster is View/Output/Projection only;
+- no second renderer;
+- immutable source + reversible edit state -> derived output;
+- no overwrite/writeback to source or Scientific Master.
+
+High-Fidelity JPEG 0° tele/PURE physical baseline remains accepted:
+
+- exact runtime `f42cd79ef5060e78c1c6e6bcc1e7d9d94a07d588`;
+- regression lock `e4742bf048a160b65398d93461f9fa3799faa638`;
+- accepted APK SHA-256 `4c6a794b252a43a6bf38405b053e667738e779c0fe014bdbe02713765cfdeb22`;
+- accepted JPEG SHA-256 `7d37016b7dbf6277ce5e196ec778bb33aa927f78009dd07c49b2891f14cd47ff`;
+- Q100 true 4:4:4, strict entropy/decode validation and Lightroom compatibility.
+
+Still separate: +90° under current codec, route/source mismatch lifecycle round, arbitrary scaling/output sizes, truthful ICC/output profile, lossless/high-bit-depth siblings, broader source/device coverage.
+
+---
+
+## 8. Accepted Appearance state — do not regress
+
+### Warm Illuminant Retention v0.1
+
+REAL-DEVICE PASS. Accepted runtime `8ad695bad5be4fbc799fa781d401124e466ca48e`; maximum warm retention remains 18%. PURE remains isolated.
+
+### Natural Light Local Field Tone v0.1
+
+Design intent is binding but physical activation/acceptance provenance remains unresolved.
+
+Purpose: residual local brightness / luminous-field Appearance around illuminated surfaces after Warm Illuminant has handled source-white warmth.
+
+It is APPEARANCE_ONLY, ADVANCED/PRO + Natural Light only, PURE bypass, local rendered luminance context, common RGB gain, censored-center exclusion, deep-black/near-white protection and max +0.14 EV.
+
+It does not prove lamp geometry, material, spectrum, irradiance or light transport.
+
+### Censored Chroma Fallback v0.1
+
+Purple/magenta tele highlight is considered solved by user decision and the fallback is accepted standard ADVANCED/PRO Appearance behavior.
+
+Accepted generated runtime:
+
+`3d33af73436925853b3e59d40bec82733c9234fd`
+
+Physically tested APK SHA-256:
+
+`0d7015caf8481a0c031d25b05707204d60490ba72359cc1cf70c491f30176b10`
+
+Accepted PRO JPEG SHA-256:
+
+`cddef010bdf700f9ef53158106e5ec5dee45894bd07420970c32498056359272`
+
+Matching Scientific Master remained unchanged. Do not reopen this loop without a demonstrated regression and do not modify this fallback to fix the yellow TV case.
+
+---
+
+## 9. Appearance reference and yellow emissive-display research
+
+The user-matched Lightroom lamp remains:
+
+`APPEARANCE_REFERENCE_ONLY / USER_EYE_MATCHED / NON_AUTHORITY`
+
+Never use it as scientific calibration.
+
+The yellow TV subtitle remains a separate research target. Same-capture PURE evidence showed the subtitle already B-dominant before final display clamp; therefore the final clamp alone is not the primary explanation.
+
+Binding hypotheses remain:
+
+1. spectral observer mismatch / narrowband emissive spectrum versus calibration-limited camera->XYZ;
+2. display subpixel lattice x lens PSF x CFA sampling/reconstruction;
+3. display PWM/scanout/refresh x exposure/rolling shutter;
+4. clipping/censoring/radiometric reliability/uncertainty;
+5. final output clamp or accepted highlight Appearance as primary cause is weaker in this PURE case.
+
+Correct future discriminator remains large uniform R/G/B/yellow/white fields versus small glyphs/lines, repeated sealed captures and materially different exposure durations where practical.
+
+No semantic screen detector, hue-specific recolouring or generated colour recovery is authorized.
+
+---
+
+## 10. Current scientific direction after this update
+
+The project should no longer phrase the missing science as “better colour” or “more reconstruction.” The correct authority chain is:
+
+`sealed value -> source-bound black/white/linearity evidence -> radiometric reliability/censor state -> noise + covariance -> CFA/spatial/optical/temporal support -> deterministic reconstruction admission -> colour transform with calibration-domain + covariance -> Scientific Master / observation-bound derived state -> Appearance`
+
+Priority order for future scientifically meaningful work:
+
+1. validate source-bound radiometric linearity / pre-saturation reliability using controlled repeated observations and held-out checks;
+2. close numeric uncertainty/covariance transport through the actual scientific colour/reconstruction cable;
+3. bind local optical support from real SFR/MTF/PSF evidence where available;
+4. bind temporal row/exposure authority only where timing is actually measured/proven;
+5. define calibration-domain support and uncertainty for camera-RGB -> XYZ, especially unusual emissive spectra;
+6. only then allow a future local model selector to consume those axes, with `NO_SUITABLE_MODEL` preserved.
+
+The existing v0.1/v0.3 reconstruction hold-out infrastructure remains research-only and target-blind. Do not alter selector outcomes merely because richer axes now have a prospective contract.
+
+---
+
+## 11. What still requires physical/user evidence
+
+The following may be architecturally prepared but **cannot be scientifically closed by code-only work**:
+
+- actual pre-saturation/linearity boundary for a source;
+- whether a particular finite near-white sample is radiometrically/chromatically reliable;
+- real rolling-shutter row timing when not present as admitted evidence;
+- PWM/refresh phase relation of a display/light source;
+- actual optical SFR/MTF/PSF/focus/field support for an observation unless measured/calibrated and source-bound;
+- spectral calibration-domain validity for unusual/narrowband emitters;
+- promotion/validation of a richer reconstruction selector;
+- Natural Light Local Field physical activation acceptance if no qualifying existing output proves it ran;
+- remaining PR #131 product/device acceptance items.
+
+Until such evidence exists, the corresponding authority stays UNKNOWN / candidate / unpromoted.
+
+---
+
+## 12. Absolute do-not-do list
+
+Future chats must not:
+
+- merge the new research line into PR #131 by assumption;
+- mutate frozen PR #130;
+- reopen the accepted purple-highlight loop without regression;
+- weaken/remove Censored Chroma Fallback to investigate yellow subtitles;
+- add hue-specific/global desaturation or semantic subtitle/screen recolouring;
+- use Lightroom as scientific ground truth;
+- call a fixed 3x3 camera->XYZ exact for every spectrum;
+- infer emissive spectrum from object semantics;
+- ignore display subpixel/CFA/PSF or temporal integration for small emissive glyphs;
+- convert UNKNOWN timing/radiometry/spectral support into certainty;
+- treat finite-but-uncensored as automatically linear/reliable;
+- use an arbitrary fraction of WhiteLevel as scientific near-censor reliability without measured justification;
+- silently repair an invalid covariance into a plausible PSD matrix;
+- assume missing covariance is zero;
+- equate output raster density with optical resolution;
+- authorize deconvolution where optical transfer/noise support is missing;
+- let Appearance confidence upgrade measurement authority;
+- add generic AI denoising/generative reconstruction as scientific inference;
+- create a second renderer;
+- turn Free Raster/JPEG/Appearance into Scientific Master;
+- mutate sealed CFA/source bytes or enable Scientific-Master writeback;
+- select calibration solely by camera/lens/vendor identity;
+- project CI results across different SHAs.
+
+---
+
+## 13. Key recovery records and code
+
+Read before new scientific/output decisions:
+
+- `docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md` — this capsule;
+- `docs/handoff/DRAW_44489_EMISSIVE_DISPLAY_SPECTRAL_SPATIOTEMPORAL_RESEARCH_2026-10-10.md`;
+- `docs/handoff/DRAW_44489_HIGHLIGHT_DEFAULT_AND_APPEARANCE_REFERENCES_2026-10-10.md`;
+- `docs/handoff/DRAW_44489_CENSORED_CHROMA_FALLBACK_V0_1_REAL_DEVICE_TARGETED_PASS_2026-10-09.md`;
+- `docs/handoff/DRAW_44489_PURPLE_HIGHLIGHT_CAUSAL_TRACE_2026-10-09.md`;
+- `docs/handoff/DRAW_44489_HIGH_FIDELITY_JPEG_REAL_DEVICE_PASS_2026-10-08.md`;
+- `docs/handoff/DRAW_44489_WARM_ILLUMINANT_REAL_DEVICE_PASS_2026-10-09.md`;
+- `docs/handoff/DRAW_44489_NATURAL_LIGHT_LOCAL_FIELD_TONE_CANDIDATE_V0_1.md`;
+- `suite_android/app/src/main/java/com/truthraw/adaptiveui/ScientificNoiseMathV01.kt`;
+- `suite_android/app/src/main/java/com/truthraw/adaptiveui/ScientificNoiseTransportV01.kt`;
+- `suite_android/app/src/main/java/com/truthraw/adaptiveui/RadiometricResponseAtlasV01.kt`;
+- `suite_android/app/src/main/java/com/truthraw/adaptiveui/RadiometricReliabilityEnvelopeV01.kt`;
+- `suite_android/app/src/main/java/com/truthraw/adaptiveui/TemporalFootprintV01.kt`;
+- `suite_android/app/src/main/java/com/truthraw/adaptiveui/OpticalSupportAtlasV01.kt`;
+- `suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldUncertaintyTransportV01.kt`;
+- `suite_android/app/src/main/java/com/truthraw/adaptiveui/ColourDomainAuthorityV01.kt`;
+- `suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalObservationAuthorityAdmissionV02.kt`;
+- `.github/workflows/evidence-uncertainty-authority-v01.yml`.
+
+When prose and code disagree, exact newer code plus explicit newer evidence wins for implementation. Permanent evidence law wins over both.
+
+---
+
+## 14. Current execution order
+
+1. Keep PR #130 frozen.
+2. Keep PR #131 product/Appearance line separate, draft and unmerged until its acceptance is resolved.
+3. Finish code-only validation of `research/evidence-uncertainty-authority-v01-2026-10-10`; do not call it green before the exact CI run is SUCCESS.
+4. Preserve accepted Warm Illuminant, Censored Chroma Fallback, Natural Light Local Field design intent, PURE isolation and Q100/true-4:4:4 output behavior.
+5. Do not change existing scientific outputs merely because new authority contracts exist.
+6. Next science requiring measurements should begin with radiometric linearity/pre-saturation reliability, not a presentation colour fix.
+7. Use real uncertainty/covariance and local spatial/optical/temporal support before richer reconstruction selection.
+8. Keep the yellow-TV case as spectral + spatial + temporal + censor/reliability research until experiments discriminate them.
+9. No scientific promotion without independent evidence and appropriate hold-outs.
+
+---
+
+## 15. Final recovery statement
+
+The current continuation is:
+
+**sealed evidence and Scientific Master remain unchanged -> PR #131 continues the accepted downstream Workspace/Free Raster/Appearance product line without new scientific authority -> purple tele highlight remains solved by accepted Censored Chroma Fallback -> Warm Illuminant remains accepted and Natural Light Local Field retains its separate Appearance-only design role -> the yellow emissive-display discrepancy remains an unresolved spectral/spatial/temporal/radiometric-authority question -> a new separate research branch now hardens covariance validity, introduces an evidence-only radiometric reliability envelope, makes temporal and optical authority limits explicit, adds a calibration-domain colour authority contract, expands Free World uncertainty axes and defines multidimensional future model admission -> none of those changes promotes a calibration, changes existing pixels, applies a reconstruction candidate, creates MEASURED evidence or enables Scientific-Master writeback.**
+
+PR #130 remains frozen. PR #131 remains open, draft and unmerged. The evidence-authority research branch remains unpromoted and must be judged by its exact CI/evidence state, not by architectural plausibility.
