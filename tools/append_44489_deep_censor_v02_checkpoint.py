@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from pathlib import Path
 
+# One-shot idempotent capsule checkpoint writer; rerun is a no-op after marker exists.
 p = Path('docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md')
 s = p.read_text()
 marker = '## 22. Deep-Censor Chroma Guard v0.2 detail preservation — CI-GREEN CANDIDATE 2026-10-10'
