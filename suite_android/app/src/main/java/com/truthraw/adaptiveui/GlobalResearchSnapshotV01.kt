@@ -81,6 +81,7 @@ object GlobalResearchSnapshotV01 {
                 "implemented_candidate_runtime",
                 JSONArray()
                     .put("RADIOMETRIC_RESPONSE")
+                    .put("RADIOMETRIC_RELIABILITY_ENVELOPE")
                     .put("NOISE_COMPONENT_DECOMPOSITION")
                     .put("SPARSE_CFA_REPEATED_OBSERVATION_NOISE")
                     .put("NOISE_SPECTRUM_NPS")
@@ -90,10 +91,12 @@ object GlobalResearchSnapshotV01 {
                     .put("NOISE_AWARE_INVERSE_OPTICS")
                     .put("COLOUR_RELATION_MULTI_ILLUMINANT")
                     .put("COLOUR_COVARIANCE_J_C_JT_TRANSPORT")
+                    .put("COLOUR_CALIBRATION_DOMAIN_AUTHORITY")
                     .put("TEMPORAL_SEQUENCE_AND_READOUT")
                     .put("GEOMETRY_DEPTH_VISIBILITY_CANDIDATES")
                     .put("WORLD_SPACE_RESIDUAL_SEPARATION")
                     .put("UNCERTAINTY_WEIGHTED_RECONSTRUCTION")
+                    .put("MULTIDIMENSIONAL_MODEL_AUTHORITY_ADMISSION")
                     .put("TYPED_INTERNAL_PROMOTION_STATE")
                     .put("VALIDATED_WORLD_TO_SOURCE_PROMOTION_BRIDGE")
                     .put("GATED_SCIENTIFIC_DENOISE")
@@ -124,6 +127,14 @@ object GlobalResearchSnapshotV01 {
                 UniversalIdentityIndependenceV01.describe(),
             )
             .put(
+                "colour_domain_authority",
+                ColourDomainAuthorityV01.describe(),
+            )
+            .put(
+                "prospective_model_authority_admission",
+                UniversalObservationAuthorityAdmissionV02.describe(),
+            )
+            .put(
                 "test_status_ui_contract",
                 JSONObject()
                     .put("running_indicator", "GREEN_DOT")
@@ -137,6 +148,10 @@ object GlobalResearchSnapshotV01 {
                 JSONArray()
                     .put("MEASURED_NE_RECONSTRUCTED_NE_APPEARANCE")
                     .put("BLACK_LEVEL_NE_ZERO_LINE")
+                    .put("FINITE_NE_PROVEN_RELIABLE")
+                    .put("WHITE_LEVEL_NE_PROVEN_LINEARITY_BOUNDARY")
+                    .put("MISSING_COVARIANCE_NE_ZERO_COVARIANCE")
+                    .put("COVARIANCE_MUST_BE_POSITIVE_SEMIDEFINITE")
                     .put(
                         "OUTPUT_RASTER_DENSITY_NE_OPTICAL_RESOLUTION",
                     )
@@ -144,6 +159,8 @@ object GlobalResearchSnapshotV01 {
                         "CAMERA_LENS_VENDOR_RAW_IDENTITY_IS_NOT_SCIENTIFIC_MODEL_KEY",
                     )
                     .put("UNKNOWN_RESIDUAL_IS_NOT_AUTOMATICALLY_NOISE")
+                    .put("KNOWN_EXPOSURE_DURATION_NE_KNOWN_ROW_TIMING")
+                    .put("FIXED_3X3_NE_UNIVERSAL_SPECTRAL_TRUTH")
                     .put(
                         "REPRESENTATION_MAY_EXCEED_SOURCE_KNOWLEDGE_CLAIMS_MAY_NOT",
                     ),
