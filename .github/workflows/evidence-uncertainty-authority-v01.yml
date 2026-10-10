@@ -14,6 +14,7 @@ on:
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldUncertaintyTransportV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ColourDomainAuthorityV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalObservationAuthorityAdmissionV02.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/GlobalResearchSnapshotV01.kt'
       - '.github/workflows/evidence-uncertainty-authority-v01.yml'
   workflow_dispatch:
 
@@ -44,6 +45,7 @@ jobs:
               'FreeWorldUncertaintyTransportV01.kt',
               'ColourDomainAuthorityV01.kt',
               'UniversalObservationAuthorityAdmissionV02.kt',
+              'GlobalResearchSnapshotV01.kt',
           ]
           files = {name: (root / name).read_text(encoding='utf-8') for name in names}
           compact = {name: ''.join(text.split()) for name, text in files.items()}
@@ -91,6 +93,11 @@ jobs:
           require_text('UniversalObservationAuthorityAdmissionV02.kt', 'TEMPORAL_SUPPORT')
           require_put('UniversalObservationAuthorityAdmissionV02.kt', 'no_suitable_model_is_valid_result', True)
           require_put('UniversalObservationAuthorityAdmissionV02.kt', 'v01_selection_outcome_changed', False)
+
+          require_text('GlobalResearchSnapshotV01.kt', 'RADIOMETRIC_RELIABILITY_ENVELOPE')
+          require_text('GlobalResearchSnapshotV01.kt', 'COLOUR_CALIBRATION_DOMAIN_AUTHORITY')
+          require_text('GlobalResearchSnapshotV01.kt', 'MULTIDIMENSIONAL_MODEL_AUTHORITY_ADMISSION')
+          require_put('GlobalResearchSnapshotV01.kt', 'contains_photo_measurement', False)
 
           forbidden = re.compile(r'\.put\("(candidate_applied|scientific_writeback_allowed|creates_new_evidence)",true,?\)')
           for name, text in compact.items():
