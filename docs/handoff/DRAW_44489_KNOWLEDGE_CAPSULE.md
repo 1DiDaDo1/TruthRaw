@@ -54,7 +54,7 @@ PR #131:
 
 Keep PR #131 draft/unmerged until remaining product acceptance is explicit.
 
-### New scientific research line
+### Separate scientific research line
 
 Branch:
 
@@ -64,11 +64,22 @@ Base:
 
 `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`
 
-Implementation checkpoint before this capsule update:
+**Exact code/workflow validation checkpoint:**
 
-`6a3c0653117e996087c191e46a897dd008a69b65`
+`a607311c3d77acf20475bfc0a06b77adb635fd73`
 
-Purpose: strengthen already-existing source-agnostic research contracts where no new physical capture is needed, while keeping all physically unproven quantities explicitly UNKNOWN/unpromoted.
+Workflow `D.RAW Evidence Uncertainty Authority v0.1`, run `38054481041`, job `114220019534`: **SUCCESS**.
+
+At that exact SHA:
+
+- fail-closed scientific invariant checks: SUCCESS;
+- Android SDK/NDK setup: SUCCESS;
+- Gradle setup: SUCCESS;
+- full `:app:assembleDebug`: SUCCESS.
+
+Any later commit that only updates this capsule is documentation-only and must not be confused with the exact validated code/workflow SHA above.
+
+Purpose of the branch: strengthen already-existing source-agnostic research contracts where no new physical capture is needed, while keeping all physically unproven quantities explicitly UNKNOWN/unpromoted.
 
 No part of this branch is scientific promotion. No Scientific Master writeback is enabled.
 
@@ -95,7 +106,7 @@ No part of this branch is scientific promotion. No Scientific Master writeback i
 - A deterministic 3x3 colour transform is not exact human colorimetry for every possible spectrum merely because it is numerically valid.
 - Self-emitted radiance, reflected/transmitted radiance and unresolved mixtures are physically distinct.
 - Missing covariance may not be treated as zero covariance.
-- A covariance matrix used scientifically must be physically valid: symmetric, finite and positive semidefinite within numerical tolerance.
+- A covariance matrix used scientifically must be finite, symmetric and positive semidefinite within numerical tolerance.
 - Raster upsampling / Free Raster density may never upgrade optical frequency authority.
 - Known exposure duration does not by itself prove per-row rolling-shutter timing, PWM phase or display-refresh relation.
 
@@ -115,7 +126,7 @@ Never:
 
 `camera/vendor/lens X -> therefore profile Y is scientific truth`.
 
-The existing `UniversalIdentityIndependenceV01` remains correct: format/identity may route parsing or acquisition, but cannot choose colour truth, optical truth, denoise strength, geometry truth or scientific model by name alone.
+`UniversalIdentityIndependenceV01` remains binding: format/identity may route parsing or acquisition, but cannot choose colour truth, optical truth, denoise strength, geometry truth or scientific model by name alone.
 
 Multiple observations may later be linked only as separately sealed observations with preserved provenance.
 
@@ -123,7 +134,7 @@ Multiple observations may later be linked only as separately sealed observations
 
 ## 3. Interdisciplinary scientific foundation — permanent requirement
 
-Future decisions must stay synchronized with current primary/standard/university knowledge in:
+Future decisions must remain synchronized with current primary/standard/university knowledge in:
 
 - photography, RAW/CFA imaging and sensor metrology;
 - radiometric response / OECF, linearity, saturation and censoring;
@@ -176,9 +187,9 @@ Anchor-Constrained Local Reconstruction v0.1 remains NOT PROMOTED. The real tele
 
 ---
 
-## 5. NEW — Evidence / Uncertainty / Authority v0.1 implementation
+## 5. Evidence / Uncertainty / Authority v0.1 — implemented and code-build validated
 
-The following changes are now implemented on the separate research branch and require no user-supplied physical test merely to exist as conservative contracts/math. They do **not** claim the corresponding physical property is measured.
+These changes are implemented on the separate research branch and require no user-supplied physical test merely to exist as conservative contracts/math. They do **not** claim the corresponding physical property is measured.
 
 ### 5.1 Covariance validity hardened
 
@@ -201,12 +212,12 @@ Implementation law:
 
 Existing `ColourCovarianceTransportCandidateV01` already calls this validator, so its explicitly supplied RGB covariance inputs inherit the stronger gate automatically.
 
-`ScientificNoiseTransportV01` now explicitly records:
+`ScientificNoiseTransportV01` now records:
 
 - `input_covariance_must_be_positive_semidefinite=true`;
 - `invalid_covariance_may_be_projected_to_psd_silently=false`;
 - `missing_covariance_may_be_assumed_zero=false`;
-- numeric Scientific-Master transport remains **not performed** / unpromoted.
+- numeric Scientific-Master transport remains not performed / unpromoted.
 
 ### 5.2 Radiometric Reliability Envelope v0.1
 
@@ -220,7 +231,7 @@ It accepts only numerically admitted `RADIOMETRIC_RESPONSE` calibration-observat
 
 - observed uncensored support;
 - observed censored support;
-- the bracket between the highest observed uncensored relative exposure and a later censored exposure when such evidence exists.
+- a bracket between the highest observed uncensored relative exposure and a later censored exposure when such evidence exists.
 
 Hard limits:
 
@@ -236,11 +247,11 @@ Hard limits:
 
 `RadiometricResponseAtlasV01` now exposes `PRE_SATURATION_RELIABILITY` as a distinct axis and links the new envelope candidate while keeping response linearity and reliability unproven.
 
-This is the correct architecture for the earlier lesson: **not literally clipped != proven reliable**.
+Binding lesson: **not literally clipped != proven reliable**.
 
 ### 5.3 Temporal authority hardened
 
-`TemporalFootprintV01` still preserves source-bound exposure duration when present, but now explicitly separates it from:
+`TemporalFootprintV01` still preserves source-bound exposure duration when present, but explicitly separates it from:
 
 - readout start/end;
 - rolling-shutter row time;
@@ -251,7 +262,7 @@ This is the correct architecture for the earlier lesson: **not literally clipped
 
 All remain UNKNOWN unless separately proven.
 
-New hard flags remain false:
+Hard flags remain false:
 
 - `rolling_shutter_readout_proven`;
 - `row_resolved_integration_support_proven`;
@@ -260,7 +271,7 @@ New hard flags remain false:
 - `known_duration_implies_known_row_interval`;
 - `temporal_colour_correction_authorized`.
 
-Thus the yellow-display case cannot be “corrected for PWM” merely from exposure duration.
+Thus the yellow-display case cannot be corrected “for PWM” merely from exposure duration.
 
 ### 5.4 Optical / spatial authority hardened
 
@@ -286,8 +297,8 @@ Hard laws:
 
 - `fixed_3x3_is_universal_spectral_truth=false`;
 - finite RGB does not imply known human chromaticity;
-- numerically valid matrix does not imply calibration-domain validity;
-- source/calibration distribution binding is required;
+- a numerically valid matrix does not imply calibration-domain validity;
+- source/calibration-distribution binding is required;
 - unusual/narrowband emissive spectra may remain UNKNOWN/out-of-domain;
 - missing colour covariance is not zero;
 - semantic “screen” identity cannot define spectrum;
@@ -336,9 +347,32 @@ in addition to source measurement, radiometric response, noise/covariance, recon
 
 Unknown radiometric reliability cannot be treated as linearity, and unknown spectral-domain validity cannot be silently treated as in-domain.
 
+### 5.8 GlobalResearchSnapshot integration
+
+`GlobalResearchSnapshotV01` now exposes the new work as **implementation/navigation state only**, while retaining `status=IMPLEMENTATION_MAP_NOT_PHOTO_EVIDENCE`, `contains_photo_measurement=false`, `creates_new_evidence=false` and `scientific_writeback_allowed=false`.
+
+It now lists:
+
+- `RADIOMETRIC_RELIABILITY_ENVELOPE`;
+- `COLOUR_CALIBRATION_DOMAIN_AUTHORITY`;
+- `MULTIDIMENSIONAL_MODEL_AUTHORITY_ADMISSION`;
+
+and embeds `ColourDomainAuthorityV01.describe()` plus `UniversalObservationAuthorityAdmissionV02.describe()`.
+
+Its permanent-law map now also includes:
+
+- `FINITE_NE_PROVEN_RELIABLE`;
+- `WHITE_LEVEL_NE_PROVEN_LINEARITY_BOUNDARY`;
+- `MISSING_COVARIANCE_NE_ZERO_COVARIANCE`;
+- `COVARIANCE_MUST_BE_POSITIVE_SEMIDEFINITE`;
+- `KNOWN_EXPOSURE_DURATION_NE_KNOWN_ROW_TIMING`;
+- `FIXED_3X3_NE_UNIVERSAL_SPECTRAL_TRUTH`.
+
+This makes the new contracts discoverable in future project audits without wiring them into Scientific Master or changing existing reconstruction/output behavior.
+
 ---
 
-## 6. Research CI for this line
+## 6. Research CI — exact evidence
 
 Workflow:
 
@@ -350,9 +384,19 @@ It performs:
 2. Android SDK/NDK setup;
 3. full `:app:assembleDebug` compile of the research module.
 
-Historical first run `38054126896` failed in the newly written static invariant harness before Android compilation because one required check was whitespace-sensitive. This is a **test-harness failure, not evidence of a runtime/scientific failure**. The harness was corrected at commit `6a3c0653117e996087c191e46a897dd008a69b65` to normalize whitespace before key/value checks.
+Historical harness provenance is retained:
 
-Run #2 (`38054258605`) was started automatically from that corrected commit. Do not mark the branch green until that exact run is SUCCESS. If it fails, inspect and repair the actual failing stage before promotion claims. Regardless of CI, no physical calibration property is promoted by this branch.
+- run `38054126896`: FAILED in the newly written invariant harness before Android compilation because the first checker was whitespace-sensitive;
+- run `38054258605`: FAILED in the invariant harness before Android compilation because the second checker did not accept valid Kotlin trailing commas;
+- these are **test-harness failures**, not runtime/scientific failures, and neither reached Android compilation;
+- run `38054381507` on `2288ed1ea9bb0fff1037aa66d5794249f51deaf4`: SUCCESS, including full Android compile, before the later GlobalResearchSnapshot wiring;
+- final exact code/workflow run `38054481041` on `a607311c3d77acf20475bfc0a06b77adb635fd73`: **SUCCESS**, including invariant checks and full `:app:assembleDebug` after GlobalResearchSnapshot wiring.
+
+Therefore the code-only Evidence / Uncertainty / Authority v0.1 checkpoint is **CI/build green** at `a607311c...`.
+
+This does **not** promote a physical calibration, spectral domain, timing model, optical support map or reconstruction candidate.
+
+Documentation Governance for the preceding capsule synchronization commit `9b6638a8bbf4374116b975b57b5b9c4918b73229` was also SUCCESS. The current capsule-finalization commit is later documentation-only and should have its own Documentation Governance result checked independently.
 
 ---
 
@@ -371,7 +415,7 @@ Rules:
 - UI preview is never full-resolution authority;
 - RGB24 sibling is emitted before JPEG chroma reduction;
 - Free Raster is View/Output/Projection only;
-- no second renderer;
+- do not build a second renderer;
 - immutable source + reversible edit state -> derived output;
 - no overwrite/writeback to source or Scientific Master.
 
@@ -383,7 +427,7 @@ High-Fidelity JPEG 0° tele/PURE physical baseline remains accepted:
 - accepted JPEG SHA-256 `7d37016b7dbf6277ce5e196ec778bb33aa927f78009dd07c49b2891f14cd47ff`;
 - Q100 true 4:4:4, strict entropy/decode validation and Lightroom compatibility.
 
-Still separate: +90° under current codec, route/source mismatch lifecycle round, arbitrary scaling/output sizes, truthful ICC/output profile, lossless/high-bit-depth siblings, broader source/device coverage.
+Still separate: +90° under current codec, route/source mismatch lifecycle round, arbitrary scaling/output sizes, truthful ICC/output profile, lossless/high-bit-depth siblings and broader source/device coverage.
 
 ---
 
@@ -449,7 +493,7 @@ No semantic screen detector, hue-specific recolouring or generated colour recove
 
 ## 10. Current scientific direction after this update
 
-The project should no longer phrase the missing science as “better colour” or “more reconstruction.” The correct authority chain is:
+The missing science must not be framed merely as “better colour” or “more reconstruction.” The correct authority chain is:
 
 `sealed value -> source-bound black/white/linearity evidence -> radiometric reliability/censor state -> noise + covariance -> CFA/spatial/optical/temporal support -> deterministic reconstruction admission -> colour transform with calibration-domain + covariance -> Scientific Master / observation-bound derived state -> Appearance`
 
@@ -535,6 +579,7 @@ Read before new scientific/output decisions:
 - `suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldUncertaintyTransportV01.kt`;
 - `suite_android/app/src/main/java/com/truthraw/adaptiveui/ColourDomainAuthorityV01.kt`;
 - `suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalObservationAuthorityAdmissionV02.kt`;
+- `suite_android/app/src/main/java/com/truthraw/adaptiveui/GlobalResearchSnapshotV01.kt`;
 - `.github/workflows/evidence-uncertainty-authority-v01.yml`.
 
 When prose and code disagree, exact newer code plus explicit newer evidence wins for implementation. Permanent evidence law wins over both.
@@ -545,7 +590,7 @@ When prose and code disagree, exact newer code plus explicit newer evidence wins
 
 1. Keep PR #130 frozen.
 2. Keep PR #131 product/Appearance line separate, draft and unmerged until its acceptance is resolved.
-3. Finish code-only validation of `research/evidence-uncertainty-authority-v01-2026-10-10`; do not call it green before the exact CI run is SUCCESS.
+3. Treat `a607311c3d77acf20475bfc0a06b77adb635fd73` as the exact validated Evidence / Uncertainty / Authority v0.1 code/workflow checkpoint unless a later code diff explicitly supersedes it.
 4. Preserve accepted Warm Illuminant, Censored Chroma Fallback, Natural Light Local Field design intent, PURE isolation and Q100/true-4:4:4 output behavior.
 5. Do not change existing scientific outputs merely because new authority contracts exist.
 6. Next science requiring measurements should begin with radiometric linearity/pre-saturation reliability, not a presentation colour fix.
@@ -559,6 +604,6 @@ When prose and code disagree, exact newer code plus explicit newer evidence wins
 
 The current continuation is:
 
-**sealed evidence and Scientific Master remain unchanged -> PR #131 continues the accepted downstream Workspace/Free Raster/Appearance product line without new scientific authority -> purple tele highlight remains solved by accepted Censored Chroma Fallback -> Warm Illuminant remains accepted and Natural Light Local Field retains its separate Appearance-only design role -> the yellow emissive-display discrepancy remains an unresolved spectral/spatial/temporal/radiometric-authority question -> a new separate research branch now hardens covariance validity, introduces an evidence-only radiometric reliability envelope, makes temporal and optical authority limits explicit, adds a calibration-domain colour authority contract, expands Free World uncertainty axes and defines multidimensional future model admission -> none of those changes promotes a calibration, changes existing pixels, applies a reconstruction candidate, creates MEASURED evidence or enables Scientific-Master writeback.**
+**sealed evidence and Scientific Master remain unchanged -> PR #131 continues the accepted downstream Workspace/Free Raster/Appearance product line without new scientific authority -> purple tele highlight remains solved by accepted Censored Chroma Fallback -> Warm Illuminant remains accepted and Natural Light Local Field retains its separate Appearance-only design role -> the yellow emissive-display discrepancy remains an unresolved spectral/spatial/temporal/radiometric-authority question -> the separate Evidence / Uncertainty / Authority v0.1 research branch is now code/build green at exact head `a607311c3d77acf20475bfc0a06b77adb635fd73` and hardens covariance validity, adds an evidence-only radiometric reliability envelope, makes temporal and optical authority limits explicit, adds calibration-domain colour authority, expands Free World uncertainty axes, defines multidimensional future model admission and exposes those contracts through the non-evidence GlobalResearchSnapshot -> none of those changes promotes a calibration, changes existing pixels, applies a reconstruction candidate, creates MEASURED evidence or enables Scientific-Master writeback.**
 
-PR #130 remains frozen. PR #131 remains open, draft and unmerged. The evidence-authority research branch remains unpromoted and must be judged by its exact CI/evidence state, not by architectural plausibility.
+PR #130 remains frozen. PR #131 remains open, draft and unmerged. The evidence-authority research branch remains scientifically unpromoted despite its green code/build validation.
