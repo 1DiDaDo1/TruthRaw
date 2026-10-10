@@ -1,0 +1,188 @@
+name: D.RAW Free Raster v0.3 Finish APK
+
+on:
+  pull_request:
+    branches:
+      - fix/android-exact-gauge-pass-artifact-v03
+
+permissions:
+  contents: write
+
+jobs:
+  finish:
+    if: github.head_ref == 'feat/draw-workspace-free-raster-v01'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/draw-workspace-free-raster-v01
+          fetch-depth: 0
+
+      - name: Apply deterministic v0.3 patch
+        run: python3 tools/finish_free_raster_v03.py
+
+      - name: Apply presentation gamut fit v0.1
+        run: python3 tools/apply_presentation_gamut_fit_v0_1.py
+
+      - name: Apply ADVANCED/PRO highlight chroma roll-off v0.1
+        run: python3 tools/apply_presentation_highlight_chroma_rolloff_v0_1.py
+
+      - name: Apply ADVANCED/PRO warm illuminant retention v0.1
+        run: python3 tools/apply_presentation_illuminant_warmth_retention_v0_1.py
+
+      - name: Apply ADVANCED/PRO Natural Light local field tone v0.1
+        run: python3 tools/apply_presentation_natural_light_field_tone_v0_1.py
+
+      - name: Apply authority-bound censored chroma fallback v0.1
+        run: python3 tools/apply_presentation_censored_chroma_fallback_v0_1.py
+
+      - name: Apply residual near-censor chroma shoulder v0.1
+        run: python3 tools/apply_presentation_near_censor_chroma_shoulder_v0_1.py
+
+      - name: Apply deep-censor chroma detail guard v0.2
+        run: python3 tools/apply_presentation_deep_censor_chroma_guard_v0_2.py
+
+      - name: Apply PURE Float32 headroom output v0.1
+        run: python3 tools/apply_pure_float_headroom_output_v0_1.py
+
+      - name: Apply explicit presentation headroom wiring v0.2
+        run: python3 tools/apply_presentation_headroom_wiring_v0_2.py
+
+      - name: Verify full-resolution cable
+        run: |
+          grep -F 'UnifiedOutputFreeRasterRuntimeV01.stageRenderedJpeg' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          grep -F 'confirmFromSavedJpegPreview' suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPresentationBridge.kt
+          grep -F 'UnifiedOutputFreeRasterDisplayLoaderV01.load(fullResolution)' suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPresentationBridge.kt
+          grep -F 'D.RAW Free Raster full-resolution' suite_android/app/src/main/java/com/truthraw/adaptiveui/UnifiedOutputPresentationBridge.kt
+          grep -F 'DISPLAY_RASTER_1_TO_1' suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawWorkspaceActivity.kt
+          grep -F 'HighFidelityJpegContract/0.2' suite_android/app/src/main/java/com/truthraw/adaptiveui/HighFidelityJpegContractV01.kt
+          grep -F 'canonicalSosWritten' suite_android/app/src/main/cpp/high_fidelity_jpeg_bridge.cpp
+          grep -F 'D.RAW_GAMUT_DIAG_V01' suite_android/app/src/main/cpp/high_fidelity_jpeg_bridge.cpp
+          grep -F 'early_g_boundary_input_rb_high' suite_android/app/src/main/cpp/high_fidelity_jpeg_bridge.cpp
+          grep -F 'sealed_streaming_module_modified=0' suite_android/app/src/main/cpp/high_fidelity_jpeg_bridge.cpp
+          grep -F 'presentation_gamut_fit_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'fit_nonnegative_preserve_luminance' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'fit_unit_rgb_preserve_luminance' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_highlight_chroma_rolloff_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'apply_near_neutral_rolloff' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_illuminant_warmth_retention_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_illuminant_warmth::apply' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentationSourceWhite.x=illuminationState.whiteX' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_natural_light_field_tone_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_natural_light_field::apply' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'const bool naturalLightFieldEnabled=' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'naturalLightEnabled && !extendedLinearHeadroomInput_;' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_censored_chroma_fallback_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'highlightCensorFractionAt' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_censored_chroma::apply' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_near_censor_chroma_shoulder_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_near_censor_chroma::apply' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_deep_censor_chroma_guard_v0_2.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_deep_censor_chroma::apply' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_headroom_map_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'process_pure_extended_linear_headroom_v0_1' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'PURE_EXTENDED_LINEAR_FLOAT32_HEADROOM_90_100_APPEARANCE_ONLY_V0_1' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentationHeadroomMode = binding.presentationHeadroomMode' suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt
+          grep -F 'PURE_MAP_90_TO_100' suite_android/app/src/main/java/com/truthraw/adaptiveui/PresentationHeadroomModeV01.kt
+
+      - name: Presentation gamut fit regression
+        run: python3 tools/test_presentation_gamut_fit_v0_1.py
+
+      - name: ADVANCED/PRO highlight chroma roll-off regression
+        run: python3 tools/test_presentation_highlight_chroma_rolloff_v0_1.py
+
+      - name: ADVANCED/PRO warm illuminant retention regression
+        run: python3 tools/test_presentation_illuminant_warmth_retention_v0_1.py
+
+      - name: ADVANCED/PRO Natural Light local field tone regression
+        run: python3 tools/test_presentation_natural_light_field_tone_v0_1.py
+
+      - name: Authority-bound censored chroma fallback regression
+        run: python3 tools/test_presentation_censored_chroma_fallback_v0_1.py
+
+      - name: Residual near-censor chroma shoulder regression
+        run: python3 tools/test_presentation_near_censor_chroma_shoulder_v0_1.py
+
+      - name: Deep-censor chroma detail preservation regression v0.2
+        run: python3 tools/test_presentation_deep_censor_chroma_guard_v0_2.py
+
+      - name: PURE Float32 headroom regression
+        run: python3 tools/test_presentation_headroom_map_v0_1.py
+
+      - name: Explicit presentation headroom wiring regression
+        run: python3 tools/test_presentation_headroom_wiring_v0_2.py
+
+      - name: Verify sealed Full-Frame Streaming untouched
+        run: |
+          python3 docs/research/full-frame-streaming-v0.1/tools/verify_integrity_v0_1.py
+
+      - name: Install strict JPEG decoder
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: High-Fidelity JPEG codec regression
+        run: python3 tools/test_high_fidelity_jpeg_codec_v0_1.py
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK and NDK
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Test and build
+        working-directory: suite_android
+        run: gradle --no-daemon :app:testDebugUnitTest :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK=suite_android/app/build/outputs/apk/debug/app-debug.apk
+          test -s "$APK"
+          unzip -l "$APK" | grep -F classes.dex
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'D.RAW_GAMUT_DIAG_V01'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'early_g_boundary_input_rb_high'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'sealed_streaming_module_modified=0'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'pixel_mutation_by_diagnostics=0'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'scientific_writeback=0'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'full-res censored chroma fallback failed'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'full-res near-censor chroma shoulder failed'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'full-res deep-censor chroma guard failed'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - name: Commit validated runtime wiring
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add suite_android/app/src/main/java/com/truthraw/adaptiveui/MainActivity.kt \
+                  suite_android/app/src/main/java/com/truthraw/adaptiveui/TruthRawWorkspaceActivity.kt \
+                  suite_android/app/src/main/java/com/truthraw/adaptiveui/DrawPhotoOutputCableV01.kt \
+                  suite_android/app/src/main/java/com/truthraw/adaptiveui/FullResJpegExport.kt \
+                  suite_android/app/src/main/java/com/truthraw/adaptiveui/PresentationHeadroomModeV01.kt \
+                  suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'Runtime wiring and presentation output guards already applied.'
+          else
+            git commit -m 'android: update downstream presentation output guards'
+            git push origin HEAD:feat/draw-workspace-free-raster-v01
+          fi
+          git rev-parse HEAD
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: draw-free-raster-v03-fullres-candidate-apk
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

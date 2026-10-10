@@ -1,6 +1,7 @@
 #include <jni.h>
 
 #include "adaptive_detail_v47j_adapter.h"
+#include "advanced_render_edit_tile_source_v0_1.h"
 #include "advanced_appearance_controls_v0_1.h"
 #include "dng_color_binding_producer_v0_2.h"
 #include "full_frame_streaming_v0_1.h"
@@ -9,6 +10,16 @@
 #include "output_channel_authority_v0_84.h"
 #include "bound_uncertainty_admission_v0_79.h"
 #include "output_acutance_v0_81.h"
+#include "presentation_gamut_fit_v0_1.h"
+#include "presentation_censored_chroma_fallback_v0_1.h"
+#include "presentation_deep_censor_chroma_guard_v0_2.h"
+#include "presentation_near_censor_chroma_shoulder_v0_1.h"
+#include "presentation_highlight_chroma_rolloff_v0_1.h"
+#include "presentation_illuminant_warmth_retention_v0_1.h"
+#include "presentation_natural_light_field_tone_v0_1.h"
+#include "presentation_censored_illuminant_hue_floor_v0_1.h"
+#include "presentation_natural_light_field_tone_v0_1.h"
+#include "presentation_headroom_map_v0_1.h"
 #include "illumination_state_v0_82.h"
 #include "hdr_authority_v0_83.h"
 #include "raw_source_adapter_bridge_common.h"
@@ -55,6 +66,17 @@ namespace output_channel_authority = truthraw::output_channel_authority::v0_84;
 namespace uncertainty_admission = truthraw::bound_uncertainty_admission::v0_79;
 namespace illumination_state = truthraw::illumination_state::v0_82;
 namespace hdr_authority = truthraw::hdr_authority::v0_83;
+namespace presentation_gamut = truthraw::presentation_gamut_fit::v0_1;
+namespace presentation_censored_chroma = truthraw::presentation_censored_chroma_fallback::v0_1;
+namespace presentation_deep_censor_chroma = truthraw::presentation_deep_censor_chroma_guard::v0_2;
+namespace presentation_near_censor_chroma = truthraw::presentation_near_censor_chroma_shoulder::v0_1;
+namespace presentation_highlight = truthraw::presentation_highlight_chroma_rolloff::v0_1;
+namespace presentation_illuminant_warmth = truthraw::presentation_illuminant_warmth_retention::v0_1;
+namespace presentation_natural_light_field = truthraw::presentation_natural_light_field_tone::v0_1;
+namespace presentation_censored_illuminant_hue_floor = truthraw::presentation_censored_illuminant_hue_floor::v0_1;
+namespace presentation_natural_light_field = truthraw::presentation_natural_light_field_tone::v0_1;
+namespace presentation_headroom = truthraw::presentation_headroom_map::v0_1;
+namespace render_edit = truthraw::advanced_render_edit::v0_1;
 
 constexpr jlong kMagic = 0x54524a50; // TRJP
 constexpr std::size_t kPacketLongs = 48u;
@@ -63,6 +85,8 @@ constexpr jint kFlagHdr = static_cast<jint>(advanced_controls::kFlagHdr);
 constexpr jint kFlagDetail = static_cast<jint>(advanced_controls::kFlagDetail);
 constexpr jint kFlagRestoration = static_cast<jint>(advanced_controls::kFlagRestoration);
 constexpr jint kAllowedFlags = static_cast<jint>(advanced_controls::kAllowedFlags);
+constexpr jint kPresentationHeadroomOff = 0;
+constexpr jint kPresentationHeadroomPureMap90To100 = 1;
 constexpr int kTileCore = 128;
 constexpr int kTileHalo = 16;
 
@@ -212,12 +236,18 @@ public:
         jint flags,
         jint userQuarterTurns,
         truthraw::streaming_v0_1::IRawTileSource& source,
-        float noiseSigmaAt2Pct)
+        float noiseSigmaAt2Pct,
+        presentation_illuminant_warmth::SourceWhitePoint presentationSourceWhite,
+        int reconstructionSupportRadius,
+        bool extendedLinearHeadroomInput)
         : fd_(fd),
           flags_(flags),
           userQuarterTurns_(userQuarterTurns),
           source_(source),
           noiseSigmaAt2Pct_(noiseSigmaAt2Pct),
+          presentationSourceWhite_(presentationSourceWhite),
+          reconstructionSupportRadius_(reconstructionSupportRadius),
+          extendedLinearHeadroomInput_(extendedLinearHeadroomInput),
           detailMix_(advanced_controls::detail_mix(static_cast<std::uint32_t>(flags))),
           colorFullnessMix_(advanced_controls::color_fullness_mix(static_cast<std::uint32_t>(flags))),
           outputProfile_(
@@ -226,7 +256,6 @@ public:
                   : truthraw_v47k::OutputProfile::Neutral) {}
 
     std::size_t residentBytesUpperBound() const override {
-        // Finish-frame uses one bounded core tile plus 3-pixel support halo.
         return 4u * 1024u * 1024u;
     }
 
@@ -239,7 +268,8 @@ public:
         bool diagnosticsEnabled) override {
         if (begun_ || fd_ < 0 || width <= 0 || height <= 0 ||
             !valid_orientation(orientation) || diagnosticsEnabled ||
-            !std::isfinite(noiseSigmaAt2Pct_) || noiseSigmaAt2Pct_ < 0.0f) {
+            !std::isfinite(noiseSigmaAt2Pct_) || noiseSigmaAt2Pct_ < 0.0f ||
+            reconstructionSupportRadius_ < 0) {
             return StreamStatus::error(
                 StreamStatusCode::InvalidArgument,
                 "invalid full-res staged begin frame");
@@ -273,7 +303,9 @@ public:
         const std::uint64_t halfCells=halfW*halfH;
 
         nv21Bytes_=pixels + pixels/2u;
-        scratchRgbOffset_=nv21Bytes_;
+        presentationRgbOffset_=nv21Bytes_;
+        presentationRgbBytes_=pixels*3u;
+        scratchRgbOffset_=presentationRgbOffset_+presentationRgbBytes_;
         scratchRgbBytes_=pixels*3u*sizeof(float);
         scratchGainOffset_=scratchRgbOffset_+scratchRgbBytes_;
         scratchGainBytes_=halfCells*sizeof(float);
@@ -426,12 +458,13 @@ public:
             }
         }
 
+        const std::uint64_t finalBytes=nv21Bytes_+presentationRgbBytes_;
         if(writtenPixels_!=expectedPixels || ::fsync(fd_)!=0 ||
-            ::ftruncate(fd_,static_cast<off_t>(nv21Bytes_))!=0 ||
+            ::ftruncate(fd_,static_cast<off_t>(finalBytes))!=0 ||
             ::fsync(fd_)!=0) {
             return StreamStatus::error(
                 StreamStatusCode::SinkFailed,
-                "full-res NV21 finalization incomplete");
+                "full-res NV21/RGB24 finalization incomplete");
         }
         finished_=true;
         return StreamStatus::ok();
@@ -440,6 +473,7 @@ public:
     int width() const noexcept { return displayWidth_; }
     int height() const noexcept { return displayHeight_; }
     std::uint64_t outputBytes() const noexcept { return nv21Bytes_; }
+    std::uint64_t presentationRgbBytes() const noexcept { return presentationRgbBytes_; }
     std::uint64_t lightAdjustedPixels() const noexcept { return lightAdjustedPixels_; }
     std::uint64_t hdrPositiveGainSamples() const noexcept { return hdrPositiveGainSamples_; }
     std::uint64_t restoredPixels() const noexcept { return restoredPixels_; }
@@ -513,12 +547,20 @@ private:
     StreamStatus finalizeCoreTile(
         int x0,int y0,int x1,int y1,
         const truthraw_v47k::OutputAcutancePlan& plan) {
-        constexpr int kSupportHalo=3;
-        const int sx0=std::max(0,x0-kSupportHalo);
-        const int sy0=std::max(0,y0-kSupportHalo);
-        const int sx1=std::min(sourceWidth_,x1+kSupportHalo);
-        const int sy1=std::min(sourceHeight_,y1+kSupportHalo);
+        const bool naturalLightEnabled=(flags_&kFlagLight)!=0;
+        const bool naturalLightFieldEnabled=
+            naturalLightEnabled && !extendedLinearHeadroomInput_;
+        const int localFieldRadius=naturalLightFieldEnabled
+            ? std::clamp(std::min(sourceWidth_,sourceHeight_)/128,12,32)
+            : 3;
+        const int supportHalo=
+            std::max({3,localFieldRadius,reconstructionSupportRadius_});
+        const int sx0=std::max(0,x0-supportHalo);
+        const int sy0=std::max(0,y0-supportHalo);
+        const int sx1=std::min(sourceWidth_,x1+supportHalo);
+        const int sy1=std::min(sourceHeight_,y1+supportHalo);
         const int sw=sx1-sx0;
+        const int sh=sy1-sy0;
 
         std::vector<float> supportRgb;
         std::vector<std::uint8_t> supportMask;
@@ -526,6 +568,119 @@ private:
         if(!st) return st;
         st=readMaskRect(sx0,sy0,sx1,sy1,supportMask);
         if(!st) return st;
+
+        // Highlight chroma authority is stricter than the historical shared
+        // centre-sample mask. Build a local integral image from that unchanged
+        // mask so only the highlight-colour guard sees reconstruction support.
+        // Restoration, HDR and Natural Light field tone continue to consume the
+        // original centre-only `censored` state below.
+        const int highlightIntegralWidth=sw+1;
+        std::vector<std::uint32_t> highlightCensorIntegral(
+            static_cast<std::size_t>(highlightIntegralWidth)*
+            static_cast<std::size_t>(sh+1),0u);
+        for(int hy=0;hy<sh;++hy) {
+            std::uint32_t rowCount=0u;
+            for(int hx=0;hx<sw;++hx) {
+                const std::size_t si=
+                    static_cast<std::size_t>(hy)*static_cast<std::size_t>(sw)+
+                    static_cast<std::size_t>(hx);
+                rowCount += supportMask[si]!=0u?1u:0u;
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(hy+1)*highlightIntegralWidth+
+                    static_cast<std::size_t>(hx+1)] =
+                    highlightCensorIntegral[
+                        static_cast<std::size_t>(hy)*highlightIntegralWidth+
+                        static_cast<std::size_t>(hx+1)] + rowCount;
+            }
+        }
+        const auto highlightCensoredAt=[&](int px,int py) noexcept -> bool {
+            const int radius=reconstructionSupportRadius_;
+            const int ax0=std::max(sx0,px-radius);
+            const int ay0=std::max(sy0,py-radius);
+            const int ax1=std::min(sx1,px+radius+1);
+            const int ay1=std::min(sy1,py+radius+1);
+            const int lx0=ax0-sx0;
+            const int ly0=ay0-sy0;
+            const int lx1=ax1-sx0;
+            const int ly1=ay1-sy0;
+            const std::uint32_t count=
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly1)*highlightIntegralWidth+lx1] -
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly0)*highlightIntegralWidth+lx1] -
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly1)*highlightIntegralWidth+lx0] +
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly0)*highlightIntegralWidth+lx0];
+            return count>0u;
+        };
+
+        const auto highlightCensorFractionAt=[&](int px,int py) noexcept -> float {
+            const int radius=reconstructionSupportRadius_;
+            const int ax0=std::max(sx0,px-radius);
+            const int ay0=std::max(sy0,py-radius);
+            const int ax1=std::min(sx1,px+radius+1);
+            const int ay1=std::min(sy1,py+radius+1);
+            const int lx0=ax0-sx0;
+            const int ly0=ay0-sy0;
+            const int lx1=ax1-sx0;
+            const int ly1=ay1-sy0;
+            const std::uint32_t count=
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly1)*highlightIntegralWidth+lx1] -
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly0)*highlightIntegralWidth+lx1] -
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly1)*highlightIntegralWidth+lx0] +
+                highlightCensorIntegral[
+                    static_cast<std::size_t>(ly0)*highlightIntegralWidth+lx0];
+            const std::uint32_t area=static_cast<std::uint32_t>(
+                std::max(0,ax1-ax0)*std::max(0,ay1-ay0));
+            if(area==0u) return 0.0f;
+            return std::clamp(
+                static_cast<float>(count)/static_cast<float>(area),0.0f,1.0f);
+        };
+
+        // Build a deterministic integral image from already-rendered RGB.
+        // Censored samples are excluded: this stage is a View/Appearance
+        // neighbourhood cue, never clipped-radiance recovery or light-transport proof.
+        const int fieldIntegralWidth=sw+1;
+        std::vector<double> fieldLumaIntegral;
+        std::vector<std::uint32_t> fieldCountIntegral;
+        if(naturalLightFieldEnabled) {
+            const std::size_t integralCells=
+                static_cast<std::size_t>(fieldIntegralWidth)*static_cast<std::size_t>(sh+1);
+            fieldLumaIntegral.assign(integralCells,0.0);
+            fieldCountIntegral.assign(integralCells,0u);
+            for(int fy=0;fy<sh;++fy) {
+                double rowLuma=0.0;
+                std::uint32_t rowCount=0u;
+                for(int fx=0;fx<sw;++fx) {
+                    const std::size_t si=
+                        static_cast<std::size_t>(fy)*sw+static_cast<std::size_t>(fx);
+                    if(supportMask[si]==0u) {
+                        const float rr=supportRgb[3u*si];
+                        const float gg=supportRgb[3u*si+1u];
+                        const float bb=supportRgb[3u*si+2u];
+                        if(std::isfinite(rr)&&std::isfinite(gg)&&std::isfinite(bb)) {
+                            const float yy=std::clamp(
+                                presentation_natural_light_field::luminance709(rr,gg,bb),
+                                0.0f,1.0f);
+                            rowLuma+=static_cast<double>(yy);
+                            ++rowCount;
+                        }
+                    }
+                    const std::size_t p=
+                        static_cast<std::size_t>(fy+1)*fieldIntegralWidth+
+                        static_cast<std::size_t>(fx+1);
+                    const std::size_t above=
+                        static_cast<std::size_t>(fy)*fieldIntegralWidth+
+                        static_cast<std::size_t>(fx+1);
+                    fieldLumaIntegral[p]=fieldLumaIntegral[above]+rowLuma;
+                    fieldCountIntegral[p]=fieldCountIntegral[above]+rowCount;
+                }
+            }
+        }
 
         const int ax0=std::max(0,x0-1);
         const int ay0=std::max(0,y0-1);
@@ -536,7 +691,6 @@ private:
         std::vector<float> preAcutance(
             3u*static_cast<std::size_t>(aw)*static_cast<std::size_t>(ah));
 
-        const bool naturalLightEnabled=(flags_&kFlagLight)!=0;
         const float exposureGain=advanced_controls::presentation_exposure_gain(
             static_cast<std::uint32_t>(flags_),
             exposure_.anchorsY[2],
@@ -545,14 +699,40 @@ private:
         const float shadowMix=advanced_controls::shadow_recovery_mix(
             static_cast<std::uint32_t>(flags_));
 
+        auto localFieldMeanAt=[&](int px,int py) noexcept -> float {
+            if(!naturalLightFieldEnabled || fieldLumaIntegral.empty() ||
+               fieldCountIntegral.empty()) return 0.0f;
+            const int rx0=std::max(sx0,px-localFieldRadius);
+            const int ry0=std::max(sy0,py-localFieldRadius);
+            const int rx1=std::min(sx1,px+localFieldRadius+1);
+            const int ry1=std::min(sy1,py+localFieldRadius+1);
+            const int ix0=rx0-sx0, iy0=ry0-sy0;
+            const int ix1=rx1-sx0, iy1=ry1-sy0;
+            const auto at=[&](const auto& integral,int ix,int iy) noexcept {
+                return integral[static_cast<std::size_t>(iy)*fieldIntegralWidth+
+                                static_cast<std::size_t>(ix)];
+            };
+            const double sum=
+                at(fieldLumaIntegral,ix1,iy1)-at(fieldLumaIntegral,ix0,iy1)-
+                at(fieldLumaIntegral,ix1,iy0)+at(fieldLumaIntegral,ix0,iy0);
+            const std::uint32_t count=
+                at(fieldCountIntegral,ix1,iy1)-at(fieldCountIntegral,ix0,iy1)-
+                at(fieldCountIntegral,ix1,iy0)+at(fieldCountIntegral,ix0,iy0);
+            if(count==0u || !std::isfinite(sum) || sum<0.0) return 0.0f;
+            const float mean=static_cast<float>(sum/static_cast<double>(count));
+            return std::clamp(mean*exposureGain,0.0f,1.0f);
+        };
+
         for(int y=ay0;y<ay1;++y) {
             for(int x=ax0;x<ax1;++x) {
                 const std::size_t si=
                     static_cast<std::size_t>(y-sy0)*sw+static_cast<std::size_t>(x-sx0);
-                float r=std::max(supportRgb[3u*si],0.0f);
-                float g=std::max(supportRgb[3u*si+1u],0.0f);
-                float b=std::max(supportRgb[3u*si+2u],0.0f);
-                if(!std::isfinite(r)||!std::isfinite(g)||!std::isfinite(b)) r=g=b=0.0f;
+                float r=supportRgb[3u*si];
+                float g=supportRgb[3u*si+1u];
+                float b=supportRgb[3u*si+2u];
+                if(!presentation_gamut::fit_nonnegative_preserve_luminance(r,g,b)) {
+                    r=g=b=0.0f;
+                }
                 const bool censored=supportMask[si]!=0u;
 
                 bool restored=false;
@@ -658,6 +838,8 @@ private:
                 const std::size_t si=
                     static_cast<std::size_t>(y-sy0)*sw+static_cast<std::size_t>(x-sx0);
                 const bool censored=supportMask[si]!=0u;
+                const bool highlightCensored=highlightCensoredAt(x,y);
+                const float highlightCensorFraction=highlightCensorFractionAt(x,y);
 
                 if((flags_&kFlagHdr)!=0 && hdrPipelineEnabled_ && !censored) {
                     const int qx=x/2-qx0;
@@ -692,12 +874,98 @@ private:
                         "full-res color-fullness transform failed");
                 }
 
-                const float mx=std::max(r,std::max(g,b));
-                if(mx>0.92f) {
-                    const float shoulder=
-                        0.92f+0.08f*(1.0f-std::exp(-3.0f*(mx-0.92f)));
-                    const float sc=shoulder/std::max(mx,1e-8f);
-                    r*=sc; g*=sc; b*=sc;
+                if(extendedLinearHeadroomInput_) {
+                    // The PURE headroom candidate arrives here as the existing
+                    // extended-linear Float32 derivative, so this is the one
+                    // deliberate scene/display boundary. 90/100 is the most
+                    // conservative previously measured non-baseline headroom
+                    // candidate. It is APPEARANCE only.
+                    if(!presentation_headroom::map_90_100(r,g,b)) {
+                        return StreamStatus::error(
+                            StreamStatusCode::SinkFailed,
+                            "PURE extended-linear headroom mapping failed");
+                    }
+                } else {
+                    // A bounded image-space luminous-field cue improves Natural
+                    // Light appearance without claiming physical light transport.
+                    // It is a common RGB gain and censored samples are protected.
+                    const float localFieldY=localFieldMeanAt(x,y);
+                    if(!presentation_natural_light_field::apply(
+                            r,g,b,localFieldY,censored,naturalLightEnabled)) {
+                        return StreamStatus::error(
+                            StreamStatusCode::SinkFailed,
+                            "full-res Natural Light local field tone failed");
+                    }
+                    // Residual low-fraction near-censor shoulder. This is a bounded
+                    // APPEARANCE-only chroma contraction that preserves Rec.709 luminance
+                    // and spatial detail. The accepted full censored fallback remains the
+                    // downstream authority for stronger reconstruction-support censoring.
+                    if(!presentation_near_censor_chroma::apply(
+                            r,g,b,highlightCensorFraction)) {
+                        return StreamStatus::error(
+                            StreamStatusCode::SinkFailed,
+                            "full-res near-censor chroma shoulder failed");
+                    }
+                    // CENSORED output chromaticity is not scene colour truth. Contract
+                    // only the unsupported chroma component in proportion to the
+                    // reconstruction-support CENSOR fraction. Luminance is retained;
+                    // accepted source-white warmth is deliberately applied afterwards.
+                    if(!presentation_censored_chroma::apply(
+                            r,g,b,highlightCensorFraction)) {
+                        return StreamStatus::error(
+                            StreamStatusCode::SinkFailed,
+                            "full-res censored chroma fallback failed");
+                    }
+                    // Deep-CENSOR residual chroma guard. The accepted fallback above
+                    // remains unchanged; this stage only contracts the remaining unsupported
+                    // chroma once reconstruction-support censor authority is already high.
+                    // Rec.709 luminance and spatial detail are preserved; Warm Illuminant
+                    // remains downstream.
+                    if(!presentation_deep_censor_chroma::apply(
+                            r,g,b,highlightCensorFraction)) {
+                        return StreamStatus::error(
+                            StreamStatusCode::SinkFailed,
+                            "full-res deep-censor chroma guard failed");
+                    }
+                    // Natural Light may retain a bounded fraction of a warm
+                    // source-white appearance. This is presentation-only and
+                    // deliberately excluded from the PURE headroom branch.
+                    if(!presentation_illuminant_warmth::apply(
+                            r,g,b,presentationSourceWhite_,naturalLightEnabled)) {
+                        return StreamStatus::error(
+                            StreamStatusCode::SinkFailed,
+                            "full-res source-white warmth retention failed");
+                    }
+                    // Deeply censored, nearly neutral bright highlights may retain
+                    // a small source-white-consistent warm hue floor. This remains
+                    // downstream Appearance only; luminance and scientific state
+                    // are unchanged and PURE never enters this branch.
+                    if(!presentation_censored_illuminant_hue_floor::apply(
+                            r,g,b,presentationSourceWhite_,
+                            highlightCensorFraction,naturalLightEnabled)) {
+                        return StreamStatus::error(
+                            StreamStatusCode::SinkFailed,
+                            "full-res censored illuminant hue floor failed");
+                    }
+                    const float mx=std::max(r,std::max(g,b));
+                    if(mx>0.92f) {
+                        const float shoulder=
+                            0.92f+0.08f*(1.0f-std::exp(-3.0f*(mx-0.92f)));
+                        const float sc=shoulder/std::max(mx,1e-8f);
+                        r*=sc; g*=sc; b*=sc;
+                    }
+                    if(!presentation_highlight::apply_near_neutral_rolloff(
+                            r,g,b,highlightCensored)) {
+                        return StreamStatus::error(
+                            StreamStatusCode::SinkFailed,
+                            "full-res presentation highlight chroma roll-off failed");
+                    }
+                }
+
+                if(!presentation_gamut::fit_unit_rgb_preserve_luminance(r,g,b)) {
+                    return StreamStatus::error(
+                        StreamStatusCode::SinkFailed,
+                        "full-res presentation gamut fit failed");
                 }
 
                 const std::size_t ci=
@@ -719,6 +987,7 @@ private:
         }
 
         std::vector<std::uint8_t> yrow(static_cast<std::size_t>(dw));
+        std::vector<std::uint8_t> rgbrow(3u*static_cast<std::size_t>(dw));
         for(int dy=dr.y0;dy<dr.y1;++dy) {
             for(int dx=dr.x0;dx<dr.x1;++dx) {
                 int sx=-1,sy=-1;
@@ -728,15 +997,25 @@ private:
                 }
                 const std::size_t ci=
                     static_cast<std::size_t>(sy-y0)*cw+static_cast<std::size_t>(sx-x0);
+                const std::size_t rp=3u*static_cast<std::size_t>(dx-dr.x0);
+                rgbrow[rp]=coreRgb[3u*ci];
+                rgbrow[rp+1u]=coreRgb[3u*ci+1u];
+                rgbrow[rp+2u]=coreRgb[3u*ci+2u];
                 std::uint8_t Y,U,V;
                 rgb_to_yuv(coreRgb[3u*ci],coreRgb[3u*ci+1u],coreRgb[3u*ci+2u],Y,U,V);
                 (void)U; (void)V;
                 yrow[static_cast<std::size_t>(dx-dr.x0)]=Y;
             }
-            const std::uint64_t off=
+            const std::uint64_t yOff=
                 static_cast<std::uint64_t>(dy)*displayWidth_+dr.x0;
-            if(!pwrite_all(fd_,off,yrow.data(),yrow.size())) {
+            if(!pwrite_all(fd_,yOff,yrow.data(),yrow.size())) {
                 return StreamStatus::error(StreamStatusCode::SinkFailed,"final NV21 Y write failed");
+            }
+            const std::uint64_t rgbOff=
+                presentationRgbOffset_+
+                (static_cast<std::uint64_t>(dy)*displayWidth_+dr.x0)*3u;
+            if(!pwrite_all(fd_,rgbOff,rgbrow.data(),rgbrow.size())) {
+                return StreamStatus::error(StreamStatusCode::SinkFailed,"final presentation RGB24 write failed");
             }
         }
 
@@ -787,6 +1066,9 @@ private:
     jint userQuarterTurns_=0;
     truthraw::streaming_v0_1::IRawTileSource& source_;
     float noiseSigmaAt2Pct_=0.0f;
+    presentation_illuminant_warmth::SourceWhitePoint presentationSourceWhite_{};
+    int reconstructionSupportRadius_=0;
+    bool extendedLinearHeadroomInput_=false;
     float detailMix_=0.0f;
     float colorFullnessMix_=0.0f;
     truthraw_v47k::OutputProfile outputProfile_=truthraw_v47k::OutputProfile::Neutral;
@@ -805,6 +1087,8 @@ private:
     bool finished_=false;
 
     std::uint64_t nv21Bytes_=0;
+    std::uint64_t presentationRgbOffset_=0;
+    std::uint64_t presentationRgbBytes_=0;
     std::uint64_t scratchRgbOffset_=0;
     std::uint64_t scratchRgbBytes_=0;
     std::uint64_t scratchGainOffset_=0;
@@ -822,6 +1106,97 @@ private:
     std::uint64_t censoredPixels_=0;
 };
 
+StreamStatus process_pure_extended_linear_headroom_v0_1(
+    truthraw::streaming_v0_1::IRawTileSource& source,
+    truthraw::IReconstructionBackend& reconstruction,
+    const std::array<float,9>& cameraToXyzD50,
+    FullResNv21Sink& sink,
+    StreamingResult& stream) {
+    const auto& m=source.metadata();
+    if(m.width<=0 || m.height<=0 || (m.width&1)!=0 || (m.height&1)!=0) {
+        return StreamStatus::error(
+            StreamStatusCode::InvalidArgument,
+            "PURE extended-linear headroom route requires even geometry");
+    }
+
+    // PURE carries no adjustable Appearance flags here. A default exposure
+    // plan is therefore intentionally inert in FullResNv21Sink. The source
+    // below replays the already admitted reconstruction directly into
+    // extended linear-sRGB and preserves finite values above 1.0.
+    truthraw::ExposurePlan exposure{};
+    auto status=sink.beginFrame(
+        m.width,m.height,m.orientation,exposure,false,false);
+    if(!status) return status;
+
+    render_edit::ExtendedLinearSrgbTileSource linearSource(
+        source,reconstruction,cameraToXyzD50,0u,exposure);
+    if(linearSource.residentBytesUpperBound()==0u) {
+        return StreamStatus::error(
+            StreamStatusCode::BackendFailed,
+            "PURE extended-linear source failed to initialize");
+    }
+
+    std::vector<float> rgb;
+    std::vector<float> zeroGain;
+    std::size_t tileCount=0u;
+    for(int y0=0;y0<m.height;y0+=kTileCore) {
+        const int y1=std::min(m.height,y0+kTileCore);
+        for(int x0=0;x0<m.width;x0+=kTileCore) {
+            const int x1=std::min(m.width,x0+kTileCore);
+            const int w=x1-x0;
+            const int h=y1-y0;
+            rgb.resize(
+                3u*static_cast<std::size_t>(w)*static_cast<std::size_t>(h));
+            const auto read=linearSource.readCameraNativeTile(
+                static_cast<std::uint32_t>(x0),
+                static_cast<std::uint32_t>(y0),
+                static_cast<std::uint32_t>(w),
+                static_cast<std::uint32_t>(h),
+                rgb.data(),rgb.size());
+            if(!read) {
+                return StreamStatus::error(
+                    StreamStatusCode::BackendFailed,
+                    "PURE extended-linear tile replay failed: "+read.message);
+            }
+
+            const TileRect core{x0,y0,x1,y1,x0,y0,x1,y1};
+            status=sink.writeSdrTile(core,rgb.data(),rgb.size());
+            if(!status) return status;
+
+            const HalfStateRect half{x0/2,y0/2,x1/2,y1/2};
+            const std::size_t halfCount=
+                static_cast<std::size_t>(half.x1-half.x0)*
+                static_cast<std::size_t>(half.y1-half.y0);
+            zeroGain.assign(halfCount,0.0f);
+            status=sink.writeHalfLogGainBlock(
+                half,zeroGain.data(),zeroGain.size());
+            if(!status) return status;
+            ++tileCount;
+        }
+    }
+
+    status=sink.finishFrame();
+    if(!status) return status;
+
+    stream={};
+    stream.status=StreamStatus::ok();
+    stream.width=m.width;
+    stream.height=m.height;
+    stream.orientation=m.orientation;
+    stream.exposure=exposure;
+    stream.tilesProcessedPass2=tileCount;
+    stream.memory.sourceResidentUpperBound=source.residentBytesUpperBound();
+    stream.memory.sinkResidentUpperBound=sink.residentBytesUpperBound();
+    stream.provenance.physicalFrameCount=1u;
+    stream.provenance.independentEvidenceCount=1u;
+    stream.provenance.scientificMasterModifiedByAppearance=false;
+    stream.provenance.counterfactualObservationCreated=false;
+    stream.provenance.reconstructionBackend=reconstruction.name();
+    stream.provenance.appearanceBackend=
+        "PURE_EXTENDED_LINEAR_FLOAT32_HEADROOM_90_100_APPEARANCE_ONLY_V0_1";
+    return StreamStatus::ok();
+}
+
 StreamingOptions photo_options(std::size_t memoryBudgetBytes, jint flags) {
     StreamingOptions o;
     o.tile={kTileCore,kTileHalo};
@@ -838,9 +1213,13 @@ StreamingOptions photo_options(std::size_t memoryBudgetBytes, jint flags) {
 extern "C" JNIEXPORT jlongArray JNICALL
 Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
     JNIEnv* env, jobject, jint sourceFd, jint outputFd, jint flags, jint sourceRouteCode,
-    jint userQuarterTurns, jint maxSourceResidentBytes, jint maxLogicalResidentBytes) {
+    jint userQuarterTurns, jint presentationHeadroomMode,
+    jint maxSourceResidentBytes, jint maxLogicalResidentBytes) {
     if (sourceFd<0 || outputFd<0 || maxSourceResidentBytes<=0 || maxLogicalResidentBytes<=0 ||
         userQuarterTurns<0 || userQuarterTurns>3 ||
+        (presentationHeadroomMode!=kPresentationHeadroomOff &&
+         presentationHeadroomMode!=kPresentationHeadroomPureMap90To100) ||
+        (presentationHeadroomMode==kPresentationHeadroomPureMap90To100 && flags!=0) ||
         (flags&~kAllowedFlags)!=0 || (sourceRouteCode!=0 && sourceRouteCode!=1)) {
         return packet(env,-1);
     }
@@ -897,9 +1276,6 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
        phase2.backplane.physicalFrameCount!=1u ||
        phase2.backplane.independentEvidenceCount!=1u) return packet(env,-4);
 
-    // Full-resolution ADVANCED/PRO must carry the same fail-closed
-    // Open Scene/authority corridor as the Advanced preview. This binds
-    // provenance and scientific limits; it does not change the output pixels.
     canonical_scene::Binding openSceneBinding{};
     openSceneBinding.sourceEvidenceSha256=seal.sha256;
     openSceneBinding.scientificMasterSha256=sci.scientificMasterHash;
@@ -1025,16 +1401,41 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
         appearance=std::make_shared<NeutralReferenceAppearance>();
     }
 
+    presentation_illuminant_warmth::SourceWhitePoint presentationSourceWhite{};
+    presentationSourceWhite.known=
+        illuminationState.whitePointKnown &&
+        illuminationState.whitePointAuthority!=illumination_state::EstimateAuthority::Unknown;
+    presentationSourceWhite.x=illuminationState.whiteX;
+    presentationSourceWhite.y=illuminationState.whiteY;
+    presentationSourceWhite.correlatedColorTemperatureK=
+        illuminationState.correlatedColorTemperatureK;
+
+    // Selection is an explicit downstream output contract. flags==0 alone is
+    // not sufficient: scientific/helper renders also legitimately carry zero
+    // appearance flags and must not silently enter the PURE headroom path.
+    const bool pureExtendedLinearHeadroomCandidate=
+        presentationHeadroomMode==kPresentationHeadroomPureMap90To100;
     FullResNv21Sink sink(
         static_cast<int>(outputFd),
         flags,
         userQuarterTurns,
         *source,
-        noiseSigma);
-    StreamingTruthRawProcessor processor(reconstruction,appearance);
+        noiseSigma,
+        presentationSourceWhite,
+        std::max(0,reconstruction->requiredHalo()),
+        pureExtendedLinearHeadroomCandidate);
     StreamingResult stream;
-    const auto processed=processor.process(
-        *source,sink,photo_options(static_cast<std::size_t>(maxLogicalResidentBytes),flags),stream);
+    StreamStatus processed;
+    if(pureExtendedLinearHeadroomCandidate) {
+        processed=process_pure_extended_linear_headroom_v0_1(
+            *source,*reconstruction,produced.color.cameraToXyzD50,sink,stream);
+    } else {
+        StreamingTruthRawProcessor processor(reconstruction,appearance);
+        processed=processor.process(
+            *source,sink,
+            photo_options(static_cast<std::size_t>(maxLogicalResidentBytes),flags),
+            stream);
+    }
     if(!processed) { (void)::ftruncate(outputFd,0); return packet(env,stream_status(processed)); }
 
     const auto post=truthraw::scientific_preview_binding_v0_1::reverify_source_sha256(*bytes,seal);
@@ -1059,8 +1460,6 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
         static_cast<std::uint32_t>(source->metadata().width);
     outputAuthorityBinding.sourceHeight=
         static_cast<std::uint32_t>(source->metadata().height);
-    // Rotation is a coordinate transform only. Full-resolution authority stays
-    // on the canonical source raster even when display axes are swapped.
     outputAuthorityBinding.outputWidth=outputAuthorityBinding.sourceWidth;
     outputAuthorityBinding.outputHeight=outputAuthorityBinding.sourceHeight;
     outputAuthorityBinding.reconstructionSupportRadius=
@@ -1138,21 +1537,21 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
     v[9]=(flags&kFlagDetail)!=0?1:0;
     v[10]=static_cast<jlong>(sink.lightAdjustedPixels());
     v[11]=static_cast<jlong>(sink.hdrPositiveGainSamples());
-    v[12]=1; // Scientific Master digest bound and verified.
-    v[13]=1; // Technical Backplane phase2 bound and verified.
-    v[14]=1; // source pre/post SHA verified.
-    v[15]=1; // full resolution, no preview downscale.
-    v[16]=sink.hdrBaked()?1:0; // presentation HDR only; never scientific HDR authority.
-    v[17]=sink.restorationBaked()?1:0; // aesthetic reintegration only; no scientific writeback.
+    v[12]=1;
+    v[13]=1;
+    v[14]=1;
+    v[15]=1;
+    v[16]=sink.hdrBaked()?1:0;
+    v[17]=sink.restorationBaked()?1:0;
     v[18]=stream.provenance.physicalFrameCount;
     v[19]=stream.provenance.independentEvidenceCount;
     v[20]=userQuarterTurns;
     v[21]=static_cast<jlong>(compose_orientation(source->metadata().orientation, userQuarterTurns));
-    v[22]=1; // canonical Open Scene v0.70 bound.
-    v[23]=1; // channel authority v0.78 bound.
+    v[22]=1;
+    v[23]=1;
     v[24]=static_cast<jlong>(uncertaintyDecision.code);
     v[25]=uncertaintyDecision.reconstructedAuthorityAllowed?1:0;
-    v[26]=1; // illumination state v0.82 bound.
+    v[26]=1;
     v[27]=illuminationState.whitePointKnown?1:0;
     v[28]=static_cast<jlong>(hdrState.scientificAuthority);
     v[29]=static_cast<jlong>(hdrState.presentationAuthority);
@@ -1175,7 +1574,7 @@ Java_com_truthraw_adaptiveui_PhotoExportNativeBridge_renderFullResNv21(
             (static_cast<std::uint32_t>(d[i+3u])<<24u);
         v[39u+word]=static_cast<jlong>(value);
     }
-    v[47]=0;
+    v[47]=static_cast<jlong>(sink.presentationRgbBytes());
     auto out=env->NewLongArray(static_cast<jsize>(v.size()));
     if(out) env->SetLongArrayRegion(out,0,static_cast<jsize>(v.size()),v.data());
     return out;

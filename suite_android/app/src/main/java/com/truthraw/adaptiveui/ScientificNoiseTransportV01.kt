@@ -31,6 +31,8 @@ object ScientificNoiseTransportV01 {
                 JSONObject()
                     .put("scalar_gain_variance_rule", "VAR_OUT=GAIN^2*VAR_IN")
                     .put("linear_transform_covariance_rule", "COV_OUT=J*COV_IN*J_TRANSPOSE")
+                    .put("input_covariance_must_be_positive_semidefinite", true)
+                    .put("invalid_covariance_may_be_projected_to_psd_silently", false)
                     .put("colour_transform_must_transport_covariance", true)
                     .put("field_gain_must_transport_uncertainty", true)
                     .put("reconstruction_must_add_reconstruction_uncertainty", true)

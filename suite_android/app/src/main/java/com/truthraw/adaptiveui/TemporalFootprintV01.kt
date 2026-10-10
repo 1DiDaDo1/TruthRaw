@@ -7,7 +7,9 @@ import org.json.JSONObject
  * Source-bound temporal footprint foundation.
  *
  * Exposure integration may be known from metadata while capture ordering,
- * rolling-shutter readout and motion remain separate unknowns.
+ * rolling-shutter readout, PWM/refresh relation and motion remain separate
+ * unknowns. A known exposure duration never by itself proves a row-resolved
+ * integration interval.
  */
 object TemporalFootprintV01 {
     const val SCHEMA = "D.RAW/TemporalFootprint/0.1"
@@ -56,6 +58,9 @@ object TemporalFootprintV01 {
                     .put("readout_start", "UNKNOWN")
                     .put("readout_end", "UNKNOWN")
                     .put("rolling_shutter_row_time", "UNKNOWN")
+                    .put("row_resolved_integration_interval", "UNKNOWN")
+                    .put("pwm_phase_relation", "UNKNOWN")
+                    .put("display_refresh_relation", "UNKNOWN")
                     .put("motion_path", "UNKNOWN"),
             )
         }
@@ -72,8 +77,14 @@ object TemporalFootprintV01 {
             )
             .put("physical_sequence_order_proven", false)
             .put("rolling_shutter_readout_proven", false)
+            .put("row_resolved_integration_support_proven", false)
+            .put("pwm_phase_relation_proven", false)
+            .put("display_refresh_relation_proven", false)
             .put("motion_path_proven", false)
             .put("occlusion_time_relation_proven", false)
+            .put("known_duration_implies_known_row_interval", false)
+            .put("unknown_timing_may_support_pwm_colour_correction", false)
+            .put("temporal_colour_correction_authorized", false)
             .put("synthetic_intermediate_is_physical_observation", false)
             .put("temporal_fusion_applied", false)
             .put("multi_frame_scientific_fusion_applied", false)

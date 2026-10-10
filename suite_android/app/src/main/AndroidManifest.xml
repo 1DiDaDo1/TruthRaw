@@ -28,12 +28,20 @@
         android:label="D.RAW"
         android:theme="@android:style/Theme.Material.NoActionBar">
 
-        <activity android:name=".TruthRawSuiteLauncherActivity" android:screenOrientation="portrait" android:exported="true">
+        <activity
+            android:name=".TruthRawWorkspaceActivity"
+            android:screenOrientation="portrait"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".TruthRawSuiteLauncherActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
 
         <activity
             android:name=".TruthRawSettingsActivity"

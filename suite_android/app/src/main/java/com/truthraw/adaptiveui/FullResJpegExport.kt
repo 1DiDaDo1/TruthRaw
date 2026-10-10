@@ -2,9 +2,6 @@ package com.truthraw.adaptiveui
 
 import android.content.ContentResolver
 import android.graphics.BitmapFactory
-import android.graphics.ImageFormat
-import android.graphics.Rect
-import android.graphics.YuvImage
 import android.net.Uri
 import android.os.ParcelFileDescriptor
 import java.io.File
@@ -21,8 +18,21 @@ object PhotoExportNativeBridge {
         flags: Int,
         sourceRouteCode: Int,
         userQuarterTurns: Int,
+        presentationHeadroomMode: Int,
         maxSourceResidentBytes: Int,
         maxLogicalResidentBytes: Int,
+    ): LongArray
+}
+
+object HighFidelityJpegNativeBridge {
+    init { System.loadLibrary("truthraw_ui_preview_bridge") }
+
+    external fun encodeRgb24Jpeg444Q100(
+        inputFd: Int,
+        outputFd: Int,
+        width: Int,
+        height: Int,
+        quality: Int,
     ): LongArray
 }
 
@@ -35,7 +45,13 @@ data class FullResJpegMetrics(
     val userQuarterTurns: Int,
     val effectiveOrientation: Int,
     val nv21Bytes: Long,
+    val presentationRgbBytes: Long,
+    val presentationRgbSha256: String,
     val jpegBytes: Long,
+    val jpegQuality: Int,
+    val jpeg444Verified: Boolean,
+    val jpegQ100QuantizationVerified: Boolean,
+    val jpegSampling: String,
     val advancedFlags: Int,
     val detailApplied: Boolean,
     val lightAdjustedPixels: Long,
@@ -74,9 +90,11 @@ sealed interface FullResJpegResult {
 object FullResJpegExporter {
     private const val MAGIC = 0x54524a50L
     private const val PACKET_LONGS = 48
+    private const val JPEG444_MAGIC = 0x44524a34L
+    private const val JPEG444_PACKET_LONGS = 4
     private const val MAX_SOURCE_RESIDENT_BYTES = 8 * 1024 * 1024
     private const val MAX_LOGICAL_RESIDENT_BYTES = 64 * 1024 * 1024
-    private const val JPEG_QUALITY = 96
+    private const val JPEG_QUALITY = 100
     private const val COPY_BUFFER = 1024 * 1024
 
     fun renderToPrivateJpeg(
@@ -85,21 +103,28 @@ object FullResJpegExporter {
         flags: Int,
         userQuarterTurns: Int,
         workingDir: File,
+        presentationHeadroomMode: Int = PresentationHeadroomModeV01.OFF,
     ): FullResJpegResult {
         if (!job.source.format.nativeProcessingReady || job.source.format.id != "DNG") {
             return FullResJpegResult.Failed("Full-resolution JPG is alleen beschikbaar voor de admitted DNG-route.")
         }
+        if (!PresentationHeadroomModeV01.isKnown(presentationHeadroomMode)) {
+            return FullResJpegResult.Failed("JPG: onbekende presentation-headroom modus.")
+        }
+        FullResPresentationRasterRegistryV01.clear()
         workingDir.mkdirs()
-        val nv21File = File(workingDir, "photo_fullres.nv21.part")
+        val nativeStageFile = File(workingDir, "photo_fullres.nv21_rgb24.part")
+        val presentationFile = File(workingDir, "photo_fullres.rgb24.part")
         val jpegFile = File(workingDir, "photo_fullres.jpg.part")
-        nv21File.delete()
+        nativeStageFile.delete()
+        presentationFile.delete()
         jpegFile.delete()
 
         val source = openRead(resolver, job.source.uri)
             ?: return FullResJpegResult.Failed("JPG: bron-FD kon niet worden geopend.")
         val output = try {
             ParcelFileDescriptor.open(
-                nv21File,
+                nativeStageFile,
                 ParcelFileDescriptor.MODE_CREATE or
                     ParcelFileDescriptor.MODE_READ_WRITE or
                     ParcelFileDescriptor.MODE_TRUNCATE,
@@ -108,7 +133,7 @@ object FullResJpegExporter {
             null
         } ?: run {
             source.close()
-            return FullResJpegResult.Failed("JPG: NV21-staging kon niet worden geopend.")
+            return FullResJpegResult.Failed("JPG: native presentation-staging kon niet worden geopend.")
         }
 
         val packet = try {
@@ -123,20 +148,21 @@ object FullResJpegExporter {
                             SourceIngressRoute.CAMERA_CAPTURE -> 1
                         },
                         userQuarterTurns,
+                        presentationHeadroomMode,
                         MAX_SOURCE_RESIDENT_BYTES,
                         MAX_LOGICAL_RESIDENT_BYTES,
                     )
                 }
             }
         } catch (error: Throwable) {
-            nv21File.delete()
+            nativeStageFile.delete()
             return FullResJpegResult.Failed(
                 "JPG native full-resolution render faalde: ${error.message ?: error.javaClass.simpleName}",
             )
         }
 
         if (packet.size != PACKET_LONGS || packet[0] != MAGIC || packet[1] != 0L) {
-            nv21File.delete()
+            nativeStageFile.delete()
             return FullResJpegResult.Failed(
                 "JPG full-resolution render fail-closed status ${packet.getOrNull(1) ?: "pakketfout"}.",
             )
@@ -148,6 +174,7 @@ object FullResJpegExporter {
         val sourceHeight = packet[5].toInt()
         val sourceOrientation = packet[6].toInt()
         val nv21Bytes = packet[7]
+        val presentationRgbBytes = packet[47]
         val packetUserQuarterTurns = packet[20].toInt()
         val effectiveOrientation = packet[21].toInt()
         val outputAuthorityArtifactSha256 = buildString(64) {
@@ -158,9 +185,13 @@ object FullResJpegExporter {
                 }
             }
         }
+        val expectedPresentationRgbBytes = width.toLong() * height.toLong() * 3L
+        val expectedNativeStageBytes = nv21Bytes + presentationRgbBytes
         if (width <= 0 || height <= 0 || sourceWidth <= 0 || sourceHeight <= 0 ||
             nv21Bytes != width.toLong() * height.toLong() * 3L / 2L ||
-            nv21File.length() != nv21Bytes ||
+            presentationRgbBytes != expectedPresentationRgbBytes ||
+            expectedNativeStageBytes <= nv21Bytes ||
+            nativeStageFile.length() != expectedNativeStageBytes ||
             packet[12] != 1L || packet[13] != 1L || packet[14] != 1L ||
             packet[15] != 1L || packet[18] != 1L || packet[19] != 1L ||
             packetUserQuarterTurns != userQuarterTurns ||
@@ -174,47 +205,101 @@ object FullResJpegExporter {
             packet[33] + packet[34] + packet[35] + packet[36] != packet[38] * 3L ||
             outputAuthorityArtifactSha256.all { it == '0' }
         ) {
-            nv21File.delete()
+            nativeStageFile.delete()
             return FullResJpegResult.Failed("JPG full-resolution lineage/raster invariant faalde.")
         }
 
-        val nv21 = try {
-            if (nv21Bytes > Int.MAX_VALUE.toLong()) throw IllegalStateException("NV21 groter dan Java byte-array limiet.")
-            FileInputStream(nv21File).use { input ->
-                val bytes = ByteArray(nv21Bytes.toInt())
-                var offset = 0
-                while (offset < bytes.size) {
-                    val n = input.read(bytes, offset, bytes.size - offset)
-                    if (n <= 0) break
-                    offset += n
-                }
-                if (offset != bytes.size) throw IllegalStateException("NV21 staging is onvolledig.")
-                bytes
+        val presentationCopied = copyRange(
+            source = nativeStageFile,
+            sourceOffset = nv21Bytes,
+            byteCount = presentationRgbBytes,
+            destination = presentationFile,
+        )
+        if (!presentationCopied || presentationFile.length() != presentationRgbBytes) {
+            nativeStageFile.delete()
+            presentationFile.delete()
+            return FullResJpegResult.Failed("Full-resolution RGB24 presentation-raster kon niet worden afgesplitst.")
+        }
+        val presentationSha = sha256(presentationFile)
+            ?: run {
+                nativeStageFile.delete()
+                presentationFile.delete()
+                return FullResJpegResult.Failed("Full-resolution RGB24 SHA-256 kon niet worden berekend.")
             }
-        } catch (error: Throwable) {
-            nv21File.delete()
-            return FullResJpegResult.Failed("JPG NV21 staging kon niet worden geladen: ${error.message ?: error.javaClass.simpleName}")
+        nativeStageFile.delete()
+
+        val rgbInput = try {
+            ParcelFileDescriptor.open(presentationFile, ParcelFileDescriptor.MODE_READ_ONLY)
+        } catch (_: Throwable) {
+            null
+        } ?: run {
+            presentationFile.delete()
+            return FullResJpegResult.Failed("High-Fidelity JPEG: RGB24-bron kon niet worden geopend.")
+        }
+        val jpegOutput = try {
+            ParcelFileDescriptor.open(
+                jpegFile,
+                ParcelFileDescriptor.MODE_CREATE or
+                    ParcelFileDescriptor.MODE_READ_WRITE or
+                    ParcelFileDescriptor.MODE_TRUNCATE,
+            )
+        } catch (_: Throwable) {
+            null
+        } ?: run {
+            rgbInput.close()
+            presentationFile.delete()
+            return FullResJpegResult.Failed("High-Fidelity JPEG: encoder-output kon niet worden geopend.")
         }
 
-        val encoded = try {
-            FileOutputStream(jpegFile).use { out ->
-                YuvImage(nv21, ImageFormat.NV21, width, height, null)
-                    .compressToJpeg(Rect(0, 0, width, height), JPEG_QUALITY, out)
+        val jpegPacket = try {
+            rgbInput.use { src ->
+                jpegOutput.use { dst ->
+                    HighFidelityJpegNativeBridge.encodeRgb24Jpeg444Q100(
+                        src.fd,
+                        dst.fd,
+                        width,
+                        height,
+                        JPEG_QUALITY,
+                    )
+                }
             }
-        } catch (_: Throwable) {
-            false
-        } finally {
-            nv21File.delete()
-        }
-        if (!encoded || !jpegFile.isFile || jpegFile.length() <= 4L) {
+        } catch (error: Throwable) {
             jpegFile.delete()
-            return FullResJpegResult.Failed("Android JPEG-encoder gaf geen geldig full-resolution bestand.")
+            presentationFile.delete()
+            return FullResJpegResult.Failed(
+                "High-Fidelity JPEG Q100/4:4:4 encoder faalde: ${error.message ?: error.javaClass.simpleName}",
+            )
+        }
+
+        if (
+            jpegPacket.size != JPEG444_PACKET_LONGS ||
+            jpegPacket[0] != JPEG444_MAGIC ||
+            jpegPacket[1] != 0L ||
+            jpegPacket[2] <= 4L ||
+            jpegPacket[2] != jpegFile.length() ||
+            jpegPacket[3] != JPEG_QUALITY.toLong()
+        ) {
+            jpegFile.delete()
+            presentationFile.delete()
+            return FullResJpegResult.Failed(
+                "High-Fidelity JPEG encoder faalde fail-closed status ${jpegPacket.getOrNull(1) ?: "pakketfout"}.",
+            )
+        }
+
+        val jpegContract = HighFidelityJpegContractV01.verify(jpegFile, width, height)
+        if (jpegContract !is HighFidelityJpegContractV01.Result.Ready) {
+            val reason = (jpegContract as? HighFidelityJpegContractV01.Result.Failed)?.reason
+                ?: "onbekende JPEG-contractfout"
+            jpegFile.delete()
+            presentationFile.delete()
+            return FullResJpegResult.Failed("High-Fidelity JPEG Q100/4:4:4 verificatie geblokkeerd: $reason")
         }
 
         val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeFile(jpegFile.absolutePath, options)
         if (options.outWidth != width || options.outHeight != height) {
             jpegFile.delete()
+            presentationFile.delete()
             return FullResJpegResult.Failed(
                 "JPG post-write resolutie ${options.outWidth}×${options.outHeight} != $width×$height.",
             )
@@ -222,8 +307,25 @@ object FullResJpegExporter {
         val jpegSha = sha256(jpegFile)
             ?: run {
                 jpegFile.delete()
+                presentationFile.delete()
                 return FullResJpegResult.Failed("JPG SHA-256 kon niet worden berekend.")
             }
+
+        val registered = FullResPresentationRasterRegistryV01.register(
+            jpegFile = jpegFile,
+            raster = FullResPresentationRasterV01(
+                file = presentationFile,
+                width = width,
+                height = height,
+                bytes = presentationRgbBytes,
+                sha256 = presentationSha,
+            ),
+        )
+        if (!registered) {
+            jpegFile.delete()
+            presentationFile.delete()
+            return FullResJpegResult.Failed("Full-resolution presentation-raster binding faalde.")
+        }
 
         return FullResJpegResult.Success(
             FullResJpegMetrics(
@@ -235,7 +337,13 @@ object FullResJpegExporter {
                 userQuarterTurns = userQuarterTurns,
                 effectiveOrientation = effectiveOrientation,
                 nv21Bytes = nv21Bytes,
+                presentationRgbBytes = presentationRgbBytes,
+                presentationRgbSha256 = presentationSha,
                 jpegBytes = jpegFile.length(),
+                jpegQuality = JPEG_QUALITY,
+                jpeg444Verified = true,
+                jpegQ100QuantizationVerified = jpegContract.quantizationTablesAllOnes,
+                jpegSampling = jpegContract.sampling,
                 advancedFlags = packet[8].toInt(),
                 detailApplied = packet[9] != 0L,
                 lightAdjustedPixels = packet[10],
@@ -299,6 +407,37 @@ object FullResJpegExporter {
         }
         if (!copied) return false
         return sha256(resolver, destination) == expectedSha256
+    }
+
+    private fun copyRange(
+        source: File,
+        sourceOffset: Long,
+        byteCount: Long,
+        destination: File,
+    ): Boolean {
+        if (sourceOffset < 0L || byteCount <= 0L) return false
+        return try {
+            FileInputStream(source).use { input ->
+                input.channel.position(sourceOffset)
+                FileOutputStream(destination).use { output ->
+                    var remaining = byteCount
+                    val buffer = ByteArray(COPY_BUFFER)
+                    while (remaining > 0L) {
+                        val wanted = minOf(buffer.size.toLong(), remaining).toInt()
+                        val count = input.read(buffer, 0, wanted)
+                        if (count <= 0) return false
+                        output.write(buffer, 0, count)
+                        remaining -= count.toLong()
+                    }
+                    output.flush()
+                    output.fd.sync()
+                }
+            }
+            destination.length() == byteCount
+        } catch (_: Throwable) {
+            destination.delete()
+            false
+        }
     }
 
     private fun openRead(resolver: ContentResolver, uri: Uri): ParcelFileDescriptor? {

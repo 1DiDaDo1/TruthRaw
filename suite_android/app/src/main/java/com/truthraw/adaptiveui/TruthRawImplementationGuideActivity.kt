@@ -36,12 +36,26 @@ class TruthRawImplementationGuideActivity : Activity() {
 
             addView(card("Zo gebruik je D.RAW normaal").apply {
                 addView(body(
-                    "1. Kies of behoud PURE, ADVANCED of PRO.\n" +
-                        "2. Open Bestand of Universele camera.\n" +
-                        "3. De bron wordt verzegeld en gaat door Universal Intake.\n" +
-                        "4. Scientific Master blijft de gedeelde evidence-bound kern.\n" +
-                        "5. Route-specifieke presentatie/export komt pas daarna.",
+                    "1. De app opent in D.RAW Workspace / Vrije Raster-weergave.\n" +
+                        "2. Kies of behoud PURE, ADVANCED of PRO.\n" +
+                        "3. Open Bestand of Universele camera.\n" +
+                        "4. De bron wordt verzegeld en gaat door Universal Intake.\n" +
+                        "5. Scientific Master blijft de gedeelde evidence-bound kern.\n" +
+                        "6. Route-specifieke view/projectie/export komt pas daarna.",
                     12.3f,
+                ))
+            })
+
+            addView(space(12))
+            addView(card("Workspace / Vrije Raster-weergave v0.1").apply {
+                addView(body(
+                    "De Workspace is de nieuwe centrale UI-laag, niet een nieuwe scientific pipeline. RAW/DNG blijft via MainActivity / Universal Intake lopen. Het lokale vrije-rastercanvas accepteert alleen een reeds gerenderd presentatie-raster en biedt pan, pinch-zoom, Fit en 1:1 als VIEW-transforms. Die transforms zijn PRESENTATION_ONLY: ze veranderen geen bron-SHA, geen Scientific Master, geen authority en maken nooit nieuwe MEASURED samples. Full-resolution projectie/export blijft in de bestaande D.RAW werkbank totdat een expliciete bestaande-runtime bridge aan het canvas is gebonden.",
+                    12f,
+                ))
+                addView(space(8))
+                addView(body(
+                    "De pipelinekaart en Evidence/Authority Inspector in v0.1 zijn authority-neutrale uitleg zolang geen actieve bronruntime eraan is gebonden. UNKNOWN mag niet door UI-status in groen/certainty veranderen.",
+                    11.5f,
                 ))
             })
 
@@ -169,12 +183,23 @@ class TruthRawImplementationGuideActivity : Activity() {
             addView(space(12))
             addView(card("Wat blijft altijd vast?").apply {
                 addView(body(
-                    "MEASURED ≠ RECONSTRUCTED ≠ APPEARANCE. BlackLevel ≠ Zero-Line. Outputresolutie ≠ optische resolutie. Camera/lens/vendor/RAW-identiteit mag geen scientific model key zijn. UNKNOWN wordt niet automatisch noise. Representatie mag de bron overstijgen; kennisclaims niet.",
+                    "MEASURED ≠ CALIBRATED_ESTIMATE ≠ RECONSTRUCTED ≠ CENSORED ≠ UNKNOWN ≠ APPEARANCE. BlackLevel ≠ Zero-Line. Outputresolutie ≠ optische resolutie. Camera/lens/vendor/RAW-identiteit mag geen scientific model key zijn. UNKNOWN wordt niet automatisch noise. Representatie mag de bron overstijgen; kennisclaims niet.",
                     12f,
                 ))
             })
 
             addView(space(12))
+            addView(action("Open D.RAW Workspace / Vrije Raster") {
+                startActivity(
+                    Intent(
+                        this@TruthRawImplementationGuideActivity,
+                        TruthRawWorkspaceActivity::class.java,
+                    ).apply {
+                        flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                    },
+                )
+            })
+            addView(space(8))
             addView(action("Open Research & JSON") {
                 startActivity(
                     Intent(

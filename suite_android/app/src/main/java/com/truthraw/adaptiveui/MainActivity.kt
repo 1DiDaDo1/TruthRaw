@@ -33,7 +33,18 @@ class MainActivity : Activity() {
     private var session = BatchSession()
     private var activeJobId: String? = null
     private var previewState: TilePreviewUiState = TilePreviewUiState.Idle
+    private var preserveUnifiedOutputPresentationOnDestroy: Boolean = false
     private var unifiedOutputPreviewState: UnifiedOutputPreviewResult.Ready? = null
+        set(value) {
+            field = value
+            when {
+                value != null -> publishUnifiedOutputPresentation(value)
+                !preserveUnifiedOutputPresentationOnDestroy ->
+                    UnifiedOutputPresentationBridge.clear(
+                        "main_activity_unified_output_state_cleared",
+                    )
+            }
+        }
     private var n2AppearanceCandidateBitmap: Bitmap? = null
     private var n2AppearanceCandidateJobId: String? = null
     private var n2AppearanceCandidateMetrics: TruthNegativeContinuousPreviewMetrics? = null
@@ -41,6 +52,7 @@ class MainActivity : Activity() {
     private var previewGeneration: Long = 0
     private var loadingStartedAtElapsedMs: Long? = null
     private var pendingJpegJobId: String? = null
+    private var pendingJpegBinding: DrawPhotoOutputBindingV01? = null
     private var jpegStatus: String? = null
     private var pendingFullColourMasterJobId: String? = null
     private var fullColourMasterStatus: String? = null
@@ -203,6 +215,43 @@ class MainActivity : Activity() {
         n2CropAbResult = null
         n2CropAbJobId = null
         n2CropAbStatus = null
+    }
+
+    private fun publishUnifiedOutputPresentation(
+        ready: UnifiedOutputPreviewResult.Ready,
+    ) {
+        val jobId = activeJobId
+        val job = jobId?.let { id ->
+            session.jobs.firstOrNull { it.id == id }
+        }
+        if (job == null) {
+            UnifiedOutputPresentationBridge.clear(
+                "unified_output_ready_without_active_job",
+            )
+            return
+        }
+
+        val sourceSha256 = universalProfiles[job.id]
+            ?.optString("source_sha256", "")
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
+
+        when (
+            val result = UnifiedOutputPresentationBridge.publishReady(
+                ready = ready,
+                sourceJobId = job.id,
+                sourceDisplayName = job.source.displayName,
+                sourceUri = job.source.uri.toString(),
+                sourceSha256 = sourceSha256,
+                route = preferredRoute(),
+            )
+        ) {
+            is UnifiedOutputPresentationBridge.PublishResult.Ready -> Unit
+            is UnifiedOutputPresentationBridge.PublishResult.Failure ->
+                UnifiedOutputPresentationBridge.clear(
+                    "unified_output_ready_publish_failed_" + result.kind.name,
+                )
+        }
     }
 
     private fun calibrationObservationRecordStoreDir(): File =
@@ -535,6 +584,8 @@ class MainActivity : Activity() {
         previewState = TilePreviewUiState.Idle
         loadingStartedAtElapsedMs = null
         empiricalAudit = null
+        pendingJpegJobId = null
+        pendingJpegBinding = null
         jpegStatus = null
         fullColourMasterStatus = null
         truthNegative200MpStatus = null
@@ -631,8 +682,14 @@ class MainActivity : Activity() {
         )
         restorationStatusHandler.removeCallbacks(restorationStatusPoll)
         (previewState as? TilePreviewUiState.Ready)?.bitmap?.recycle()
+        // Preserve the bridge-owned presentation copy only across a normal
+        // finish/back transition or a configuration change. Unexpected teardown
+        // clears it fail-closed through the unifiedOutputPreviewState setter.
+        preserveUnifiedOutputPresentationOnDestroy =
+            isFinishing || isChangingConfigurations
         unifiedOutputPreviewState?.bitmap?.recycle()
         unifiedOutputPreviewState = null
+        preserveUnifiedOutputPresentationOnDestroy = false
         clearN2AppearanceCandidate()
         clearN2CropAb()
         (nefMeasurementResult as? NefMeasurementResult.Ready)?.bitmap?.recycle()
@@ -1070,14 +1127,34 @@ class MainActivity : Activity() {
 
     @Suppress("DEPRECATION")
     private fun launchJpegExport(job: RawJob) {
-        val ready = previewState as? TilePreviewUiState.Ready ?: return
-        if (ready.jobId != job.id) return
-        pendingJpegJobId = job.id
-        jpegStatus = null
         val route = preferredRoute()
-        pendingPhotoRoute = route
-        pendingPhotoFlags = photoFlagsForRoute(route)
-        pendingPhotoQuarterTurns = TruthRawOrientationOverride.quarterTurns(this, job.source)
+        val flags = photoFlagsForRoute(route)
+        val quarterTurns =
+            TruthRawOrientationOverride.quarterTurns(this, job.source)
+
+        when (
+            val result = DrawPhotoOutputCableV01.bindFullResolutionJpeg(
+                job = job,
+                activeJobId = activeJobId,
+                route = route,
+                routeFlags = flags,
+                userQuarterTurns = quarterTurns,
+            )
+        ) {
+            is DrawPhotoOutputBindResultV01.Failed -> {
+                pendingJpegJobId = null
+                pendingJpegBinding = null
+                jpegStatus = result.reason
+                render()
+                return
+            }
+            is DrawPhotoOutputBindResultV01.Ready -> {
+                pendingJpegJobId = result.binding.sourceJobId
+                pendingJpegBinding = result.binding
+                jpegStatus = null
+            }
+        }
+
         val stem = job.source.displayName.substringBeforeLast('.', job.source.displayName)
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -2744,30 +2821,51 @@ class MainActivity : Activity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == REQUEST_SAVE_JPEG) {
-            val expectedJob = pendingJpegJobId
+            val binding = pendingJpegBinding
+            pendingJpegBinding = null
             pendingJpegJobId = null
-            val route = pendingPhotoRoute ?: preferredRoute()
-            val flags = pendingPhotoFlags
-            val quarterTurns = pendingPhotoQuarterTurns
-            pendingPhotoRoute = null
-            pendingPhotoFlags = 0
-            pendingPhotoQuarterTurns = 0
             val destination = data?.data
             if (resultCode != RESULT_OK || destination == null) {
                 jpegStatus = "JPG-export geannuleerd."
                 render()
                 return
             }
-            val job = session.jobs.firstOrNull { it.id == expectedJob }
-            val ready = previewState as? TilePreviewUiState.Ready
-            if (expectedJob == null || job == null || ready == null ||
-                ready.jobId != expectedJob || activeJobId != expectedJob
-            ) {
-                jpegStatus = "JPG-export geblokkeerd: actieve D.RAW-route veranderde."
+            if (binding == null) {
+                jpegStatus = "JPG-output geblokkeerd: bevroren outputbinding ontbreekt."
                 render()
                 return
             }
 
+            val expectedJob = binding.sourceJobId
+            val job = session.jobs.firstOrNull { it.id == expectedJob }
+            if (job == null) {
+                jpegStatus = "JPG-output geblokkeerd: actieve bron ontbreekt."
+                render()
+                return
+            }
+
+            val currentRoute = preferredRoute()
+            val currentFlags = photoFlagsForRoute(currentRoute)
+            val currentQuarterTurns =
+                TruthRawOrientationOverride.quarterTurns(this, job.source)
+            val validationError =
+                DrawPhotoOutputCableV01.validateCurrentOutputContext(
+                    binding = binding,
+                    job = job,
+                    activeJobId = activeJobId,
+                    currentRoute = currentRoute,
+                    currentRouteFlags = currentFlags,
+                    currentQuarterTurns = currentQuarterTurns,
+                )
+            if (validationError != null) {
+                jpegStatus = validationError
+                render()
+                return
+            }
+
+            val route = binding.route
+            val flags = binding.routeFlags
+            val quarterTurns = binding.userQuarterTurns
             val operationKey = backgroundOperationKey("jpeg", expectedJob)
             if (!startBackgroundOperation(operationKey, "JPG full-resolution opbouwen")) {
                 jpegStatus = "JPG achtergrondverwerking kon niet veilig starten."
@@ -2784,22 +2882,41 @@ class MainActivity : Activity() {
                 val dir = File(filesDir, "photo_export/$expectedJob").apply { mkdirs() }
                 val rendered = FullResJpegExporter.renderToPrivateJpeg(
                     contentResolver, job, flags, quarterTurns, dir,
+                    presentationHeadroomMode = binding.presentationHeadroomMode,
                 )
                 var jpegOutputPreview: UnifiedOutputPreviewResult.Ready? = null
                 var status = when (rendered) {
                     is FullResJpegResult.Failed -> rendered.reason
                     is FullResJpegResult.Success -> {
+                        val m = rendered.metrics
+                        val freeRasterStage =
+                            UnifiedOutputFreeRasterRuntimeV01.stageRenderedJpeg(
+                                binding = binding,
+                                renderedFile = rendered.file,
+                                outputWidth = m.width,
+                                outputHeight = m.height,
+                                jpegSha256 = m.jpegSha256,
+                            )
+                        val freeRasterStageStatus = when (freeRasterStage) {
+                            is UnifiedOutputFreeRasterRuntimeV01.StageResult.Ready ->
+                                "Free Raster full-res sibling staged · promotion wacht op commit/current-output bevestiging"
+                            is UnifiedOutputFreeRasterRuntimeV01.StageResult.Failed ->
+                                "Free Raster staging geblokkeerd: ${freeRasterStage.reason}"
+                        }
                         val ok = FullResJpegExporter.commit(
                             contentResolver,
                             rendered.file,
                             destination,
-                            rendered.metrics.jpegSha256,
+                            m.jpegSha256,
                         )
-                        val m = rendered.metrics
                         rendered.file.delete()
                         if (!ok) {
+                            UnifiedOutputFreeRasterRuntimeV01.discardStaged(
+                                expectedJob,
+                                "jpeg_destination_commit_failed",
+                            )
                             runCatching { contentResolver.delete(destination, null, null) }
-                            "JPG commit/post-write SHA-verify faalde."
+                            "JPG commit/post-write SHA-verify faalde · $freeRasterStageStatus"
                         } else {
                             when (
                                 val preview = UnifiedOutputPreviewLoader.loadSavedJpeg(
@@ -2811,16 +2928,22 @@ class MainActivity : Activity() {
                             ) {
                                 is UnifiedOutputPreviewResult.Ready ->
                                     jpegOutputPreview = preview
-                                is UnifiedOutputPreviewResult.Failed ->
+                                is UnifiedOutputPreviewResult.Failed -> {
+                                    UnifiedOutputFreeRasterRuntimeV01.discardStaged(
+                                        expectedJob,
+                                        "saved_jpeg_preview_failed",
+                                    )
                                     jpegStatus =
                                         "JPG opgeslagen; uitkomst-preview faalde: " +
                                             preview.reason
+                                }
                             }
                             "JPG full-resolution gereed · ${m.width}×${m.height} · " +
                                 "${formatBytes(m.jpegBytes)} · route=$route · detail=${m.detailApplied} · " +
                                 "Light pixels=${m.lightAdjustedPixels} · Scientific Master/Backplane=${m.scientificMasterBound}/${m.backplaneBound} · " +
                                 "rotatie=${quarterTurns * 90}° · HDR-front=${m.hdrBakedIntoFront} (APPEARANCE_ONLY) · " +
-                                "Restoration-front=${m.restorationBakedIntoFront} (AESTHETIC_REINTEGRATION_ONLY)."
+                                "Restoration-front=${m.restorationBakedIntoFront} (AESTHETIC_REINTEGRATION_ONLY) · " +
+                                freeRasterStageStatus
                         }
                     }
                 }
@@ -2839,6 +2962,10 @@ class MainActivity : Activity() {
                         jpegStatus = status
                         render()
                     } else {
+                        UnifiedOutputFreeRasterRuntimeV01.discardStaged(
+                            expectedJob,
+                            "active_job_changed_before_free_raster_promotion",
+                        )
                         jpegOutputPreview?.bitmap?.recycle()
                     }
                 }
@@ -5560,6 +5687,7 @@ class MainActivity : Activity() {
         empiricalStatus = null
         empiricalAudit = null
         pendingJpegJobId = null
+        pendingJpegBinding = null
         pendingFullColourMasterJobId = null
         pendingTruthNegative200MpJobId = null
         pendingRenderEditJobId = null
@@ -7007,6 +7135,7 @@ class MainActivity : Activity() {
         empiricalStatus = null
         empiricalAudit = null
         pendingJpegJobId = null
+        pendingJpegBinding = null
         pendingPureFloatDngJobId = null
         pendingLinearDngJobId = null
         pendingEmpiricalJobId = null
@@ -7346,6 +7475,40 @@ class MainActivity : Activity() {
         addView(space(8))
         addView(universalIntakePane(active))
         addView(space(8))
+
+        if (
+            active.source.format.nativeProcessingReady &&
+            active.source.format.id == "DNG"
+        ) {
+            val outputRoute = preferredRoute()
+            val jpegActionLabel = when (outputRoute) {
+                TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED ->
+                    "JPG · full resolution"
+                TruthRawSuiteLauncherActivity.OUTPUT_PRO ->
+                    "JPG · full resolution professional"
+                else ->
+                    "JPG · full resolution compatibility"
+            }
+            addView(label("Output / Vrije Raster", 13f, bold = true))
+            addView(actionButton(jpegActionLabel) {
+                launchJpegExport(active)
+            })
+            jpegStatus?.let { status ->
+                backgroundOperationStatusView(
+                    backgroundOperationKey("jpeg", active.id),
+                    status,
+                )?.let(::addView) ?: addView(
+                    label(status, 10f, muted = true),
+                )
+            }
+            addView(label(
+                "Preview-onafhankelijke full-resolution output · de UI-preview is een zustertak, " +
+                    "geen pixelbron of authority. Source mutation=false · Scientific Master writeback=false.",
+                10f,
+                muted = true,
+            ))
+            addView(space(8))
+        }
 
         when (val state = previewState) {
             TilePreviewUiState.Idle -> {
@@ -7977,26 +8140,9 @@ class MainActivity : Activity() {
                             10f,
                             muted = true,
                         ))
-                        addView(space(7))
-                        addView(actionButton("JPG · full resolution compatibility") {
-                            launchJpegExport(active)
-                        })
-                        jpegStatus?.let { status ->
-                            backgroundOperationStatusView(
-                                backgroundOperationKey("jpeg", active.id),
-                                status,
-                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
-                        }
                     }
 
                     TruthRawSuiteLauncherActivity.OUTPUT_ADVANCED -> {
-                        addView(actionButton("JPG · full resolution") { launchJpegExport(active) })
-                        jpegStatus?.let { status ->
-                            backgroundOperationStatusView(
-                                backgroundOperationKey("jpeg", active.id),
-                                status,
-                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
-                        }
                         addView(space(5))
                         addView(actionButton("Float32 Full Colour Scientific Master · DNG · Lightroom") {
                             launchFullColourScientificMasterExport(active)
@@ -8088,15 +8234,6 @@ class MainActivity : Activity() {
                     }
 
                     TruthRawSuiteLauncherActivity.OUTPUT_PRO -> {
-                        addView(actionButton("JPG · full resolution professional") {
-                            launchJpegExport(active)
-                        })
-                        jpegStatus?.let { status ->
-                            backgroundOperationStatusView(
-                                backgroundOperationKey("jpeg", active.id),
-                                status,
-                            )?.let(::addView) ?: addView(label(status, 10f, muted = true))
-                        }
                         addView(space(5))
                         addView(actionButton("Float32 Full Colour Scientific Master · DNG · Lightroom") {
                             launchFullColourScientificMasterExport(active)
