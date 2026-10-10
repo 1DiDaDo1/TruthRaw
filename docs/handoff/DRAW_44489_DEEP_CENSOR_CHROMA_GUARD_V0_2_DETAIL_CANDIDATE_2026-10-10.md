@@ -74,13 +74,29 @@ The first main-workflow attempt on `5dbed408...` stopped at the new regression b
 
 The corrected harness checks executable-like mechanism tokens rather than explanatory prose.
 
-## Exact successful main-project CI
+## Earlier successful v0.2 main-project CI checkpoint — historical provenance
 
 Workflow: `D.RAW Free Raster v0.3 Finish APK`
 
 - run: `38067210344`;
 - job: `114257180765`;
 - trigger head: `51e4bf5ae2a875e790b02d30568d76b027397116`;
+- conclusion: **SUCCESS**.
+
+Its artifact ID was `11675980316`, archive digest SHA-256 `ec0aa13ef39e53a9ee01f7934de11ed5ded4915af24551243b485eb1c2b8b208`, with APK bytes `8,888,139` and SHA-256 `a77459fa4e8af1faace3165a1c29ae8b61aea987de47c21ab0d081b9e41192ff`.
+
+This checkpoint remains historical provenance but is **not the current exact downloadable APK identity**.
+
+## Final exact current v0.2 APK checkpoint
+
+Exact tested project head:
+
+`0db27c2cfc6eab768d41dcdbb1014b43311bb5a2`
+
+Workflow: `D.RAW Free Raster v0.3 Finish APK`
+
+- run: `38067653940`;
+- job: `114258469264`;
 - conclusion: **SUCCESS**.
 
 Green steps include:
@@ -99,19 +115,21 @@ Green steps include:
 - Android SDK/NDK/Gradle setup;
 - unit tests and full Android debug assembly;
 - APK verification;
-- runtime wiring commit;
 - artifact upload.
 
 GitHub Actions artifact:
 
-- artifact ID: `11675980316`;
+- artifact ID: `11676305345`;
 - name: `draw-free-raster-v03-fullres-candidate-apk`;
-- archive digest SHA-256: `ec0aa13ef39e53a9ee01f7934de11ed5ded4915af24551243b485eb1c2b8b208`.
+- archive digest SHA-256: `0695f32050009ffdcce63583e1bb5331d09c825466c4076c6bb86638a8c47e38`.
 
 Exact extracted APK:
 
+- member: `app-debug.apk`;
 - bytes: `8,888,139`;
-- SHA-256: `a77459fa4e8af1faace3165a1c29ae8b61aea987de47c21ab0d081b9e41192ff`.
+- SHA-256: `32ec63317e9cbdfecb353b1b98a30ef0770a742370da44503a7132278b454756`.
+
+This final exact checkpoint supersedes the earlier APK hash for **current v0.2 physical testing**.
 
 ## Physical acceptance gate
 
