@@ -6,25 +6,45 @@ BRIDGE = ROOT / "suite_android" / "app" / "src" / "main" / "cpp" / "photo_export
 text = BRIDGE.read_text(encoding="utf-8")
 original = text
 
-include_token = '#include "presentation_deep_censor_chroma_guard_v0_1.h"\n'
-if include_token not in text:
-    anchor = '#include "presentation_censored_chroma_fallback_v0_1.h"\n'
-    if anchor not in text:
-        raise SystemExit("missing accepted censored chroma include anchor")
-    text = text.replace(anchor, anchor + include_token, 1)
-
-namespace_token = (
+include_v1 = '#include "presentation_deep_censor_chroma_guard_v0_1.h"\n'
+include_v2 = '#include "presentation_deep_censor_chroma_guard_v0_2.h"\n'
+namespace_v1 = (
     'namespace presentation_deep_censor_chroma = '
     'truthraw::presentation_deep_censor_chroma_guard::v0_1;\n'
 )
-if namespace_token not in text:
-    anchor = (
-        'namespace presentation_censored_chroma = '
-        'truthraw::presentation_censored_chroma_fallback::v0_1;\n'
-    )
-    if anchor not in text:
-        raise SystemExit("missing accepted censored chroma namespace anchor")
-    text = text.replace(anchor, anchor + namespace_token, 1)
+namespace_v2 = (
+    'namespace presentation_deep_censor_chroma = '
+    'truthraw::presentation_deep_censor_chroma_guard::v0_2;\n'
+)
+
+# v0.2 supersedes the v0.1 runtime wiring. This legacy apply harness must never
+# downgrade a bridge that has already promoted the later Appearance revision.
+has_v2_include = include_v2 in text
+has_v2_namespace = namespace_v2 in text
+if has_v2_include != has_v2_namespace:
+    raise SystemExit("incomplete deep-censor v0.2 runtime wiring")
+superseded_by_v2 = has_v2_include and has_v2_namespace
+
+if superseded_by_v2:
+    # Self-heal any stale v0.1 runtime tokens without touching the active v0.2
+    # implementation or the single established runtime call.
+    text = text.replace(include_v1, "", 1)
+    text = text.replace(namespace_v1, "", 1)
+else:
+    if include_v1 not in text:
+        anchor = '#include "presentation_censored_chroma_fallback_v0_1.h"\n'
+        if anchor not in text:
+            raise SystemExit("missing accepted censored chroma include anchor")
+        text = text.replace(anchor, anchor + include_v1, 1)
+
+    if namespace_v1 not in text:
+        anchor = (
+            'namespace presentation_censored_chroma = '
+            'truthraw::presentation_censored_chroma_fallback::v0_1;\n'
+        )
+        if anchor not in text:
+            raise SystemExit("missing accepted censored chroma namespace anchor")
+        text = text.replace(anchor, anchor + namespace_v1, 1)
 
 apply_block = r'''                    // Deep-CENSOR residual chroma guard. The accepted fallback above
                     // remains unchanged; this stage only contracts the remaining unsupported
@@ -47,9 +67,11 @@ if 'presentation_deep_censor_chroma::apply(' not in text:
         raise SystemExit("missing Warm Illuminant insertion anchor")
     text = text.replace(anchor, apply_block + anchor, 1)
 
+active_include = include_v2.strip() if superseded_by_v2 else include_v1.strip()
+active_namespace = namespace_v2.strip() if superseded_by_v2 else namespace_v1.strip()
 required = (
-    include_token.strip(),
-    namespace_token.strip(),
+    active_include,
+    active_namespace,
     'presentation_near_censor_chroma::apply(',
     'presentation_censored_chroma::apply(',
     'presentation_deep_censor_chroma::apply(',
@@ -60,6 +82,12 @@ required = (
 for token in required:
     if token not in text:
         raise SystemExit(f"deep-censor wiring missing token: {token}")
+
+if superseded_by_v2:
+    if include_v1 in text or namespace_v1 in text:
+        raise SystemExit("legacy v0.1 runtime wiring survived v0.2 supersession")
+    if text.count(include_v2) != 1 or text.count(namespace_v2) != 1:
+        raise SystemExit("deep-censor v0.2 runtime wiring must remain unique")
 
 pure_pos = text.index('if(extendedLinearHeadroomInput_) {')
 else_pos = text.index('                } else {', pure_pos)
@@ -81,4 +109,5 @@ if 'presentation_deep_censor_chroma::apply(' in text[preacutance_pos:core_rgb_po
 if text != original:
     BRIDGE.write_text(text, encoding="utf-8")
 
-print("PRESENTATION_DEEP_CENSOR_CHROMA_GUARD_V0_1_APPLIED")
+state = "V0_2_SUPERSEDED" if superseded_by_v2 else "V0_1_APPLIED"
+print(f"PRESENTATION_DEEP_CENSOR_CHROMA_GUARD_{state}")
