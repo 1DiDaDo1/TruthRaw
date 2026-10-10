@@ -758,599 +758,138 @@ When prose and code disagree, exact newer code plus explicit newer evidence wins
 
 ---
 
-## 18. Final recovery statement
+## 18. 2026-10-10 interdisciplinary observation audit — binding new research direction
 
-The correct continuation point is now:
+The project has now completed a documentation-level joint audit across RAW/CFA photography and sensor metrology, optics/resolution, colour science and human vision, physically based rendering/3D, stop-motion/temporal sampling, architecture/projective geometry, artificial illumination/light falloff, black/white reference theory and conservation/restoration principles.
 
-**sealed scientific source/core unchanged -> source-agnostic evidence reading -> full-resolution shared presentation RGB24 sibling -> accepted Warm Illuminant behavior for bounded source-white warmth -> Natural Light Local Field Tone v0.1 retains its recovered intended role as a separate Appearance-only local brightness/luminous-field layer around illuminated surfaces, with physical-activation/acceptance provenance still to be resolved -> accepted authority-bound Censored Chroma Fallback v0.1 as standard ADVANCED/PRO Appearance behavior -> purple tele highlight considered solved and highlight-specific testing closed for now -> PURE remains isolated -> High-Fidelity Q100/true-4:4:4 stays green -> new separate colour question is user-verified yellow emissive TV subtitles that currently render near white/yellow-white -> this case must be treated as a possible spectral-observer + display-subpixel/CFA + temporal-exposure problem before any matrix/Appearance fix is attempted -> Lightroom lamp image is qualitative Appearance reference only, never scientific calibration.**
+This audit is **binding research/architecture context only**. It changes no runtime, no sealed observation, no Scientific Master, no existing accepted Appearance default, no promotion state and no PR merge state.
 
-PR #130 remains frozen. PR #131 remains open, draft and unmerged. No scientific candidate has been promoted and no scientific writeback has been enabled.
+Detailed records:
 
----
+- `docs/handoff/DRAW_44489_INTERDISCIPLINARY_OBSERVATION_AUDIT_2026-10-10.md`;
+- `docs/handoff/DRAW_44489_SOURCE_CAPABILITY_EVIDENCE_LEDGER_V0_2_DESIGN_2026-10-10.md`;
+- `docs/handoff/DRAW_44489_HIGH_ISO_CONTINUOUS_FIELD_RESEARCH_ROADMAP_2026-10-10.md`.
 
-## 19. Active main-project Evidence / Uncertainty / Authority integration — BINDING CHECKPOINT 2026-10-10
+### 18.1 RAW is a sealed multi-layer measurement, not merely a raster
 
-This section **supersedes any earlier wording that describes Evidence / Uncertainty / Authority v0.1 as existing only on the separate research branch**. The research branch remains provenance, but the validated contract layer is now integrated into the active D.RAW main-project line, PR #131 / `feat/draw-workspace-free-raster-v01`.
+Future intake decisions must treat a sealed RAW as carrying multiple potentially useful evidence layers: radiometry, CFA/sampling, colour-calibration context, optical/spatial support, acquisition timing/exposure, censoring/noise uncertainty and provenance.
 
-### 19.1 Exact integration and CI identities
+“Source/vendor agnostic” does **not** mean discarding metadata. It means a datum receives authority because it is present, parsed, semantically validated and source-bound — never because camera/vendor/app identity is assumed to imply scientific truth.
 
-Initial active-branch integration head:
+### 18.2 Source Capability Envelope v0.2 + Observation Evidence Ledger is the preferred first implementation
 
-`05a34d8023594204a122f6a623d1ac92953c920e`
+Before changing pixels, improve the entrance by harvesting and classifying more source-bound information where present and valid, including CFA phase, active/masked regions, packing/bit depth, black/white/linearization structure, exposure/aperture/gain context, valid source noise metadata, colour/calibration matrices, source white/calibration illuminants, optical/geometric metadata and standardized RAW/DNG operations.
 
-Commit role: integrates the validated Evidence / Uncertainty / Authority contracts and adds the active-branch CI binding.
+Every datum should follow:
 
-Exact active-branch science CI:
+`PRESENT -> PARSED -> VALIDATED -> ADMITTED -> USED`
 
-- workflow `D.RAW Evidence Uncertainty Authority v0.1`;
-- run `38057435554`;
-- job `114228677991`;
-- head `05a34d8023594204a122f6a623d1ac92953c920e`;
-- conclusion **SUCCESS**;
-- fail-closed scientific invariant verification: SUCCESS;
-- Java/Android SDK/NDK/Gradle setup: SUCCESS;
-- Android research-module compile: SUCCESS.
+and preserve source location, parser/version, semantics, uncertainty, contradictions, rejection reason and consumers.
 
-Therefore the authority/uncertainty integration is no longer merely inferred from the research branch: it has its **own successful active-main-project CI run**.
+Opaque MakerNotes/private blocks default to provenance-only/unknown semantics until independently validated. Camera/lens/vendor identity may route parsing but may never silently select scientific calibration.
 
-Historical research proof remains valid provenance:
+The **first milestone must be zero-pixel-change introspection**: richer ledger/envelope, exact sealed-source binding, and proof that Scientific Master/product output is unchanged until an explicitly admitted consumer uses new evidence.
 
-- branch `research/evidence-uncertainty-authority-v01-2026-10-10`;
-- exact green research checkpoint `a607311c3d77acf20475bfc0a06b77adb635fd73`;
-- workflow run `38054481041`;
-- job `114220019534`;
-- SUCCESS.
+### 18.3 Fuller natural colour requires stronger separation, not stronger saturation
 
-Do not confuse the research checkpoint with the active-main-project checkpoint; both are retained for lineage.
+Natural/full colour is not equivalent to increasing saturation. Future colour architecture should explicitly separate:
 
-### 19.2 Integrated contracts now present in the active project
+1. **Scientific Colour Formation** — source/scene-referred, calibration-domain-aware, retaining negative/>1 intermediates where meaningful plus censoring/UNKNOWN/uncertainty;
+2. **Natural Appearance** — downstream adaptation/viewing context, tone, local contrast/luminance, perceptual chroma/colourfulness, gamut mapping and output encoding.
 
-The active PR #131 codebase now contains the validated code-only authority improvements:
+A 3x3 transform is not automatically exact human colorimetry for arbitrary spectra. Narrowband emissive sources remain a known uncertainty class.
 
-1. **PSD covariance admission** in `ScientificNoiseMathV01.kt`: finite/symmetric/nonnegative-diagonal 3x3 covariance plus principal 2x2 minors and full determinant, scale-relative tolerance `1e-12`; no silent eigenvalue clipping, nearest-PSD projection or synthetic covariance repair.
-2. **Radiometric Reliability Envelope v0.1** in `RadiometricReliabilityEnvelopeV01.kt`: admitted uncensored/censored support and observed transition bracketing without WhiteLevel-percentage heuristics; finite or merely unclipped does not prove linear/chromatic reliability.
-3. **Temporal authority hardening** in `TemporalFootprintV01.kt`: readout start/end, row timing, PWM/refresh relation and motion path stay UNKNOWN unless actually supported; exposure duration alone does not authorize row timing or temporal colour correction.
-4. **Optical/spatial authority hardening** in `OpticalSupportAtlasV01.kt`: raster density is not optical resolution; unsupported frequency remains UNKNOWN; inverse optics requires admitted optical/noise support.
-5. **Colour spectral-domain authority** in `ColourDomainAuthorityV01.kt`: a fixed 3x3 is not universal spectral truth, finite RGB is not automatically known human chromaticity, and unusual/narrowband emissive spectra may remain outside the admitted calibration domain.
-6. **Multidimensional reconstruction admission** in `UniversalObservationAuthorityAdmissionV02.kt`: prospective axes include CFA phase, structure, direction, censor state, radiometric reliability, reconstruction uncertainty, optical support and temporal support; `NO_SUITABLE_MODEL` remains valid.
-7. **Free World uncertainty expansion** in `FreeWorldUncertaintyTransportV01.kt`: explicit `RADIOMETRIC_RELIABILITY` and `SPECTRAL_COLOUR_DOMAIN` uncertainty axes.
-8. **Global research snapshot integration** in `GlobalResearchSnapshotV01.kt`: contracts are discoverable as implementation awareness only; the snapshot remains `IMPLEMENTATION_MAP_NOT_PHOTO_EVIDENCE` and does not create scientific authority.
+Existing Appearance operators should converge toward a declarative **Natural Appearance Graph**. Each node should state input authority, working space, no-op region, max intervention, order dependencies, provenance and scientific-writeback prohibition. Appearance may become richer while origin remains explicit.
 
-These contracts do **not** promote calibration, reconstruction or colour truth and do not themselves alter sealed measurements.
+### 18.4 High-ISO direction — noise likelihood before denoise
 
-### 19.3 Main-project APK checkpoint after integration
+Do not add a conventional RGB blur/denoiser as the scientific core. The preferred scientific question is:
 
-The first APK workflow at the integration head exposed one build-tooling idempotence problem, not a science/runtime failure: the historical Natural Light applicator still expected the old exact adjacency between the Natural Light call and the Warm Illuminant block, while the later accepted Censored Chroma stage had legitimately inserted downstream Appearance code around that location.
+**Which latent radiance is best supported by these sealed measurements, and with what uncertainty?**
 
-Tooling-only repair commit:
+Preferred chain:
 
-`cd7d114a81556be44f10dcd4a74e4ee249f9fbf2`
+`sealed CFA -> black/linearity/reliability -> censor state -> source-bound noise likelihood -> CFA phase + local structure + optical support -> evidence-weighted latent estimate -> uncertainty -> colour -> Appearance`
 
-Commit role:
+If one observation cannot identify shot/read/dark/fixed-pattern/quantization components reliably, widen uncertainty or retain UNKNOWN parameters rather than fabricating coefficients.
 
-`ci: make Natural Light applicator idempotent after downstream appearance stages`
+Permanent rule: **clean image != perfect knowledge**.
 
-The repair changes `tools/apply_presentation_natural_light_field_tone_v0_1.py` so that an already-present, single, correctly ordered Natural Light runtime call is accepted as `ALREADY_APPLIED` even when later authority-bound Appearance stages exist. It still verifies the required include/namespace/field support/integral/local mean wiring, exact Natural Light gate count, exact single runtime-call count and ordering:
+Next reconstruction research may use a deterministic local model bank (constant, affine/local plane, directional/edge-aware, supported texture/periodic bases, `NO_SUITABLE_MODEL`) selected only from target-excluded support. Genuine CFA hold-outs, per-channel/aggregate error, bias and uncertainty coverage remain mandatory. The existing failed affine promotion result remains binding evidence against promotion by plausibility/coverage alone.
 
-`PURE -> ADVANCED/PRO -> Natural Light Local Field -> Warm Illuminant -> historical highlight observer -> gamut fit`
+### 18.5 Free Raster remains, but becomes clearly the sampling/output surface
 
-No accepted runtime pixel algorithm, Scientific Master route, Censored Chroma behavior, Warm Illuminant behavior or authority boundary was changed by this tooling repair.
+Free Raster should not be removed. Its role should be narrowed conceptually: it is the downstream sampling/projection/export interface, not the fundamental definition of the scientific image.
 
-Exact successful main APK workflow:
+Research direction: **Observation-Bound Continuous Scientific Field**, deterministic and non-generative, conceptually carrying:
 
-- workflow `D.RAW Free Raster v0.3 Finish APK`;
-- run `38058200039`;
-- job `114230883767`;
-- head `cd7d114a81556be44f10dcd4a74e4ee249f9fbf2`;
-- conclusion **SUCCESS**;
-- all Appearance applicators: SUCCESS;
-- all presentation regressions including Warm Illuminant, Natural Light Local Field and Censored Chroma Fallback: SUCCESS;
-- Java/Android/NDK/Gradle setup: SUCCESS;
-- `Test and build`: SUCCESS;
-- `Verify APK`: SUCCESS;
-- artifact upload: SUCCESS.
+- `mu(x,y,c)` — best-supported local estimate;
+- `Sigma(x,y,c)` — uncertainty/covariance;
+- `Authority(x,y)` — measured/calibrated/reconstructed/censored/unknown;
+- `OpticalSupport(x,y,f)` — evidenced spatial-frequency support;
+- `Model(x,y)` — chosen deterministic local basis;
+- `Provenance(x,y)` — sealed-source/support lineage.
 
-GitHub Actions artifact:
+Candidate splines/wavelets/local polynomials/other bases are permitted only as research models and only if true hold-outs prove them. Generative NeRF/world completion or hallucinated super-resolution is not admitted as scientific authority.
 
-- artifact id `11672570301`;
-- name `draw-free-raster-v03-fullres-candidate-apk`;
-- artifact archive digest SHA-256 `56709e81d7ea1252ad06c72cf971c17874c81d13f0b139dcceb96f6424a2b789`.
+Desired eventual route:
 
-Exact APK extracted from that artifact:
+`Continuous Scientific Field -> Natural Appearance Field -> ONE final sampling -> Original / 1080p / 4K / 8K / Custom`
 
-- artifact member `app-debug.apk`;
-- bytes `8,886,187`;
-- SHA-256 `6e1266777a820b2ec5456faab546e8922b71f8c0f16bc218b6a58511cbf63bfe`.
+An 8K output may contain 8K samples without claiming 8K independently measured optical detail. Pixel count and optical resolution remain distinct.
 
-**This is the current exact main-project APK/code checkpoint.** A later documentation-only 44489 commit does not change these APK bytes and must not be substituted as the tested runtime identity.
+### 18.6 3D, architecture, artificial light, stop-motion and human vision boundaries
 
-### 19.4 Scientific boundary after main-project integration
+- Perspective, vanishing lines, planes and homographies may constrain structure, but one image does not automatically prove metric scale, complete depth, material or illumination.
+- Room Capsule / Free World remain fail-closed for unsupported world claims.
+- Self-emitted radiance and reflected/transmitted radiance remain physically distinct.
+- A visually static/stop-motion scene may still have temporally varying light due to PWM, LED drivers, display refresh/scanout and rolling shutter; the camera integrates over its exposure interval.
+- Sensor BlackLevel/zero-line/WhiteLevel/censoring are measurement concepts. Display black/white/tone/roll-off are Appearance concepts. Never change a scientific black/white reference merely to improve a JPEG.
+- Human visual naturalness depends on luminance/chromatic adaptation, contrast and surround. This justifies downstream Appearance, never falsifying Scientific Master.
+- Conservation/restoration analogy remains useful: preserve the original, document interventions, keep them minimal/non-destructive where practical, and never erase provenance.
 
-The integration changes project awareness and fail-closed admission contracts; it does **not** convert missing physical knowledge into evidence.
+### 18.7 New promotion gates
 
-Still unproven without actual source-bound physical evidence:
+**Gate A — Intake completeness:** real fixtures, exact source trace, semantic validation, contradiction/fail-closed behavior, no brand-based scientific authority, zero-pixel-change first milestone.
 
-- the true pre-saturation/linearity reliability boundary of a specific source/sensor;
-- whether a particular finite near-white sample is radiometrically/chromatically reliable;
-- real rolling-shutter row timing where not admitted from measurement/calibration;
-- actual PWM/display-refresh phase relation;
-- local SFR/MTF/PSF/focus/field support unless measured/calibrated and source-bound;
-- spectral calibration-domain validity for unusual/narrowband emitters;
-- promotion of a richer reconstruction selector;
-- any claim that the unresolved yellow-TV subtitle colour has already been physically corrected.
+**Gate B — Noise likelihood:** every parameter calibration/source-backed or UNKNOWN; residual/likelihood validation where possible; no fabricated coefficients; no Scientific-Master application during research.
 
-Permanent integration flags remain conceptually closed:
+**Gate C — Reconstruction:** true target-excluded CFA hold-outs; aggregate/per-channel error and bias; calibrated uncertainty; edge/texture strata; measured anchors unchanged; deterministic; `NO_SUITABLE_MODEL` fail-closed.
 
-- `candidate_applied=false` unless a separately admitted candidate explicitly says otherwise;
-- `creates_new_evidence=false`;
-- `scientific_writeback_allowed=false`;
-- sealed CFA/source evidence unchanged;
-- Scientific Master unchanged by these contract additions;
-- no UNKNOWN axis may be promoted merely because the Android build succeeds.
+**Gate D — Continuous field:** match/beat raster baseline on true hold-outs; honest bandlimit/spatial support; arbitrary output density creates no MEASURED authority; provenance/uncertainty survive resampling.
 
-### 19.5 PR and project-state boundary
+**Gate E — Appearance:** Scientific Master invariant; exact node order/config/provenance; no-op/max-intervention bounds; perceptual validation separate from scientific validation.
 
-- PR #130 remains frozen at `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f` and was not modified.
-- PR #131 remains the active project line, open, draft and unmerged.
-- The accepted purple-highlight solution, Warm Illuminant behavior, PURE isolation, High-Fidelity JPEG behavior and Natural Light design role remain intact.
-- The yellow emissive-display problem remains a separate unresolved research target.
-- The separate research branch is retained as provenance; it is no longer the only place where these contracts exist.
+**Gate F — 3D/world:** no unsupported metric depth/material/illumination promotion; multi-observation links bind separately sealed observations; missing/contradictory evidence remains UNKNOWN/fail-closed.
 
-### 19.6 New exact continuation point
+### 18.8 New preferred scientific execution order
 
-For a new 44489 chat, the current main-project authority cable is:
+Without disturbing current product/Appearance acceptance work, the next broad scientific-development sequence is:
 
-`sealed value -> source-bound black/white/linearity evidence -> radiometric reliability/censor state -> noise + PSD-valid covariance -> CFA/spatial/optical/temporal support -> deterministic reconstruction admission -> colour transform with calibration-domain + covariance authority -> Scientific Master / observation-bound derived state -> downstream Appearance -> Unified Output -> Free Raster / Export`
+1. `Source Capability Envelope v0.2 + Observation Evidence Ledger` — schema/introspection first, **zero pixel changes**;
+2. source-bound noise likelihood — research-only;
+3. Evidence-Weighted Local Radiance Reconstruction + Observation-Bound Continuous Scientific Field — research-only with genuine CFA hold-outs;
+4. optical-support/SFR binding only where evidence permits;
+5. declarative Natural Appearance Graph while keeping Scientific Master invariant;
+6. Free Raster as one final arbitrary-resolution sampling interface;
+7. 3D/Free World authority expansion only from separately sealed/calibrated evidence.
 
-The immediate scientific priority remains physical validation of the still-UNKNOWN axes, not inventing values for them. The immediate product/runtime identity for testing is the APK built from `cd7d114a81556be44f10dcd4a74e4ee249f9fbf2`, SHA-256 `6e1266777a820b2ec5456faab546e8922b71f8c0f16bc218b6a58511cbf63bfe`.
+No research module is scientifically promoted merely by being implemented.
+
+Guiding line:
+
+> **Niet meer pixels verzinnen, maar meer van de werkelijk aanwezige informatie begrijpen.**
 
 ---
 
-## 20. Residual purple follow-up — Residual Near-Censor Chroma Shoulder v0.1 — CI-GREEN CANDIDATE 2026-10-10
+## 19. Updated key recovery records for this audit
 
-This section **supersedes older wording that highlight-specific testing is fully closed**. The accepted `Censored Chroma Fallback v0.1` remains the standard solution for the former broad tele-purple failure and is not demoted. A newer PRO real-device output now demonstrates a materially smaller residual lila/magenta class in bright/backlit edge regions, so a narrowly scoped follow-up is justified.
+Add these to the mandatory reading set before future intake/noise/reconstruction/resolution architecture changes:
 
-### 20.1 New real-device regression evidence
+- `docs/handoff/DRAW_44489_INTERDISCIPLINARY_OBSERVATION_AUDIT_2026-10-10.md`;
+- `docs/handoff/DRAW_44489_SOURCE_CAPABILITY_EVIDENCE_LEDGER_V0_2_DESIGN_2026-10-10.md`;
+- `docs/handoff/DRAW_44489_HIGH_ISO_CONTINUOUS_FIELD_RESEARCH_ROADMAP_2026-10-10.md`.
 
-User-supplied bundle:
-
-`DRAW_CAPTURE_1791642512412_tele_4080x3072_draw_pro_fullres.zip`
-
-- bytes `17,179,195`;
-- SHA-256 `47b7d6e3ec88f8cd2b402e0bb46aa1f5d875f878625abdd016f16a1cbb3b79ea`.
-
-Contained PRO JPEG:
-
-`DRAW_CAPTURE_1791642512412_tele_4080x3072_draw_pro_fullres.jpg`
-
-- bytes `17,329,222`;
-- SHA-256 `f45102ab7fdf8bb23922283680cf9a1edff3c21f6d11f4100b2c68fffa40ae5a`;
-- geometry `4080 x 3072`.
-
-Observed:
-
-- the historical broad purple highlight component is not back;
-- a weaker/narrower lila/magenta residual remains in very bright/backlit exterior edge/highlight regions, especially the upper window strip and several high-contrast exterior boundaries;
-- useful edge/detail structure is still present in those areas;
-- therefore the follow-up must preserve luminance/detail and must not become a stronger indiscriminate highlight desaturation.
-
-Any offline hue/pixel heuristic used to localize the residual during inspection is diagnostic only and **is not runtime authority**.
-
-### 20.2 Candidate design and hard limits
-
-New candidate:
-
-**Residual Near-Censor Chroma Shoulder v0.1**
-
-Runtime file:
-
-`suite_android/app/src/main/cpp/presentation_near_censor_chroma_shoulder_v0_1.h`
-
-Downstream non-PURE ordering:
-
-`Natural Light Local Field -> Residual Near-Censor Chroma Shoulder -> accepted Censored Chroma Fallback -> Warm Illuminant Retention -> historical highlight observer -> gamut fit`
-
-Constants:
-
-- `kCensorFractionStart = 0.02`;
-- `kCensorFractionFullShoulder = 0.15`;
-- `kCensorFractionFadeStart = 0.35`;
-- `kCensorFractionFadeEnd = 0.55`;
-- `kMaxChromaContraction = 0.12`.
-
-Hard behavior:
-
-- CENSOR fraction `<= 0.02` -> exact no-op;
-- smooth rise to at most 12% chroma contraction by `0.15`;
-- bounded shoulder while the accepted fallback begins taking authority;
-- shoulder fades to zero by `0.55`, where the accepted fallback already dominates;
-- combined shoulder + accepted fallback response is regression-locked to monotonic chroma contraction as CENSOR authority increases;
-- Rec.709 luminance is preserved;
-- no spatial blur, resampling, geometry change or acutance/detail mutation;
-- no hue-specific trigger, purple detector, semantic/object detector, brightness threshold or camera/vendor identity;
-- PURE bypasses the layer;
-- no source/Scientific-Master mutation, evidence creation, scientific recovery claim or scientific writeback.
-
-The accepted `Censored Chroma Fallback v0.1` constants remain unchanged and independently regression-locked.
-
-### 20.3 Exact implementation and CI lineage
-
-Candidate/header/applicator/regression commit:
-
-`91b0660b7336d5ae5fc7f62bde95c790f46393b0`
-
-Workflow integration commit:
-
-`2f532545be9ff81e23151b582937279d70c603aa`
-
-Exact CI-generated runtime wiring commit:
-
-`564398857965ab4560c5bb3a6341a2de167fd2e8`
-
-Dedicated handoff:
-
-`docs/handoff/DRAW_44489_RESIDUAL_NEAR_CENSOR_CHROMA_SHOULDER_V0_1_CANDIDATE_2026-10-10.md`
-
-Workflow:
-
-- `D.RAW Free Raster v0.3 Finish APK`;
-- run `38061533998`;
-- job `114240619677`;
-- conclusion **SUCCESS**.
-
-Green checks include the new shoulder applicator/regression, all pre-existing Appearance regressions, accepted Censored Chroma Fallback regression, Warm Illuminant, Natural Light Local Field, PURE isolation/headroom, sealed Full-Frame Streaming integrity, strict Q100/true-4:4:4 JPEG codec regression, Android unit tests/build, APK verification and artifact upload.
-
-The new regression proves:
-
-- exact no-op through the `0.02` start;
-- approximately 12% maximum shoulder contraction at `0.15`;
-- Rec.709 luminance preservation;
-- hue-independent authority response;
-- fade-out as accepted fallback authority takes over;
-- monotonic combined chroma contraction from shoulder + accepted fallback;
-- no leakage into restoration/detail/acutance preparation;
-- PURE isolation;
-- accepted fallback constants unchanged.
-
-### 20.4 Candidate APK for physical validation
-
-GitHub Actions artifact:
-
-- artifact id `11673332546`;
-- name `draw-free-raster-v03-fullres-candidate-apk`;
-- archive digest SHA-256 `65cacca9a30f2d0c6685b472a4d135fbc708e92fd3a364b6eff444c5b94b2998`.
-
-Exact extracted APK:
-
-- bytes `8,886,667`;
-- SHA-256 `835b672de55a65236f950ec3b4801146b6d5d2299cd4611ca78f719c0d37f8b8`.
-
-The workflow trigger head is `2f532545...`; in the same CI workspace the applicator inserted the runtime wiring that was then committed byte-identically to the branch as `5643988579...`. Therefore `564398857965ab4560c5bb3a6341a2de167fd2e8` is the exact committed runtime identity corresponding to this candidate APK behavior.
-
-Classification:
-
-**CI-GREEN APPEARANCE CANDIDATE / REAL-DEVICE VALIDATION PENDING**
-
-Do not promote this shoulder to standard behavior merely because CI/build is green.
-
-### 20.5 Required next physical test
-
-Use the candidate APK on a comparable PRO backlit/window scene. PASS requires all of the following:
-
-- residual lila/magenta materially reduced versus the `1791642512412` PRO output;
-- fine luminance structure, edge detail and acutance retained;
-- no new neutral/gray halo or seam around bright boundaries;
-- legitimate saturated colours not visibly washed out;
-- accepted Warm Illuminant appearance preserved;
-- accepted broad-purple Censored Chroma behavior does not regress;
-- Q100/true-4:4:4 output remains valid.
-
-FAIL or revise if the residual is materially unchanged, valid colour is visibly desaturated, detail/acutance drops, halos/seams appear, or accepted Warm Illuminant/Censored Chroma behavior regresses.
-
-A matching PURE frame is useful as an isolation reference but is not required for this downstream Appearance candidate if the PRO regression target is clearly demonstrated.
-
-### 20.6 Updated continuation boundary
-
-The correct current interpretation is now:
-
-**the former broad purple highlight failure remains solved by accepted Censored Chroma Fallback v0.1; a newer real-device PRO capture proves a smaller residual near-censor lila/magenta failure class; Residual Near-Censor Chroma Shoulder v0.1 is implemented in the active main-project line and fully CI/build green, but physical acceptance remains pending.**
-
-Do not broaden this candidate into generic desaturation or a scientific pre-saturation calibration. The separate yellow emissive-display investigation remains separate and unresolved. Scientific Master, sealed evidence and all promotion firewalls remain unchanged.
+Primary/standard knowledge anchors used by this audit include Adobe DNG resources, EMVA 1288 sensor/camera characterization, ISO 12233:2024 resolution/SFR, CIECAM16, Physically Based Rendering radiometry/light transport, and Hartley-Zisserman multiple-view/projective geometry. These sources inform hypotheses, definitions and tests; they never create observation-specific MEASURED evidence by themselves.
 
 ---
-
-## 21. Direct tele purple-sky test — shoulder insufficient; Deep-Censor Chroma Guard v0.1 — CI-GREEN CANDIDATE 2026-10-10
-
-This section supersedes section 20 wherever section 20 says the near-censor shoulder is merely awaiting generic physical validation. A new direct tele/PRO sky test now proves that the dominant remaining purple class can occur in **deeply censored** support, outside the first shoulder's intended authority range.
-
-### 21.1 Exact real-device test
-
-Bundle:
-
-`DRAWdirecttelepurpleskytest.zip`
-
-- bytes `19,180,969`;
-- SHA-256 `68a68a2daf634ef0aff54716483206eca9061ec97619d8eacd5bd36bca14b2fa`.
-
-Contained full-resolution PRO JPEG:
-
-`DRAW_CAPTURE_1791645320252_tele_4080x3072_draw_pro_fullres.jpg`
-
-- bytes `10,550,559`;
-- SHA-256 `23dd8d719915f84e6bc5e258b3cb756a3e6459e022061bb67fd7f1c5a9f79a9d`;
-- geometry `4080 x 3072`;
-- app route `PRO`;
-- source orientation `0°`.
-
-Observed: large backlit cloud/highlight areas remain visibly pink/lila while luminance structure and cloud-edge detail are still present. Therefore this is a clear **FAIL of the shoulder as a complete residual-purple solution**, but not evidence that the shoulder's low-fraction role is invalid.
-
-### 21.2 Decisive CENSOR-support evidence
-
-The same capture's `N2 · 1:1 Full-colour SAFE A/B/Δ` diagnostic selected:
-
-`Censor/highlight-zone · bron x=3136, y=1088 · 192x192`
-
-with:
-
-- sampled `36,864`;
-- candidate `1,530`;
-- preserved `35,334`;
-- structure `8,034`;
-- censored `26,591`;
-- boundary `709`;
-- changed `2 / 36,864`;
-- candidate-applied `false`.
-
-Thus the reconstruction-support CENSOR fraction is:
-
-`26591 / 36864 = 0.7213270399` ≈ **72.13%**.
-
-At this authority the first near-censor shoulder is exactly zero because it fades out completely by CENSOR fraction `0.55`.
-
-The frozen accepted Censored Chroma Fallback contracts approximately `76.53%` at this authority and therefore still leaves approximately **23.47% residual chroma**. The sky test proves that this residual can remain visibly pink/lila when the censored pre-fallback chromatic ratio is extreme.
-
-Classification of section-20 shoulder after this test:
-
-**NOT SUFFICIENT AS COMPLETE DEEP-CENSOR PURPLE SOLUTION / LOW-FRACTION SHOULDER ROLE RETAINED AS CANDIDATE COMPONENT**.
-
-### 21.3 Deep-Censor Chroma Guard v0.1
-
-New separate downstream Appearance layer:
-
-`suite_android/app/src/main/cpp/presentation_deep_censor_chroma_guard_v0_1.h`
-
-Ordering:
-
-`Natural Light Local Field -> Residual Near-Censor Shoulder -> accepted Censored Chroma Fallback -> Deep-Censor Chroma Guard -> Warm Illuminant Retention -> historical highlight observer -> gamut fit`
-
-Constants:
-
-- `kCensorFractionStart = 0.50`;
-- `kCensorFractionFull = 0.80`;
-- `kMaxRemainingChromaContraction = 0.78`.
-
-Behavior:
-
-- CENSOR fraction `<= 0.50` -> exact no-op;
-- smooth rise from `0.50` to `0.80`;
-- at/above `0.80`, contract at most 78% of the **remaining** chroma after the accepted fallback;
-- at the observed `0.721327` sky authority, complete shoulder + fallback + deep-guard chain retains approximately **8.28%** original chroma instead of ~23.47%;
-- at fully deep-censored support, complete chain retains approximately **3.52%** original chroma;
-- Rec.709 luminance preserved;
-- no blur, resampling, geometry, acutance or detail mutation;
-- no hue/purple detector;
-- no brightness trigger;
-- no object semantics;
-- no camera/vendor identity;
-- PURE bypass;
-- Warm Illuminant remains downstream;
-- no source mutation, Scientific-Master writeback, evidence creation or recovered-scene-colour claim.
-
-The accepted Censored Chroma Fallback constants and the section-20 near-censor shoulder constants remain unchanged.
-
-### 21.4 Exact code and CI provenance
-
-Candidate code commit:
-
-`81e7f255aede165dbee1e687e6a02aa0fbf2fff0`
-
-Dedicated CI workflow commit:
-
-`81638fdf37925e8e428a7b16548207c2aa1cb239`
-
-Exact CI-generated runtime-wiring commit:
-
-`05a41eb4a4362fce134c72c90294f969cf39655b`
-
-Workflow:
-
-- `D.RAW Deep-Censor Chroma Guard v0.1`;
-- run `38064184948`;
-- job `114248374631`;
-- conclusion **SUCCESS**.
-
-Green: deep-censor applicator/order/regression, existing near-censor shoulder regression, accepted fallback regression, Warm Illuminant, Natural Light Local Field, gamut-fit, sealed Full-Frame Streaming integrity, strict Q100/true-4:4:4 JPEG codec regression, Android unit tests/build, APK verification, runtime commit and artifact upload.
-
-Dedicated handoff:
-
-`docs/handoff/DRAW_44489_DEEP_CENSOR_CHROMA_GUARD_V0_1_CANDIDATE_2026-10-10.md`
-
-### 21.5 Candidate APK
-
-Artifact:
-
-- id `11674890747`;
-- name `draw-deep-censor-chroma-guard-v01-apk`;
-- archive digest SHA-256 `2b6776c7ab8930d3b2f9a50ab071d6ab4a8b01a149c4b05829a1f5cb03539b35`.
-
-Extracted APK:
-
-- bytes `8,887,019`;
-- SHA-256 `ed1659999c4a292a399515bde01bce98b88dad6e3795bb1ea9be9dc414e911cf`.
-
-Classification:
-
-**CI-GREEN APPEARANCE CANDIDATE / DIRECT-TELE SKY REAL-DEVICE VALIDATION PENDING**.
-
-Do not promote it from CI alone.
-
-### 21.6 Required next physical round
-
-Repeat a direct tele/PRO backlit cloud/sky scene comparable to capture `1791645320252` with the Deep-Censor candidate APK.
-
-PASS requires materially reduced deep-censored pink/lila, preserved cloud luminance structure and edges, no gray halo/seam, no global washout of ordinary non-censored sky/cloud colour, no detail/acutance loss, no Warm Illuminant regression, no accepted Censored Chroma regression, and valid Q100/true-4:4:4 output.
-
-FAIL/revise if deep-censored purple remains dominant, ordinary colour is washed out, luminance/detail drops, halos/seams appear, or accepted downstream behavior regresses.
-
-### 21.7 Updated recovery boundary
-
-The current purple-highlight state is now:
-
-**accepted Censored Chroma Fallback v0.1 still solves the historical broad tele lamp/highlight failure; Residual Near-Censor Chroma Shoulder v0.1 covers only low-fraction residual authority and is insufficient for the new sky failure; the direct tele sky proves a distinct deep-CENSOR residual class at ~72% support censoring; Deep-Censor Chroma Guard v0.1 is implemented and fully CI/build green, with physical sky acceptance still pending.**
-
-Scientific Master, sealed evidence, radiometric calibration state and all promotion firewalls remain unchanged. The separate yellow emissive-display problem remains separate.
-
----
-
-## 22. Deep-Censor Chroma Guard v0.2 detail preservation — FINAL CI-GREEN CANDIDATE CHECKPOINT 2026-10-10
-
-This section supersedes v0.1 as the **current deep-CENSOR real-device candidate**, while preserving all v0.1 provenance and without physically promoting v0.2.
-
-Latest user test evidence is `DRAWPROJPEGtelepurpletest.zip`, with contained PRO JPEG `DRAW_CAPTURE_1791647288671_tele_4080x3072_draw_pro_fullres.jpg`. User judgement after Deep-Censor Guard v0.1: **the purple result is very good; increasing detail preservation would make it perfect**.
-
-The important interpretation is that v0.1 already preserves Rec.709 luminance algebraically. The remaining perceptual flattening is therefore treated as reduced subtle local chroma/colour microcontrast, not as permission to add sharpening. A generic edge exemption is explicitly rejected because real purple residual can overlap genuine luminance edges and could reopen the purple failure.
-
-### 22.1 v0.2 detail-preserving behavior
-
-Current runtime file:
-
-`suite_android/app/src/main/cpp/presentation_deep_censor_chroma_guard_v0_2.h`
-
-v0.2 retains the v0.1 deep-CENSOR authority response:
-
-- `kCensorFractionStart = 0.50`;
-- `kCensorFractionFull = 0.80`;
-- `kMaxRemainingChromaContraction = 0.78`.
-
-It adds only bounded low-amplitude chroma-detail relief:
-
-- relative chroma <= `0.02` may receive at most `35%` relief from the **additional deep-guard contraction only**;
-- relief smoothly reaches zero by relative chroma `0.12`;
-- clearly chromatic residuals >= `0.12` receive the exact v0.1 deep-guard response;
-- the stage never expands chroma relative to its input;
-- Rec.709 luminance remains preserved by construction;
-- chroma-vector direction remains common-scalar preserving;
-- no sharpening, blur, resampling, edge detector, hue/purple detector, semantic/object detector, camera/vendor identity or brightness threshold is introduced;
-- accepted upstream Censored Chroma Fallback v0.1 remains unchanged;
-- PURE remains isolated;
-- Warm Illuminant remains downstream.
-
-Runtime order is:
-
-`Natural Light Local Field -> Near-Censor Shoulder -> accepted Censored Chroma Fallback -> Deep-Censor Chroma Guard v0.2 -> Warm Illuminant Retention -> historical highlight observer -> gamut fit`.
-
-### 22.2 Exact current code/build identity
-
-Exact current tested project head for the downloadable v0.2 APK:
-
-`0db27c2cfc6eab768d41dcdbb1014b43311bb5a2`
-
-On this exact head:
-
-- workflow `D.RAW Free Raster v0.3 Finish APK`;
-- run `38067653940`;
-- job `114258469264`;
-- conclusion **SUCCESS**;
-- `Apply deep-censor chroma detail guard v0.2`: SUCCESS;
-- `Deep-censor chroma detail preservation regression v0.2`: SUCCESS;
-- presentation gamut fit regression: SUCCESS;
-- Warm Illuminant regression: SUCCESS;
-- Natural Light Local Field regression: SUCCESS;
-- accepted Censored Chroma Fallback regression: SUCCESS;
-- Residual Near-Censor Shoulder regression: SUCCESS;
-- PURE/headroom regressions: SUCCESS;
-- sealed Full-Frame Streaming integrity: SUCCESS;
-- strict High-Fidelity Q100/true-4:4:4 JPEG codec regression: SUCCESS;
-- Android tests/build: SUCCESS;
-- APK verification: SUCCESS;
-- artifact upload: SUCCESS.
-
-GitHub Actions artifact:
-
-- artifact id `11676305345`;
-- name `draw-free-raster-v03-fullres-candidate-apk`;
-- archive digest SHA-256 `0695f32050009ffdcce63583e1bb5331d09c825466c4076c6bb86638a8c47e38`.
-
-Exact extracted APK:
-
-- member `app-debug.apk`;
-- bytes `8,888,139`;
-- SHA-256 `32ec63317e9cbdfecb353b1b98a30ef0770a742370da44503a7132278b454756`.
-
-This exact final APK checkpoint supersedes earlier v0.2 APK hashes/build identifiers for **current testing**, while earlier green/failure runs remain historical provenance.
-
-### 22.3 Development lineage retained
-
-- header commit `0ba2ecc50df5c2c072aa6028d4b7e83e527c964d`;
-- applicator commit `06b8c137c24aa8383d3f076ec6b9093009d3eb5c`;
-- initial regression commit `951082efa855eb1933bc63b8d359b9ac4071842d`;
-- main APK workflow binding `5dbed408ee977a0783c83694b74ad1cf2a07bc21`;
-- corrected regression harness `51e4bf5ae2a875e790b02d30568d76b027397116`;
-- earlier CI-generated runtime wiring `bd6ae77eba0314c9d87130931e0771a91ce749fb`.
-
-The first main-workflow v0.2 attempt stopped because the static regression harness falsely matched the word `semantic` inside a comment that explicitly forbade semantic inference. This is classified **HARNESS_FAILURE / NOT_RUNTIME_FAILURE**; the harness was corrected without changing the v0.2 pixel algorithm.
-
-Dedicated detailed record:
-
-`docs/handoff/DRAW_44489_DEEP_CENSOR_CHROMA_GUARD_V0_2_DETAIL_CANDIDATE_2026-10-10.md`
-
-### 22.4 Physical acceptance boundary
-
-Classification remains:
-
-**CI-GREEN APPEARANCE CANDIDATE / REAL-DEVICE DETAIL VALIDATION PENDING**.
-
-PASS requires:
-
-1. purple/magenta suppression at least as good as Deep-Censor Guard v0.1;
-2. visibly improved subtle cloud/foliage/local-colour texture and perceived detail;
-3. no luminance-detail loss, halo, seam, ringing or oversharpening;
-4. no reopening of strong purple on true edges;
-5. no washout of legitimate saturated colour;
-6. accepted Warm Illuminant behavior preserved;
-7. accepted Censored Chroma Fallback behavior preserved;
-8. Q100/true-4:4:4 output remains valid.
-
-Scientific Master, sealed evidence, radiometric calibration state, source authority and all scientific promotion/writeback firewalls remain unchanged.
-
-### 22.5 Updated continuation boundary
-
-The current purple/detail state is now:
-
-**accepted Censored Chroma Fallback v0.1 remains the standard broad-purple solution; Residual Near-Censor Shoulder v0.1 remains the low-fraction residual component; Deep-Censor Guard v0.1 materially solved the new deep-CENSOR sky purple class on real device but left some perceptual flattening; Deep-Censor Chroma Guard v0.2 is the current CI-green candidate designed specifically to recover low-amplitude chroma microdetail without weakening strong-purple suppression. The exact downloadable v0.2 APK is the artifact from head `0db27c2c...`, SHA-256 `32ec63317e9cbdfecb353b1b98a30ef0770a742370da44503a7132278b454756`.**
-
----
-
-## 23. Censored Illuminant Hue Floor v0.1 — CI-GREEN CANDIDATE 2026-10-10
-
-This section supersedes section 22 only for the **current downstream warm-highlight test candidate**. Deep-Censor Chroma Guard v0.2 remains intact and is not weakened.
-
-New real-device motivation: `DRAWJPEGtelelamptest.zip`, bytes `26,237,955`, SHA-256 `fc41536dfc1d384ceae852b314afbe91b766ddfb3d1625ea7f6745ef7b181f06`. Contained PRO tele JPEG `DRAW_CAPTURE_1791652795293_tele_4080x3072_draw_pro_fullres.jpg`, bytes `23,324,624`, SHA-256 `f984ac88ff72ed3dc5276ac20ad06f49673bc6aff1f80d1a1059321f700fa2e5`.
-
-User judgement: purple suppression is now substantially improved, but the brightest lamp/highlight area is still too neutral white/gray and lacks the darker yellow/amber hue perceived in the real lamp. This is a new downstream Appearance residual, not permission to weaken the purple guard, darken highlights globally or recolour by detected hue.
-
-New candidate: **Censored Illuminant Hue Floor v0.1**. Runtime order is:
-
-`Near-Censor Shoulder -> accepted Censored Chroma Fallback -> Deep-Censor v0.2 -> Warm Illuminant v0.1 -> Censored Illuminant Hue Floor v0.1 -> historical highlight observer -> gamut fit`.
-
-It is ADVANCED/PRO Appearance only; PURE bypasses it. It requires the existing valid source-bound white point and existing Warm Illuminant CCT gate, high CENSOR authority (`0.50 -> 0.80`), high luminance (`0.72 -> 0.95`) and nearly neutral output (full through relative chroma `0.015`, zero by `0.090`). Maximum introduced relative chroma floor is `0.060`. Chroma direction comes from the admitted source-white xy projected into the current D50 linear-sRGB basis; there is no hard-coded yellow/orange target. Clearly chromatic output and the strong-purple regression sample are exact no-op. Rec.709 luminance is preserved. No sharpening, blur, resampling, hue/object/semantic detector, camera/vendor identity, source mutation, Scientific-Master writeback, evidence creation or recovered-scene-colour claim is introduced.
-
-Initial code/workflow commit: `a02e12133a8aa8b7777d6ef65ce20e7abc0c21a6`. Exact CI-generated runtime wiring: `2f4375e4371ace6770b6ae25690f025ee7191208`.
-
-Exact successful workflow: `D.RAW Censored Illuminant Hue Floor v0.1`, run `38073401245`, job `114275277204`, **SUCCESS**. New hue-floor regression, Deep-Censor v0.2, Warm Illuminant, accepted fallback, Near-Censor Shoulder, Natural Light, gamut fit, PURE headroom, sealed Full-Frame Streaming, strict Q100/true-4:4:4 JPEG, Android tests/build and APK verification are green.
-
-Artifact `11677282649`, archive digest SHA-256 `efdbf8c3fe4534690877f713690bd9396dcc91092021158dcde451bfb86b0cc8`. Exact extracted APK: `8,891,987` bytes, SHA-256 `abec7589b9da32a1fbc2ff0674c8f83db93440274a00d2ffc3777cc92e68e85b`.
-
-Detailed handoff: `docs/handoff/DRAW_44489_CENSORED_ILLUMINANT_HUE_FLOOR_V0_1_CANDIDATE_2026-10-10.md`.
-
-Classification: **CI-GREEN APPEARANCE CANDIDATE / REAL-DEVICE WARM-HIGHLIGHT VALIDATION PENDING**. PASS requires darker yellow/amber source-white appearance to return in the bright lamp highlight without reducing luminance/detail, without reopening purple/magenta, without global warm cast or valid-colour washout, and with Q100/true-4:4:4 intact. Scientific Master, sealed evidence and all scientific promotion/writeback firewalls remain unchanged.
