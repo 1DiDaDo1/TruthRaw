@@ -193,7 +193,11 @@ def main() -> None:
         "                    }\n"
         "                    // Natural Light may retain a bounded fraction of a warm\n"
     )
-    text = require_replace(text, runtime_old, runtime_new, "ADVANCED/PRO field-tone call")
+    # Downstream authority-bound Appearance stages may legitimately be inserted
+    # between the Natural Light call and the historical warmth comment. Once the
+    # call is present, validate it below instead of requiring the old adjacency.
+    if "presentation_natural_light_field::apply(" not in text:
+        text = require_replace(text, runtime_old, runtime_new, "ADVANCED/PRO field-tone call")
 
     required = [
         '#include "presentation_natural_light_field_tone_v0_1.h"',
