@@ -1,0 +1,143 @@
+name: D.RAW Evidence Uncertainty Authority v0.1
+
+on:
+  push:
+    branches:
+      - research/evidence-uncertainty-authority-v01-2026-10-10
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ScientificNoiseMathV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ScientificNoiseTransportV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/RadiometricResponseAtlasV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/RadiometricReliabilityEnvelopeV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TemporalFootprintV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/OpticalSupportAtlasV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldUncertaintyTransportV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ColourDomainAuthorityV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalObservationAuthorityAdmissionV02.kt'
+      - '.github/workflows/evidence-uncertainty-authority-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract-and-build:
+    name: Contract invariants and Android compile
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify fail-closed scientific invariants
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          root = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui')
+          files = {
+              name: (root / name).read_text(encoding='utf-8')
+              for name in [
+                  'ScientificNoiseMathV01.kt',
+                  'ScientificNoiseTransportV01.kt',
+                  'RadiometricResponseAtlasV01.kt',
+                  'RadiometricReliabilityEnvelopeV01.kt',
+                  'TemporalFootprintV01.kt',
+                  'OpticalSupportAtlasV01.kt',
+                  'FreeWorldUncertaintyTransportV01.kt',
+                  'ColourDomainAuthorityV01.kt',
+                  'UniversalObservationAuthorityAdmissionV02.kt',
+              ]
+          }
+
+          required = {
+              'ScientificNoiseMathV01.kt': [
+                  'positiveSemidefiniteCovariance3x3',
+                  'No matrix',
+              ],
+              'ScientificNoiseTransportV01.kt': [
+                  'input_covariance_must_be_positive_semidefinite',
+                  'invalid_covariance_may_be_projected_to_psd_silently", false',
+                  'numeric_noise_transport_performed", false',
+              ],
+              'RadiometricResponseAtlasV01.kt': [
+                  'PRE_SATURATION_RELIABILITY',
+                  'white_level_proves_pre_saturation_reliability", false',
+                  'pre_saturation_reliability_proven", false',
+              ],
+              'RadiometricReliabilityEnvelopeV01.kt': [
+                  'white_level_percentage_threshold_used", false',
+                  'uncensored_value_alone_proves_linearity", false',
+                  'pre_saturation_reliability_boundary_proven", false',
+                  'candidate_applied", false',
+                  'scientific_writeback_allowed", false',
+              ],
+              'TemporalFootprintV01.kt': [
+                  'rolling_shutter_readout_proven", false',
+                  'pwm_phase_relation_proven", false',
+                  'temporal_colour_correction_authorized", false',
+              ],
+              'OpticalSupportAtlasV01.kt': [
+                  'raster_upsampling_may_upgrade_spatial_authority", false',
+                  'unsupported_frequency_is_unknown", true',
+                  'spatial_authority_map_promoted", false',
+              ],
+              'FreeWorldUncertaintyTransportV01.kt': [
+                  'RADIOMETRIC_RELIABILITY',
+                  'SPECTRAL_COLOUR_DOMAIN',
+                  'unknown_radiometric_reliability_may_be_treated_as_linear", false',
+              ],
+              'ColourDomainAuthorityV01.kt': [
+                  'fixed_3x3_is_universal_spectral_truth", false',
+                  'finite_rgb_implies_known_human_chromaticity", false',
+                  'automatic_emissive_colour_correction_authorized", false',
+                  'scientific_writeback_allowed", false',
+              ],
+              'UniversalObservationAuthorityAdmissionV02.kt': [
+                  'RADIOMETRIC_RELIABILITY',
+                  'OPTICAL_SUPPORT',
+                  'TEMPORAL_SUPPORT',
+                  'no_suitable_model_is_valid_result", true',
+                  'v01_selection_outcome_changed", false',
+                  'scientific_writeback_allowed", false',
+              ],
+          }
+
+          for name, needles in required.items():
+              text = files[name]
+              for needle in needles:
+                  if needle not in text:
+                      raise SystemExit(f'{name}: missing required invariant: {needle}')
+
+          forbidden = [
+              'candidate_applied", true',
+              'scientific_writeback_allowed", true',
+              'creates_new_evidence", true',
+          ]
+          for name, text in files.items():
+              for needle in forbidden:
+                  if needle in text:
+                      raise SystemExit(f'{name}: forbidden research promotion invariant: {needle}')
+
+          print('Evidence/uncertainty authority invariants: PASS')
+          PY
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK / NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Compile Android research module
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug
