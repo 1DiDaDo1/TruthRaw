@@ -33,89 +33,67 @@ jobs:
           from pathlib import Path
 
           root = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui')
-          files = {
-              name: (root / name).read_text(encoding='utf-8')
-              for name in [
-                  'ScientificNoiseMathV01.kt',
-                  'ScientificNoiseTransportV01.kt',
-                  'RadiometricResponseAtlasV01.kt',
-                  'RadiometricReliabilityEnvelopeV01.kt',
-                  'TemporalFootprintV01.kt',
-                  'OpticalSupportAtlasV01.kt',
-                  'FreeWorldUncertaintyTransportV01.kt',
-                  'ColourDomainAuthorityV01.kt',
-                  'UniversalObservationAuthorityAdmissionV02.kt',
-              ]
-          }
-
-          required = {
-              'ScientificNoiseMathV01.kt': [
-                  'positiveSemidefiniteCovariance3x3',
-                  'No matrix',
-              ],
-              'ScientificNoiseTransportV01.kt': [
-                  'input_covariance_must_be_positive_semidefinite',
-                  'invalid_covariance_may_be_projected_to_psd_silently", false',
-                  'numeric_noise_transport_performed", false',
-              ],
-              'RadiometricResponseAtlasV01.kt': [
-                  'PRE_SATURATION_RELIABILITY',
-                  'white_level_proves_pre_saturation_reliability", false',
-                  'pre_saturation_reliability_proven", false',
-              ],
-              'RadiometricReliabilityEnvelopeV01.kt': [
-                  'white_level_percentage_threshold_used", false',
-                  'uncensored_value_alone_proves_linearity", false',
-                  'pre_saturation_reliability_boundary_proven", false',
-                  'candidate_applied", false',
-                  'scientific_writeback_allowed", false',
-              ],
-              'TemporalFootprintV01.kt': [
-                  'rolling_shutter_readout_proven", false',
-                  'pwm_phase_relation_proven", false',
-                  'temporal_colour_correction_authorized", false',
-              ],
-              'OpticalSupportAtlasV01.kt': [
-                  'raster_upsampling_may_upgrade_spatial_authority", false',
-                  'unsupported_frequency_is_unknown", true',
-                  'spatial_authority_map_promoted", false',
-              ],
-              'FreeWorldUncertaintyTransportV01.kt': [
-                  'RADIOMETRIC_RELIABILITY',
-                  'SPECTRAL_COLOUR_DOMAIN',
-                  'unknown_radiometric_reliability_may_be_treated_as_linear", false',
-              ],
-              'ColourDomainAuthorityV01.kt': [
-                  'fixed_3x3_is_universal_spectral_truth", false',
-                  'finite_rgb_implies_known_human_chromaticity", false',
-                  'automatic_emissive_colour_correction_authorized", false',
-                  'scientific_writeback_allowed", false',
-              ],
-              'UniversalObservationAuthorityAdmissionV02.kt': [
-                  'RADIOMETRIC_RELIABILITY',
-                  'OPTICAL_SUPPORT',
-                  'TEMPORAL_SUPPORT',
-                  'no_suitable_model_is_valid_result", true',
-                  'v01_selection_outcome_changed", false',
-                  'scientific_writeback_allowed", false',
-              ],
-          }
-
-          for name, needles in required.items():
-              text = files[name]
-              for needle in needles:
-                  if needle not in text:
-                      raise SystemExit(f'{name}: missing required invariant: {needle}')
-
-          forbidden = [
-              'candidate_applied", true',
-              'scientific_writeback_allowed", true',
-              'creates_new_evidence", true',
+          names = [
+              'ScientificNoiseMathV01.kt',
+              'ScientificNoiseTransportV01.kt',
+              'RadiometricResponseAtlasV01.kt',
+              'RadiometricReliabilityEnvelopeV01.kt',
+              'TemporalFootprintV01.kt',
+              'OpticalSupportAtlasV01.kt',
+              'FreeWorldUncertaintyTransportV01.kt',
+              'ColourDomainAuthorityV01.kt',
+              'UniversalObservationAuthorityAdmissionV02.kt',
           ]
-          for name, text in files.items():
-              for needle in forbidden:
-                  if needle in text:
-                      raise SystemExit(f'{name}: forbidden research promotion invariant: {needle}')
+          files = {name: (root / name).read_text(encoding='utf-8') for name in names}
+          compact = {name: ''.join(text.split()) for name, text in files.items()}
+
+          def require_text(name, needle):
+              if needle not in files[name]:
+                  raise SystemExit(f'{name}: missing required text: {needle}')
+
+          def require_put(name, key, value):
+              needle = f'.put("{key}",{str(value).lower()})'
+              if needle not in compact[name]:
+                  raise SystemExit(f'{name}: missing required invariant: {needle}')
+
+          require_text('ScientificNoiseMathV01.kt', 'positiveSemidefiniteCovariance3x3')
+          require_put('ScientificNoiseTransportV01.kt', 'input_covariance_must_be_positive_semidefinite', True)
+          require_put('ScientificNoiseTransportV01.kt', 'invalid_covariance_may_be_projected_to_psd_silently', False)
+          require_put('ScientificNoiseTransportV01.kt', 'numeric_noise_transport_performed', False)
+
+          require_text('RadiometricResponseAtlasV01.kt', 'PRE_SATURATION_RELIABILITY')
+          require_put('RadiometricResponseAtlasV01.kt', 'white_level_proves_pre_saturation_reliability', False)
+          require_put('RadiometricResponseAtlasV01.kt', 'pre_saturation_reliability_proven', False)
+          require_put('RadiometricReliabilityEnvelopeV01.kt', 'white_level_percentage_threshold_used', False)
+          require_put('RadiometricReliabilityEnvelopeV01.kt', 'uncensored_value_alone_proves_linearity', False)
+          require_put('RadiometricReliabilityEnvelopeV01.kt', 'pre_saturation_reliability_boundary_proven', False)
+
+          require_put('TemporalFootprintV01.kt', 'rolling_shutter_readout_proven', False)
+          require_put('TemporalFootprintV01.kt', 'pwm_phase_relation_proven', False)
+          require_put('TemporalFootprintV01.kt', 'temporal_colour_correction_authorized', False)
+
+          require_put('OpticalSupportAtlasV01.kt', 'raster_upsampling_may_upgrade_spatial_authority', False)
+          require_put('OpticalSupportAtlasV01.kt', 'unsupported_frequency_is_unknown', True)
+          require_put('OpticalSupportAtlasV01.kt', 'spatial_authority_map_promoted', False)
+
+          require_text('FreeWorldUncertaintyTransportV01.kt', 'RADIOMETRIC_RELIABILITY')
+          require_text('FreeWorldUncertaintyTransportV01.kt', 'SPECTRAL_COLOUR_DOMAIN')
+          require_put('FreeWorldUncertaintyTransportV01.kt', 'unknown_radiometric_reliability_may_be_treated_as_linear', False)
+
+          require_put('ColourDomainAuthorityV01.kt', 'fixed_3x3_is_universal_spectral_truth', False)
+          require_put('ColourDomainAuthorityV01.kt', 'finite_rgb_implies_known_human_chromaticity', False)
+          require_put('ColourDomainAuthorityV01.kt', 'automatic_emissive_colour_correction_authorized', False)
+
+          require_text('UniversalObservationAuthorityAdmissionV02.kt', 'RADIOMETRIC_RELIABILITY')
+          require_text('UniversalObservationAuthorityAdmissionV02.kt', 'OPTICAL_SUPPORT')
+          require_text('UniversalObservationAuthorityAdmissionV02.kt', 'TEMPORAL_SUPPORT')
+          require_put('UniversalObservationAuthorityAdmissionV02.kt', 'no_suitable_model_is_valid_result', True)
+          require_put('UniversalObservationAuthorityAdmissionV02.kt', 'v01_selection_outcome_changed', False)
+
+          for name, text in compact.items():
+              for key in ('candidate_applied', 'scientific_writeback_allowed', 'creates_new_evidence'):
+                  if f'.put("{key}",true)' in text:
+                      raise SystemExit(f'{name}: forbidden research promotion: {key}=true')
 
           print('Evidence/uncertainty authority invariants: PASS')
           PY
