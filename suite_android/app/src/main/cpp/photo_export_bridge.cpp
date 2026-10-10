@@ -12,7 +12,7 @@
 #include "output_acutance_v0_81.h"
 #include "presentation_gamut_fit_v0_1.h"
 #include "presentation_censored_chroma_fallback_v0_1.h"
-#include "presentation_deep_censor_chroma_guard_v0_1.h"
+#include "presentation_deep_censor_chroma_guard_v0_2.h"
 #include "presentation_near_censor_chroma_shoulder_v0_1.h"
 #include "presentation_highlight_chroma_rolloff_v0_1.h"
 #include "presentation_illuminant_warmth_retention_v0_1.h"
@@ -66,7 +66,7 @@ namespace illumination_state = truthraw::illumination_state::v0_82;
 namespace hdr_authority = truthraw::hdr_authority::v0_83;
 namespace presentation_gamut = truthraw::presentation_gamut_fit::v0_1;
 namespace presentation_censored_chroma = truthraw::presentation_censored_chroma_fallback::v0_1;
-namespace presentation_deep_censor_chroma = truthraw::presentation_deep_censor_chroma_guard::v0_1;
+namespace presentation_deep_censor_chroma = truthraw::presentation_deep_censor_chroma_guard::v0_2;
 namespace presentation_near_censor_chroma = truthraw::presentation_near_censor_chroma_shoulder::v0_1;
 namespace presentation_highlight = truthraw::presentation_highlight_chroma_rolloff::v0_1;
 namespace presentation_illuminant_warmth = truthraw::presentation_illuminant_warmth_retention::v0_1;
