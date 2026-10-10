@@ -14,9 +14,27 @@ deep = DEEP.read_text(encoding="utf-8")
 shoulder = SHOULDER.read_text(encoding="utf-8")
 fallback = FALLBACK.read_text(encoding="utf-8")
 
-for token in (
-    '#include "presentation_deep_censor_chroma_guard_v0_1.h"',
-    'namespace presentation_deep_censor_chroma = truthraw::presentation_deep_censor_chroma_guard::v0_1;',
+v1_include = '#include "presentation_deep_censor_chroma_guard_v0_1.h"'
+v2_include = '#include "presentation_deep_censor_chroma_guard_v0_2.h"'
+v1_namespace = 'namespace presentation_deep_censor_chroma = truthraw::presentation_deep_censor_chroma_guard::v0_1;'
+v2_namespace = 'namespace presentation_deep_censor_chroma = truthraw::presentation_deep_censor_chroma_guard::v0_2;'
+
+# This is a historical v0.1 numerical regression. The live bridge may legitimately
+# be superseded by v0.2; in that state the legacy test must not require or inject
+# v0.1 runtime wiring.
+has_v2_include = v2_include in bridge
+has_v2_namespace = v2_namespace in bridge
+if has_v2_include != has_v2_namespace:
+    raise SystemExit("incomplete deep-censor v0.2 runtime wiring")
+
+if has_v2_include and has_v2_namespace:
+    if v1_include in bridge or v1_namespace in bridge:
+        raise SystemExit("v0.1 runtime wiring coexists with superseding v0.2")
+    runtime_tokens = (v2_include, v2_namespace)
+else:
+    runtime_tokens = (v1_include, v1_namespace)
+
+for token in runtime_tokens + (
     'presentation_near_censor_chroma::apply(',
     'presentation_censored_chroma::apply(',
     'presentation_deep_censor_chroma::apply(',
@@ -125,7 +143,8 @@ int main() {
             assert(cc<=previous+2e-7);
             previous=cc;
         }
-        float r=r0,g=g0,b=b0;
+        float r=r0,g=r0,b=b0;
+        r=r0; g=g0; b=b0;
         chain(1.0f,r,g,b);
         const double ratio=chroma(r,g,b)/chroma(r0,g0,b0);
         assert(ratio>0.034 && ratio<0.036);
