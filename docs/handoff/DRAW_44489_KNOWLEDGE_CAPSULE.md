@@ -1056,3 +1056,156 @@ The correct current interpretation is now:
 **the former broad purple highlight failure remains solved by accepted Censored Chroma Fallback v0.1; a newer real-device PRO capture proves a smaller residual near-censor lila/magenta failure class; Residual Near-Censor Chroma Shoulder v0.1 is implemented in the active main-project line and fully CI/build green, but physical acceptance remains pending.**
 
 Do not broaden this candidate into generic desaturation or a scientific pre-saturation calibration. The separate yellow emissive-display investigation remains separate and unresolved. Scientific Master, sealed evidence and all promotion firewalls remain unchanged.
+
+---
+
+## 21. Direct tele purple-sky test — shoulder insufficient; Deep-Censor Chroma Guard v0.1 — CI-GREEN CANDIDATE 2026-10-10
+
+This section supersedes section 20 wherever section 20 says the near-censor shoulder is merely awaiting generic physical validation. A new direct tele/PRO sky test now proves that the dominant remaining purple class can occur in **deeply censored** support, outside the first shoulder's intended authority range.
+
+### 21.1 Exact real-device test
+
+Bundle:
+
+`DRAWdirecttelepurpleskytest.zip`
+
+- bytes `19,180,969`;
+- SHA-256 `68a68a2daf634ef0aff54716483206eca9061ec97619d8eacd5bd36bca14b2fa`.
+
+Contained full-resolution PRO JPEG:
+
+`DRAW_CAPTURE_1791645320252_tele_4080x3072_draw_pro_fullres.jpg`
+
+- bytes `10,550,559`;
+- SHA-256 `23dd8d719915f84e6bc5e258b3cb756a3e6459e022061bb67fd7f1c5a9f79a9d`;
+- geometry `4080 x 3072`;
+- app route `PRO`;
+- source orientation `0°`.
+
+Observed: large backlit cloud/highlight areas remain visibly pink/lila while luminance structure and cloud-edge detail are still present. Therefore this is a clear **FAIL of the shoulder as a complete residual-purple solution**, but not evidence that the shoulder's low-fraction role is invalid.
+
+### 21.2 Decisive CENSOR-support evidence
+
+The same capture's `N2 · 1:1 Full-colour SAFE A/B/Δ` diagnostic selected:
+
+`Censor/highlight-zone · bron x=3136, y=1088 · 192x192`
+
+with:
+
+- sampled `36,864`;
+- candidate `1,530`;
+- preserved `35,334`;
+- structure `8,034`;
+- censored `26,591`;
+- boundary `709`;
+- changed `2 / 36,864`;
+- candidate-applied `false`.
+
+Thus the reconstruction-support CENSOR fraction is:
+
+`26591 / 36864 = 0.7213270399` ≈ **72.13%**.
+
+At this authority the first near-censor shoulder is exactly zero because it fades out completely by CENSOR fraction `0.55`.
+
+The frozen accepted Censored Chroma Fallback contracts approximately `76.53%` at this authority and therefore still leaves approximately **23.47% residual chroma**. The sky test proves that this residual can remain visibly pink/lila when the censored pre-fallback chromatic ratio is extreme.
+
+Classification of section-20 shoulder after this test:
+
+**NOT SUFFICIENT AS COMPLETE DEEP-CENSOR PURPLE SOLUTION / LOW-FRACTION SHOULDER ROLE RETAINED AS CANDIDATE COMPONENT**.
+
+### 21.3 Deep-Censor Chroma Guard v0.1
+
+New separate downstream Appearance layer:
+
+`suite_android/app/src/main/cpp/presentation_deep_censor_chroma_guard_v0_1.h`
+
+Ordering:
+
+`Natural Light Local Field -> Residual Near-Censor Shoulder -> accepted Censored Chroma Fallback -> Deep-Censor Chroma Guard -> Warm Illuminant Retention -> historical highlight observer -> gamut fit`
+
+Constants:
+
+- `kCensorFractionStart = 0.50`;
+- `kCensorFractionFull = 0.80`;
+- `kMaxRemainingChromaContraction = 0.78`.
+
+Behavior:
+
+- CENSOR fraction `<= 0.50` -> exact no-op;
+- smooth rise from `0.50` to `0.80`;
+- at/above `0.80`, contract at most 78% of the **remaining** chroma after the accepted fallback;
+- at the observed `0.721327` sky authority, complete shoulder + fallback + deep-guard chain retains approximately **8.28%** original chroma instead of ~23.47%;
+- at fully deep-censored support, complete chain retains approximately **3.52%** original chroma;
+- Rec.709 luminance preserved;
+- no blur, resampling, geometry, acutance or detail mutation;
+- no hue/purple detector;
+- no brightness trigger;
+- no object semantics;
+- no camera/vendor identity;
+- PURE bypass;
+- Warm Illuminant remains downstream;
+- no source mutation, Scientific-Master writeback, evidence creation or recovered-scene-colour claim.
+
+The accepted Censored Chroma Fallback constants and the section-20 near-censor shoulder constants remain unchanged.
+
+### 21.4 Exact code and CI provenance
+
+Candidate code commit:
+
+`81e7f255aede165dbee1e687e6a02aa0fbf2fff0`
+
+Dedicated CI workflow commit:
+
+`81638fdf37925e8e428a7b16548207c2aa1cb239`
+
+Exact CI-generated runtime-wiring commit:
+
+`05a41eb4a4362fce134c72c90294f969cf39655b`
+
+Workflow:
+
+- `D.RAW Deep-Censor Chroma Guard v0.1`;
+- run `38064184948`;
+- job `114248374631`;
+- conclusion **SUCCESS**.
+
+Green: deep-censor applicator/order/regression, existing near-censor shoulder regression, accepted fallback regression, Warm Illuminant, Natural Light Local Field, gamut-fit, sealed Full-Frame Streaming integrity, strict Q100/true-4:4:4 JPEG codec regression, Android unit tests/build, APK verification, runtime commit and artifact upload.
+
+Dedicated handoff:
+
+`docs/handoff/DRAW_44489_DEEP_CENSOR_CHROMA_GUARD_V0_1_CANDIDATE_2026-10-10.md`
+
+### 21.5 Candidate APK
+
+Artifact:
+
+- id `11674890747`;
+- name `draw-deep-censor-chroma-guard-v01-apk`;
+- archive digest SHA-256 `2b6776c7ab8930d3b2f9a50ab071d6ab4a8b01a149c4b05829a1f5cb03539b35`.
+
+Extracted APK:
+
+- bytes `8,887,019`;
+- SHA-256 `ed1659999c4a292a399515bde01bce98b88dad6e3795bb1ea9be9dc414e911cf`.
+
+Classification:
+
+**CI-GREEN APPEARANCE CANDIDATE / DIRECT-TELE SKY REAL-DEVICE VALIDATION PENDING**.
+
+Do not promote it from CI alone.
+
+### 21.6 Required next physical round
+
+Repeat a direct tele/PRO backlit cloud/sky scene comparable to capture `1791645320252` with the Deep-Censor candidate APK.
+
+PASS requires materially reduced deep-censored pink/lila, preserved cloud luminance structure and edges, no gray halo/seam, no global washout of ordinary non-censored sky/cloud colour, no detail/acutance loss, no Warm Illuminant regression, no accepted Censored Chroma regression, and valid Q100/true-4:4:4 output.
+
+FAIL/revise if deep-censored purple remains dominant, ordinary colour is washed out, luminance/detail drops, halos/seams appear, or accepted downstream behavior regresses.
+
+### 21.7 Updated recovery boundary
+
+The current purple-highlight state is now:
+
+**accepted Censored Chroma Fallback v0.1 still solves the historical broad tele lamp/highlight failure; Residual Near-Censor Chroma Shoulder v0.1 covers only low-fraction residual authority and is insufficient for the new sky failure; the direct tele sky proves a distinct deep-CENSOR residual class at ~72% support censoring; Deep-Censor Chroma Guard v0.1 is implemented and fully CI/build green, with physical sky acceptance still pending.**
+
+Scientific Master, sealed evidence, radiometric calibration state and all promotion firewalls remain unchanged. The separate yellow emissive-display problem remains separate.
