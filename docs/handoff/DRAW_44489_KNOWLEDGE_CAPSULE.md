@@ -197,7 +197,6 @@ Current cable:
 Full-resolution sibling cable:
 
 `admitted source/scientific cable -> full-resolution presentation render -> exact display-oriented RGB24 sibling -> { Free Raster backing artifact | High-Fidelity JPEG | future sibling outputs }`
-
 Rules:
 
 - UI preview is never full-resolution authority;
@@ -598,7 +597,6 @@ No one of these is promoted by this capsule.
 #### F. Correct experimental discriminator
 
 A future controlled display target should compare large uniform red/green/blue/yellow/white fields with the same colours as small glyphs/lines, across repeated sealed RAW captures and materially different exposure duration where practical.
-
 Interpretation guide:
 
 - large yellow fails consistently -> spectral/matrix or clipping/authority becomes stronger;
@@ -769,3 +767,141 @@ The correct continuation point is now:
 **sealed scientific source/core unchanged -> source-agnostic evidence reading -> full-resolution shared presentation RGB24 sibling -> accepted Warm Illuminant behavior for bounded source-white warmth -> Natural Light Local Field Tone v0.1 retains its recovered intended role as a separate Appearance-only local brightness/luminous-field layer around illuminated surfaces, with physical-activation/acceptance provenance still to be resolved -> accepted authority-bound Censored Chroma Fallback v0.1 as standard ADVANCED/PRO Appearance behavior -> purple tele highlight considered solved and highlight-specific testing closed for now -> PURE remains isolated -> High-Fidelity Q100/true-4:4:4 stays green -> new separate colour question is user-verified yellow emissive TV subtitles that currently render near white/yellow-white -> this case must be treated as a possible spectral-observer + display-subpixel/CFA + temporal-exposure problem before any matrix/Appearance fix is attempted -> Lightroom lamp image is qualitative Appearance reference only, never scientific calibration.**
 
 PR #130 remains frozen. PR #131 remains open, draft and unmerged. No scientific candidate has been promoted and no scientific writeback has been enabled.
+
+---
+
+## 19. Active main-project Evidence / Uncertainty / Authority integration — BINDING CHECKPOINT 2026-10-10
+
+This section **supersedes any earlier wording that describes Evidence / Uncertainty / Authority v0.1 as existing only on the separate research branch**. The research branch remains provenance, but the validated contract layer is now integrated into the active D.RAW main-project line, PR #131 / `feat/draw-workspace-free-raster-v01`.
+
+### 19.1 Exact integration and CI identities
+
+Initial active-branch integration head:
+
+`05a34d8023594204a122f6a623d1ac92953c920e`
+
+Commit role: integrates the validated Evidence / Uncertainty / Authority contracts and adds the active-branch CI binding.
+
+Exact active-branch science CI:
+
+- workflow `D.RAW Evidence Uncertainty Authority v0.1`;
+- run `38057435554`;
+- job `114228677991`;
+- head `05a34d8023594204a122f6a623d1ac92953c920e`;
+- conclusion **SUCCESS**;
+- fail-closed scientific invariant verification: SUCCESS;
+- Java/Android SDK/NDK/Gradle setup: SUCCESS;
+- Android research-module compile: SUCCESS.
+
+Therefore the authority/uncertainty integration is no longer merely inferred from the research branch: it has its **own successful active-main-project CI run**.
+
+Historical research proof remains valid provenance:
+
+- branch `research/evidence-uncertainty-authority-v01-2026-10-10`;
+- exact green research checkpoint `a607311c3d77acf20475bfc0a06b77adb635fd73`;
+- workflow run `38054481041`;
+- job `114220019534`;
+- SUCCESS.
+
+Do not confuse the research checkpoint with the active-main-project checkpoint; both are retained for lineage.
+
+### 19.2 Integrated contracts now present in the active project
+
+The active PR #131 codebase now contains the validated code-only authority improvements:
+
+1. **PSD covariance admission** in `ScientificNoiseMathV01.kt`: finite/symmetric/nonnegative-diagonal 3x3 covariance plus principal 2x2 minors and full determinant, scale-relative tolerance `1e-12`; no silent eigenvalue clipping, nearest-PSD projection or synthetic covariance repair.
+2. **Radiometric Reliability Envelope v0.1** in `RadiometricReliabilityEnvelopeV01.kt`: admitted uncensored/censored support and observed transition bracketing without WhiteLevel-percentage heuristics; finite or merely unclipped does not prove linear/chromatic reliability.
+3. **Temporal authority hardening** in `TemporalFootprintV01.kt`: readout start/end, row timing, PWM/refresh relation and motion path stay UNKNOWN unless actually supported; exposure duration alone does not authorize row timing or temporal colour correction.
+4. **Optical/spatial authority hardening** in `OpticalSupportAtlasV01.kt`: raster density is not optical resolution; unsupported frequency remains UNKNOWN; inverse optics requires admitted optical/noise support.
+5. **Colour spectral-domain authority** in `ColourDomainAuthorityV01.kt`: a fixed 3x3 is not universal spectral truth, finite RGB is not automatically known human chromaticity, and unusual/narrowband emissive spectra may remain outside the admitted calibration domain.
+6. **Multidimensional reconstruction admission** in `UniversalObservationAuthorityAdmissionV02.kt`: prospective axes include CFA phase, structure, direction, censor state, radiometric reliability, reconstruction uncertainty, optical support and temporal support; `NO_SUITABLE_MODEL` remains valid.
+7. **Free World uncertainty expansion** in `FreeWorldUncertaintyTransportV01.kt`: explicit `RADIOMETRIC_RELIABILITY` and `SPECTRAL_COLOUR_DOMAIN` uncertainty axes.
+8. **Global research snapshot integration** in `GlobalResearchSnapshotV01.kt`: contracts are discoverable as implementation awareness only; the snapshot remains `IMPLEMENTATION_MAP_NOT_PHOTO_EVIDENCE` and does not create scientific authority.
+
+These contracts do **not** promote calibration, reconstruction or colour truth and do not themselves alter sealed measurements.
+
+### 19.3 Main-project APK checkpoint after integration
+
+The first APK workflow at the integration head exposed one build-tooling idempotence problem, not a science/runtime failure: the historical Natural Light applicator still expected the old exact adjacency between the Natural Light call and the Warm Illuminant block, while the later accepted Censored Chroma stage had legitimately inserted downstream Appearance code around that location.
+
+Tooling-only repair commit:
+
+`cd7d114a81556be44f10dcd4a74e4ee249f9fbf2`
+
+Commit role:
+
+`ci: make Natural Light applicator idempotent after downstream appearance stages`
+
+The repair changes `tools/apply_presentation_natural_light_field_tone_v0_1.py` so that an already-present, single, correctly ordered Natural Light runtime call is accepted as `ALREADY_APPLIED` even when later authority-bound Appearance stages exist. It still verifies the required include/namespace/field support/integral/local mean wiring, exact Natural Light gate count, exact single runtime-call count and ordering:
+
+`PURE -> ADVANCED/PRO -> Natural Light Local Field -> Warm Illuminant -> historical highlight observer -> gamut fit`
+
+No accepted runtime pixel algorithm, Scientific Master route, Censored Chroma behavior, Warm Illuminant behavior or authority boundary was changed by this tooling repair.
+
+Exact successful main APK workflow:
+
+- workflow `D.RAW Free Raster v0.3 Finish APK`;
+- run `38058200039`;
+- job `114230883767`;
+- head `cd7d114a81556be44f10dcd4a74e4ee249f9fbf2`;
+- conclusion **SUCCESS**;
+- all Appearance applicators: SUCCESS;
+- all presentation regressions including Warm Illuminant, Natural Light Local Field and Censored Chroma Fallback: SUCCESS;
+- Java/Android/NDK/Gradle setup: SUCCESS;
+- `Test and build`: SUCCESS;
+- `Verify APK`: SUCCESS;
+- artifact upload: SUCCESS.
+
+GitHub Actions artifact:
+
+- artifact id `11672570301`;
+- name `draw-free-raster-v03-fullres-candidate-apk`;
+- artifact archive digest SHA-256 `56709e81d7ea1252ad06c72cf971c17874c81d13f0b139dcceb96f6424a2b789`.
+
+Exact APK extracted from that artifact:
+
+- artifact member `app-debug.apk`;
+- bytes `8,886,187`;
+- SHA-256 `6e1266777a820b2ec5456faab546e8922b71f8c0f16bc218b6a58511cbf63bfe`.
+
+**This is the current exact main-project APK/code checkpoint.** A later documentation-only 44489 commit does not change these APK bytes and must not be substituted as the tested runtime identity.
+
+### 19.4 Scientific boundary after main-project integration
+
+The integration changes project awareness and fail-closed admission contracts; it does **not** convert missing physical knowledge into evidence.
+
+Still unproven without actual source-bound physical evidence:
+
+- the true pre-saturation/linearity reliability boundary of a specific source/sensor;
+- whether a particular finite near-white sample is radiometrically/chromatically reliable;
+- real rolling-shutter row timing where not admitted from measurement/calibration;
+- actual PWM/display-refresh phase relation;
+- local SFR/MTF/PSF/focus/field support unless measured/calibrated and source-bound;
+- spectral calibration-domain validity for unusual/narrowband emitters;
+- promotion of a richer reconstruction selector;
+- any claim that the unresolved yellow-TV subtitle colour has already been physically corrected.
+
+Permanent integration flags remain conceptually closed:
+
+- `candidate_applied=false` unless a separately admitted candidate explicitly says otherwise;
+- `creates_new_evidence=false`;
+- `scientific_writeback_allowed=false`;
+- sealed CFA/source evidence unchanged;
+- Scientific Master unchanged by these contract additions;
+- no UNKNOWN axis may be promoted merely because the Android build succeeds.
+
+### 19.5 PR and project-state boundary
+
+- PR #130 remains frozen at `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f` and was not modified.
+- PR #131 remains the active project line, open, draft and unmerged.
+- The accepted purple-highlight solution, Warm Illuminant behavior, PURE isolation, High-Fidelity JPEG behavior and Natural Light design role remain intact.
+- The yellow emissive-display problem remains a separate unresolved research target.
+- The separate research branch is retained as provenance; it is no longer the only place where these contracts exist.
+
+### 19.6 New exact continuation point
+
+For a new 44489 chat, the current main-project authority cable is:
+
+`sealed value -> source-bound black/white/linearity evidence -> radiometric reliability/censor state -> noise + PSD-valid covariance -> CFA/spatial/optical/temporal support -> deterministic reconstruction admission -> colour transform with calibration-domain + covariance authority -> Scientific Master / observation-bound derived state -> downstream Appearance -> Unified Output -> Free Raster / Export`
+
+The immediate scientific priority remains physical validation of the still-UNKNOWN axes, not inventing values for them. The immediate product/runtime identity for testing is the APK built from `cd7d114a81556be44f10dcd4a74e4ee249f9fbf2`, SHA-256 `6e1266777a820b2ec5456faab546e8922b71f8c0f16bc218b6a58511cbf63bfe`.
