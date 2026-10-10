@@ -36,5 +36,5 @@ Detailed handoff: `docs/handoff/DRAW_44489_CENSORED_ILLUMINANT_HUE_FLOOR_V0_1_CA
 
 Classification: **CI-GREEN APPEARANCE CANDIDATE / REAL-DEVICE WARM-HIGHLIGHT VALIDATION PENDING**. PASS requires darker yellow/amber source-white appearance to return in the bright lamp highlight without reducing luminance/detail, without reopening purple/magenta, without global warm cast or valid-colour washout, and with Q100/true-4:4:4 intact. Scientific Master, sealed evidence and all scientific promotion/writeback firewalls remain unchanged.
 '''
-p.write_text(s.rstrip() + section + "\n", encoding="utf-8")
+p.write_text(s.rstrip() + section.rstrip() + "\n", encoding="utf-8")
 print("DRAW_44489_CENSORED_ILLUMINANT_HUE_FLOOR_V01_APPENDED")
