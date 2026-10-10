@@ -31,6 +31,7 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
 
           root = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui')
           names = [
@@ -52,9 +53,10 @@ jobs:
                   raise SystemExit(f'{name}: missing required text: {needle}')
 
           def require_put(name, key, value):
-              needle = f'.put("{key}",{str(value).lower()})'
-              if needle not in compact[name]:
-                  raise SystemExit(f'{name}: missing required invariant: {needle}')
+              expected = str(value).lower()
+              pattern = re.compile(r'\.put\("' + re.escape(key) + r'",' + expected + r',?\)')
+              if not pattern.search(compact[name]):
+                  raise SystemExit(f'{name}: missing required invariant: {key}={expected}')
 
           require_text('ScientificNoiseMathV01.kt', 'positiveSemidefiniteCovariance3x3')
           require_put('ScientificNoiseTransportV01.kt', 'input_covariance_must_be_positive_semidefinite', True)
@@ -90,10 +92,11 @@ jobs:
           require_put('UniversalObservationAuthorityAdmissionV02.kt', 'no_suitable_model_is_valid_result', True)
           require_put('UniversalObservationAuthorityAdmissionV02.kt', 'v01_selection_outcome_changed', False)
 
+          forbidden = re.compile(r'\.put\("(candidate_applied|scientific_writeback_allowed|creates_new_evidence)",true,?\)')
           for name, text in compact.items():
-              for key in ('candidate_applied', 'scientific_writeback_allowed', 'creates_new_evidence'):
-                  if f'.put("{key}",true)' in text:
-                      raise SystemExit(f'{name}: forbidden research promotion: {key}=true')
+              match = forbidden.search(text)
+              if match:
+                  raise SystemExit(f'{name}: forbidden research promotion: {match.group(1)}=true')
 
           print('Evidence/uncertainty authority invariants: PASS')
           PY
