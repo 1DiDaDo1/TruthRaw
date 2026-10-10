@@ -1,0 +1,37 @@
+name: D.RAW 44489 Censored Illuminant Hue Floor v0.1 Capsule
+
+on:
+  push:
+    branches:
+      - feat/draw-workspace-free-raster-v01
+    paths:
+      - 'docs/handoff/DRAW_44489_CENSORED_ILLUMINANT_HUE_FLOOR_V0_1_CANDIDATE_2026-10-10.md'
+      - 'tools/append_44489_censored_illuminant_hue_floor_v01.py'
+      - '.github/workflows/draw-44489-censored-illuminant-hue-floor-v01-capsule.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/draw-workspace-free-raster-v01
+          fetch-depth: 0
+      - name: Append binding 44489 checkpoint
+        run: python3 tools/append_44489_censored_illuminant_hue_floor_v01.py
+      - name: Commit capsule checkpoint
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+1DiDaDo1@users.noreply.github.com'
+          git add docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo '44489 hue-floor checkpoint already present.'
+          else
+            git commit -m 'docs: bind censored illuminant hue floor v0.1 in 44489'
+            git push origin HEAD:feat/draw-workspace-free-raster-v01
+          fi
+          git rev-parse HEAD
