@@ -16,6 +16,7 @@
 #include "presentation_near_censor_chroma_shoulder_v0_1.h"
 #include "presentation_highlight_chroma_rolloff_v0_1.h"
 #include "presentation_illuminant_warmth_retention_v0_1.h"
+#include "presentation_censored_illuminant_hue_floor_v0_1.h"
 #include "presentation_natural_light_field_tone_v0_1.h"
 #include "presentation_headroom_map_v0_1.h"
 #include "illumination_state_v0_82.h"
@@ -70,6 +71,7 @@ namespace presentation_deep_censor_chroma = truthraw::presentation_deep_censor_c
 namespace presentation_near_censor_chroma = truthraw::presentation_near_censor_chroma_shoulder::v0_1;
 namespace presentation_highlight = truthraw::presentation_highlight_chroma_rolloff::v0_1;
 namespace presentation_illuminant_warmth = truthraw::presentation_illuminant_warmth_retention::v0_1;
+namespace presentation_censored_illuminant_hue_floor = truthraw::presentation_censored_illuminant_hue_floor::v0_1;
 namespace presentation_natural_light_field = truthraw::presentation_natural_light_field_tone::v0_1;
 namespace presentation_headroom = truthraw::presentation_headroom_map::v0_1;
 namespace render_edit = truthraw::advanced_render_edit::v0_1;
@@ -931,6 +933,17 @@ private:
                         return StreamStatus::error(
                             StreamStatusCode::SinkFailed,
                             "full-res source-white warmth retention failed");
+                    }
+                    // Deeply censored, nearly neutral bright highlights may retain
+                    // a small source-white-consistent warm hue floor. This remains
+                    // downstream Appearance only; luminance and scientific state
+                    // are unchanged and PURE never enters this branch.
+                    if(!presentation_censored_illuminant_hue_floor::apply(
+                            r,g,b,presentationSourceWhite_,
+                            highlightCensorFraction,naturalLightEnabled)) {
+                        return StreamStatus::error(
+                            StreamStatusCode::SinkFailed,
+                            "full-res censored illuminant hue floor failed");
                     }
                     const float mx=std::max(r,std::max(g,b));
                     if(mx>0.92f) {
