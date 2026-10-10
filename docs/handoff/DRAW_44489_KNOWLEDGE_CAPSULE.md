@@ -247,7 +247,6 @@ Proven: 4080x3072, baseline SOF0, 8-bit, true 4:4:4, Q100 all-one DQT0/DQT1, str
 Historical broken-Huffman and shifted-SOS rounds remain provenance. Header-only JPEG validation is permanently forbidden.
 
 Still separate: +90° under new codec, arbitrary output scaling, truthful ICC/output profile, lossless/high-bit-depth siblings and broader device/source coverage.
-
 ---
 
 ## 9. Natural Appearance / Warm Illuminant / Local Field
@@ -497,7 +496,6 @@ Same-capture PURE files:
 `DRAW_CAPTURE_1791583374795_tele_4080x3072_draw_pure_fullres.jpg`
 
 - SHA-256 `08f772fe7c24bc71bf0054d457aaee7cc442bbd3bd266aca7e927b01daaea40b`.
-
 Current PURE output renders the subtitle approximately white/yellow-white, not the user-verified yellow appearance.
 
 DNG private contract:
@@ -905,3 +903,156 @@ For a new 44489 chat, the current main-project authority cable is:
 `sealed value -> source-bound black/white/linearity evidence -> radiometric reliability/censor state -> noise + PSD-valid covariance -> CFA/spatial/optical/temporal support -> deterministic reconstruction admission -> colour transform with calibration-domain + covariance authority -> Scientific Master / observation-bound derived state -> downstream Appearance -> Unified Output -> Free Raster / Export`
 
 The immediate scientific priority remains physical validation of the still-UNKNOWN axes, not inventing values for them. The immediate product/runtime identity for testing is the APK built from `cd7d114a81556be44f10dcd4a74e4ee249f9fbf2`, SHA-256 `6e1266777a820b2ec5456faab546e8922b71f8c0f16bc218b6a58511cbf63bfe`.
+
+---
+
+## 20. Residual purple follow-up — Residual Near-Censor Chroma Shoulder v0.1 — CI-GREEN CANDIDATE 2026-10-10
+
+This section **supersedes older wording that highlight-specific testing is fully closed**. The accepted `Censored Chroma Fallback v0.1` remains the standard solution for the former broad tele-purple failure and is not demoted. A newer PRO real-device output now demonstrates a materially smaller residual lila/magenta class in bright/backlit edge regions, so a narrowly scoped follow-up is justified.
+
+### 20.1 New real-device regression evidence
+
+User-supplied bundle:
+
+`DRAW_CAPTURE_1791642512412_tele_4080x3072_draw_pro_fullres.zip`
+
+- bytes `17,179,195`;
+- SHA-256 `47b7d6e3ec88f8cd2b402e0bb46aa1f5d875f878625abdd016f16a1cbb3b79ea`.
+
+Contained PRO JPEG:
+
+`DRAW_CAPTURE_1791642512412_tele_4080x3072_draw_pro_fullres.jpg`
+
+- bytes `17,329,222`;
+- SHA-256 `f45102ab7fdf8bb23922283680cf9a1edff3c21f6d11f4100b2c68fffa40ae5a`;
+- geometry `4080 x 3072`.
+
+Observed:
+
+- the historical broad purple highlight component is not back;
+- a weaker/narrower lila/magenta residual remains in very bright/backlit exterior edge/highlight regions, especially the upper window strip and several high-contrast exterior boundaries;
+- useful edge/detail structure is still present in those areas;
+- therefore the follow-up must preserve luminance/detail and must not become a stronger indiscriminate highlight desaturation.
+
+Any offline hue/pixel heuristic used to localize the residual during inspection is diagnostic only and **is not runtime authority**.
+
+### 20.2 Candidate design and hard limits
+
+New candidate:
+
+**Residual Near-Censor Chroma Shoulder v0.1**
+
+Runtime file:
+
+`suite_android/app/src/main/cpp/presentation_near_censor_chroma_shoulder_v0_1.h`
+
+Downstream non-PURE ordering:
+
+`Natural Light Local Field -> Residual Near-Censor Chroma Shoulder -> accepted Censored Chroma Fallback -> Warm Illuminant Retention -> historical highlight observer -> gamut fit`
+
+Constants:
+
+- `kCensorFractionStart = 0.02`;
+- `kCensorFractionFullShoulder = 0.15`;
+- `kCensorFractionFadeStart = 0.35`;
+- `kCensorFractionFadeEnd = 0.55`;
+- `kMaxChromaContraction = 0.12`.
+
+Hard behavior:
+
+- CENSOR fraction `<= 0.02` -> exact no-op;
+- smooth rise to at most 12% chroma contraction by `0.15`;
+- bounded shoulder while the accepted fallback begins taking authority;
+- shoulder fades to zero by `0.55`, where the accepted fallback already dominates;
+- combined shoulder + accepted fallback response is regression-locked to monotonic chroma contraction as CENSOR authority increases;
+- Rec.709 luminance is preserved;
+- no spatial blur, resampling, geometry change or acutance/detail mutation;
+- no hue-specific trigger, purple detector, semantic/object detector, brightness threshold or camera/vendor identity;
+- PURE bypasses the layer;
+- no source/Scientific-Master mutation, evidence creation, scientific recovery claim or scientific writeback.
+
+The accepted `Censored Chroma Fallback v0.1` constants remain unchanged and independently regression-locked.
+
+### 20.3 Exact implementation and CI lineage
+
+Candidate/header/applicator/regression commit:
+
+`91b0660b7336d5ae5fc7f62bde95c790f46393b0`
+
+Workflow integration commit:
+
+`2f532545be9ff81e23151b582937279d70c603aa`
+
+Exact CI-generated runtime wiring commit:
+
+`564398857965ab4560c5bb3a6341a2de167fd2e8`
+
+Dedicated handoff:
+
+`docs/handoff/DRAW_44489_RESIDUAL_NEAR_CENSOR_CHROMA_SHOULDER_V0_1_CANDIDATE_2026-10-10.md`
+
+Workflow:
+
+- `D.RAW Free Raster v0.3 Finish APK`;
+- run `38061533998`;
+- job `114240619677`;
+- conclusion **SUCCESS**.
+
+Green checks include the new shoulder applicator/regression, all pre-existing Appearance regressions, accepted Censored Chroma Fallback regression, Warm Illuminant, Natural Light Local Field, PURE isolation/headroom, sealed Full-Frame Streaming integrity, strict Q100/true-4:4:4 JPEG codec regression, Android unit tests/build, APK verification and artifact upload.
+
+The new regression proves:
+
+- exact no-op through the `0.02` start;
+- approximately 12% maximum shoulder contraction at `0.15`;
+- Rec.709 luminance preservation;
+- hue-independent authority response;
+- fade-out as accepted fallback authority takes over;
+- monotonic combined chroma contraction from shoulder + accepted fallback;
+- no leakage into restoration/detail/acutance preparation;
+- PURE isolation;
+- accepted fallback constants unchanged.
+
+### 20.4 Candidate APK for physical validation
+
+GitHub Actions artifact:
+
+- artifact id `11673332546`;
+- name `draw-free-raster-v03-fullres-candidate-apk`;
+- archive digest SHA-256 `65cacca9a30f2d0c6685b472a4d135fbc708e92fd3a364b6eff444c5b94b2998`.
+
+Exact extracted APK:
+
+- bytes `8,886,667`;
+- SHA-256 `835b672de55a65236f950ec3b4801146b6d5d2299cd4611ca78f719c0d37f8b8`.
+
+The workflow trigger head is `2f532545...`; in the same CI workspace the applicator inserted the runtime wiring that was then committed byte-identically to the branch as `5643988579...`. Therefore `564398857965ab4560c5bb3a6341a2de167fd2e8` is the exact committed runtime identity corresponding to this candidate APK behavior.
+
+Classification:
+
+**CI-GREEN APPEARANCE CANDIDATE / REAL-DEVICE VALIDATION PENDING**
+
+Do not promote this shoulder to standard behavior merely because CI/build is green.
+
+### 20.5 Required next physical test
+
+Use the candidate APK on a comparable PRO backlit/window scene. PASS requires all of the following:
+
+- residual lila/magenta materially reduced versus the `1791642512412` PRO output;
+- fine luminance structure, edge detail and acutance retained;
+- no new neutral/gray halo or seam around bright boundaries;
+- legitimate saturated colours not visibly washed out;
+- accepted Warm Illuminant appearance preserved;
+- accepted broad-purple Censored Chroma behavior does not regress;
+- Q100/true-4:4:4 output remains valid.
+
+FAIL or revise if the residual is materially unchanged, valid colour is visibly desaturated, detail/acutance drops, halos/seams appear, or accepted Warm Illuminant/Censored Chroma behavior regresses.
+
+A matching PURE frame is useful as an isolation reference but is not required for this downstream Appearance candidate if the PRO regression target is clearly demonstrated.
+
+### 20.6 Updated continuation boundary
+
+The correct current interpretation is now:
+
+**the former broad purple highlight failure remains solved by accepted Censored Chroma Fallback v0.1; a newer real-device PRO capture proves a smaller residual near-censor lila/magenta failure class; Residual Near-Censor Chroma Shoulder v0.1 is implemented in the active main-project line and fully CI/build green, but physical acceptance remains pending.**
+
+Do not broaden this candidate into generic desaturation or a scientific pre-saturation calibration. The separate yellow emissive-display investigation remains separate and unresolved. Scientific Master, sealed evidence and all promotion firewalls remain unchanged.
