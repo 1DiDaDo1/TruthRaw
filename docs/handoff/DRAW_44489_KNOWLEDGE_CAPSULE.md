@@ -1209,3 +1209,122 @@ The current purple-highlight state is now:
 **accepted Censored Chroma Fallback v0.1 still solves the historical broad tele lamp/highlight failure; Residual Near-Censor Chroma Shoulder v0.1 covers only low-fraction residual authority and is insufficient for the new sky failure; the direct tele sky proves a distinct deep-CENSOR residual class at ~72% support censoring; Deep-Censor Chroma Guard v0.1 is implemented and fully CI/build green, with physical sky acceptance still pending.**
 
 Scientific Master, sealed evidence, radiometric calibration state and all promotion firewalls remain unchanged. The separate yellow emissive-display problem remains separate.
+
+---
+
+## 22. Deep-Censor Chroma Guard v0.2 detail preservation — FINAL CI-GREEN CANDIDATE CHECKPOINT 2026-10-10
+
+This section supersedes v0.1 as the **current deep-CENSOR real-device candidate**, while preserving all v0.1 provenance and without physically promoting v0.2.
+
+Latest user test evidence is `DRAWPROJPEGtelepurpletest.zip`, with contained PRO JPEG `DRAW_CAPTURE_1791647288671_tele_4080x3072_draw_pro_fullres.jpg`. User judgement after Deep-Censor Guard v0.1: **the purple result is very good; increasing detail preservation would make it perfect**.
+
+The important interpretation is that v0.1 already preserves Rec.709 luminance algebraically. The remaining perceptual flattening is therefore treated as reduced subtle local chroma/colour microcontrast, not as permission to add sharpening. A generic edge exemption is explicitly rejected because real purple residual can overlap genuine luminance edges and could reopen the purple failure.
+
+### 22.1 v0.2 detail-preserving behavior
+
+Current runtime file:
+
+`suite_android/app/src/main/cpp/presentation_deep_censor_chroma_guard_v0_2.h`
+
+v0.2 retains the v0.1 deep-CENSOR authority response:
+
+- `kCensorFractionStart = 0.50`;
+- `kCensorFractionFull = 0.80`;
+- `kMaxRemainingChromaContraction = 0.78`.
+
+It adds only bounded low-amplitude chroma-detail relief:
+
+- relative chroma <= `0.02` may receive at most `35%` relief from the **additional deep-guard contraction only**;
+- relief smoothly reaches zero by relative chroma `0.12`;
+- clearly chromatic residuals >= `0.12` receive the exact v0.1 deep-guard response;
+- the stage never expands chroma relative to its input;
+- Rec.709 luminance remains preserved by construction;
+- chroma-vector direction remains common-scalar preserving;
+- no sharpening, blur, resampling, edge detector, hue/purple detector, semantic/object detector, camera/vendor identity or brightness threshold is introduced;
+- accepted upstream Censored Chroma Fallback v0.1 remains unchanged;
+- PURE remains isolated;
+- Warm Illuminant remains downstream.
+
+Runtime order is:
+
+`Natural Light Local Field -> Near-Censor Shoulder -> accepted Censored Chroma Fallback -> Deep-Censor Chroma Guard v0.2 -> Warm Illuminant Retention -> historical highlight observer -> gamut fit`.
+
+### 22.2 Exact current code/build identity
+
+Exact current tested project head for the downloadable v0.2 APK:
+
+`0db27c2cfc6eab768d41dcdbb1014b43311bb5a2`
+
+On this exact head:
+
+- workflow `D.RAW Free Raster v0.3 Finish APK`;
+- run `38067653940`;
+- job `114258469264`;
+- conclusion **SUCCESS**;
+- `Apply deep-censor chroma detail guard v0.2`: SUCCESS;
+- `Deep-censor chroma detail preservation regression v0.2`: SUCCESS;
+- presentation gamut fit regression: SUCCESS;
+- Warm Illuminant regression: SUCCESS;
+- Natural Light Local Field regression: SUCCESS;
+- accepted Censored Chroma Fallback regression: SUCCESS;
+- Residual Near-Censor Shoulder regression: SUCCESS;
+- PURE/headroom regressions: SUCCESS;
+- sealed Full-Frame Streaming integrity: SUCCESS;
+- strict High-Fidelity Q100/true-4:4:4 JPEG codec regression: SUCCESS;
+- Android tests/build: SUCCESS;
+- APK verification: SUCCESS;
+- artifact upload: SUCCESS.
+
+GitHub Actions artifact:
+
+- artifact id `11676305345`;
+- name `draw-free-raster-v03-fullres-candidate-apk`;
+- archive digest SHA-256 `0695f32050009ffdcce63583e1bb5331d09c825466c4076c6bb86638a8c47e38`.
+
+Exact extracted APK:
+
+- member `app-debug.apk`;
+- bytes `8,888,139`;
+- SHA-256 `32ec63317e9cbdfecb353b1b98a30ef0770a742370da44503a7132278b454756`.
+
+This exact final APK checkpoint supersedes earlier v0.2 APK hashes/build identifiers for **current testing**, while earlier green/failure runs remain historical provenance.
+
+### 22.3 Development lineage retained
+
+- header commit `0ba2ecc50df5c2c072aa6028d4b7e83e527c964d`;
+- applicator commit `06b8c137c24aa8383d3f076ec6b9093009d3eb5c`;
+- initial regression commit `951082efa855eb1933bc63b8d359b9ac4071842d`;
+- main APK workflow binding `5dbed408ee977a0783c83694b74ad1cf2a07bc21`;
+- corrected regression harness `51e4bf5ae2a875e790b02d30568d76b027397116`;
+- earlier CI-generated runtime wiring `bd6ae77eba0314c9d87130931e0771a91ce749fb`.
+
+The first main-workflow v0.2 attempt stopped because the static regression harness falsely matched the word `semantic` inside a comment that explicitly forbade semantic inference. This is classified **HARNESS_FAILURE / NOT_RUNTIME_FAILURE**; the harness was corrected without changing the v0.2 pixel algorithm.
+
+Dedicated detailed record:
+
+`docs/handoff/DRAW_44489_DEEP_CENSOR_CHROMA_GUARD_V0_2_DETAIL_CANDIDATE_2026-10-10.md`
+
+### 22.4 Physical acceptance boundary
+
+Classification remains:
+
+**CI-GREEN APPEARANCE CANDIDATE / REAL-DEVICE DETAIL VALIDATION PENDING**.
+
+PASS requires:
+
+1. purple/magenta suppression at least as good as Deep-Censor Guard v0.1;
+2. visibly improved subtle cloud/foliage/local-colour texture and perceived detail;
+3. no luminance-detail loss, halo, seam, ringing or oversharpening;
+4. no reopening of strong purple on true edges;
+5. no washout of legitimate saturated colour;
+6. accepted Warm Illuminant behavior preserved;
+7. accepted Censored Chroma Fallback behavior preserved;
+8. Q100/true-4:4:4 output remains valid.
+
+Scientific Master, sealed evidence, radiometric calibration state, source authority and all scientific promotion/writeback firewalls remain unchanged.
+
+### 22.5 Updated continuation boundary
+
+The current purple/detail state is now:
+
+**accepted Censored Chroma Fallback v0.1 remains the standard broad-purple solution; Residual Near-Censor Shoulder v0.1 remains the low-fraction residual component; Deep-Censor Guard v0.1 materially solved the new deep-CENSOR sky purple class on real device but left some perceptual flattening; Deep-Censor Chroma Guard v0.2 is the current CI-green candidate designed specifically to recover low-amplitude chroma microdetail without weakening strong-purple suppression. The exact downloadable v0.2 APK is the artifact from head `0db27c2c...`, SHA-256 `32ec63317e9cbdfecb353b1b98a30ef0770a742370da44503a7132278b454756`.**
