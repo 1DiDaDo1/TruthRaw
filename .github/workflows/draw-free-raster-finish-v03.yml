@@ -36,6 +36,9 @@ jobs:
       - name: Apply authority-bound censored chroma fallback v0.1
         run: python3 tools/apply_presentation_censored_chroma_fallback_v0_1.py
 
+      - name: Apply residual near-censor chroma shoulder v0.1
+        run: python3 tools/apply_presentation_near_censor_chroma_shoulder_v0_1.py
+
       - name: Apply PURE Float32 headroom output v0.1
         run: python3 tools/apply_pure_float_headroom_output_v0_1.py
 
@@ -69,6 +72,8 @@ jobs:
           grep -F 'presentation_censored_chroma_fallback_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'highlightCensorFractionAt' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'presentation_censored_chroma::apply' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_near_censor_chroma_shoulder_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          grep -F 'presentation_near_censor_chroma::apply' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'presentation_headroom_map_v0_1.h' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'process_pure_extended_linear_headroom_v0_1' suite_android/app/src/main/cpp/photo_export_bridge.cpp
           grep -F 'PURE_EXTENDED_LINEAR_FLOAT32_HEADROOM_90_100_APPEARANCE_ONLY_V0_1' suite_android/app/src/main/cpp/photo_export_bridge.cpp
@@ -89,6 +94,9 @@ jobs:
 
       - name: Authority-bound censored chroma fallback regression
         run: python3 tools/test_presentation_censored_chroma_fallback_v0_1.py
+
+      - name: Residual near-censor chroma shoulder regression
+        run: python3 tools/test_presentation_near_censor_chroma_shoulder_v0_1.py
 
       - name: PURE Float32 headroom regression
         run: python3 tools/test_presentation_headroom_map_v0_1.py
@@ -141,6 +149,7 @@ jobs:
           strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'pixel_mutation_by_diagnostics=0'
           strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'scientific_writeback=0'
           strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'full-res censored chroma fallback failed'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'full-res near-censor chroma shoulder failed'
           echo "apk_bytes=$(stat -c%s "$APK")"
           echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
 
