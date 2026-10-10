@@ -1,6 +1,7 @@
 package com.truthraw.adaptiveui
 
 import kotlin.math.abs
+import kotlin.math.max
 
 /**
  * Deterministic numeric primitives for future scientific uncertainty transport.
@@ -13,6 +14,7 @@ object ScientificNoiseMathV01 {
     const val METHOD_ID = "D.RAW/ScientificNoiseMath/0.1"
     private const val DIM = 3
     private const val SYMMETRY_TOLERANCE = 1.0e-12
+    private const val PSD_RELATIVE_TOLERANCE = 1.0e-12
 
     fun scaleVariance(
         variance: Double,
@@ -36,7 +38,7 @@ object ScientificNoiseMathV01 {
             DoubleArray(DIM) { c ->
                 covariance[r][c] * factor
             }
-        }.takeIf(::allFinite)
+        }.takeIf(::validCovariance3x3)
     }
 
     /**
@@ -75,7 +77,8 @@ object ScientificNoiseMathV01 {
         }
 
         // Numeric symmetry is restored only by averaging mirrored results;
-        // this does not invent an uncertainty component.
+        // this does not invent an uncertainty component. The final matrix must
+        // still satisfy the full covariance validity/PSD gate below.
         for (r in 0 until DIM) {
             if (out[r][r] < -SYMMETRY_TOLERANCE) return null
             if (out[r][r] < 0.0) out[r][r] = 0.0
@@ -101,7 +104,7 @@ object ScientificNoiseMathV01 {
             DoubleArray(DIM) { c ->
                 if (r == c) values[r] else 0.0
             }
-        }
+        }.takeIf(::validCovariance3x3)
     }
 
     /**
@@ -127,20 +130,81 @@ object ScientificNoiseMathV01 {
         return gain.takeIf { it.isFinite() && it >= 0.0 }
     }
 
+    /**
+     * A covariance matrix is not valid merely because its diagonal variances
+     * are non-negative. It must also be positive semidefinite (PSD), otherwise
+     * some real linear combination would have a negative variance.
+     *
+     * For a real symmetric 3x3 matrix PSD is equivalent to all principal
+     * minors being non-negative. We allow only scale-relative floating-point
+     * round-off below zero; materially negative minors fail closed. No matrix
+     * projection, eigenvalue clipping, or synthetic covariance repair occurs.
+     */
+    fun positiveSemidefiniteCovariance3x3(
+        covariance: Array<DoubleArray>,
+    ): Boolean {
+        if (!validSymmetricNonnegativeDiagonal3x3(covariance)) return false
+
+        val a = covariance[0][0]
+        val b = covariance[1][1]
+        val c = covariance[2][2]
+        val d = covariance[0][1]
+        val e = covariance[0][2]
+        val f = covariance[1][2]
+
+        if (!minorNonnegative(a * b - d * d, a * b, d * d)) return false
+        if (!minorNonnegative(a * c - e * e, a * c, e * e)) return false
+        if (!minorNonnegative(b * c - f * f, b * c, f * f)) return false
+
+        val abc = a * b * c
+        val twoDef = 2.0 * d * e * f
+        val af2 = a * f * f
+        val be2 = b * e * e
+        val cd2 = c * d * d
+        val determinant = abc + twoDef - af2 - be2 - cd2
+        if (!determinant.isFinite()) return false
+
+        val detScale =
+            max(
+                1.0,
+                max(
+                    max(abs(abc), abs(twoDef)),
+                    max(max(abs(af2), abs(be2)), abs(cd2)),
+                ),
+            )
+        return determinant >= -PSD_RELATIVE_TOLERANCE * detScale
+    }
+
     fun validCovariance3x3(
+        covariance: Array<DoubleArray>,
+    ): Boolean = positiveSemidefiniteCovariance3x3(covariance)
+
+    private fun validSymmetricNonnegativeDiagonal3x3(
         covariance: Array<DoubleArray>,
     ): Boolean {
         if (!validMatrix3x3(covariance)) return false
         for (r in 0 until DIM) {
             if (covariance[r][r] < 0.0) return false
             for (c in r + 1 until DIM) {
-                val a = covariance[r][c]
-                val b = covariance[c][r]
-                val scale = 1.0 + maxOf(abs(a), abs(b))
-                if (abs(a - b) > SYMMETRY_TOLERANCE * scale) return false
+                val x = covariance[r][c]
+                val y = covariance[c][r]
+                val scale = 1.0 + maxOf(abs(x), abs(y))
+                if (abs(x - y) > SYMMETRY_TOLERANCE * scale) return false
             }
         }
         return true
+    }
+
+    private fun minorNonnegative(
+        minor: Double,
+        term0: Double,
+        term1: Double,
+    ): Boolean {
+        if (!minor.isFinite() || !term0.isFinite() || !term1.isFinite()) {
+            return false
+        }
+        val scale = max(1.0, max(abs(term0), abs(term1)))
+        return minor >= -PSD_RELATIVE_TOLERANCE * scale
     }
 
     private fun validMatrix3x3(
