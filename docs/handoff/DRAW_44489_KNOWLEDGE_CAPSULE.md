@@ -1,84 +1,93 @@
-# D.RAW 44489 — canonical current knowledge capsule — 2026-10-11
+# D.RAW 44489 — canonical current knowledge capsule — post-PR #131 integration — 2026-10-11
 
-Purpose: **binding recovery state for continuation code 44489**. Read this file completely before changing runtime code, scientific authority, promotion state, PR state, output contracts, colour/Appearance behavior, source-capability admission, or APK provenance.
+Purpose: **binding recovery state for continuation code 44489**. Read this file completely before changing runtime code, scientific authority, promotion state, source-capability admission, observation/evidence architecture, output contracts, Appearance behavior, or APK provenance.
 
 Project: **D.RAW** (`TruthRaw` remains repository/history naming)  
 Repository: `1DiDaDo1/TruthRaw`  
 Continuation code: **44489**  
 Permanent motto: **One Free World. Many sealed observations. One evidence law.**
 
-This 2026-10-11 capsule supersedes older passages that claimed to be the current 44489 state. Historical results remain provenance in Git history and in the detailed handoff documents. Exact newer code/build/device evidence wins over older implementation prose. The permanent evidence law wins over both.
-
-The latest **validated code/test checkpoint represented by this document before the documentation-only capsule commit** is:
-
-`bc93fe6693140262a52740b20d2e297b386b11f5`
-
-That checkpoint is CI-green and contains the new shadow-only Effective Black / Normalization Domain validator and its tests. The validator is deliberately **not yet exposed as a field of `SourceCapabilityEnvelopeV02`** at that exact checkpoint; that is the next narrow integration step after this documentation checkpoint. This statement prevents a future chat from incorrectly assuming that standalone validation code is already a current envelope consumer.
+This file supersedes every older passage that described PR #131 as open/draft/unmerged or treated the later Android runtime `SourceCapabilityEnvelopeV02` as interchangeable with the earlier canonical Source Capability Physical Knowledge Map v0.2.
 
 ---
 
-## 0. Recovery order and exact current boundaries
+## 0. Exact current integration state
 
-In a new chat, do this before any implementation decision:
+PR #131 — **Integrate D.RAW Workspace / Free Raster and Source Capability runtime line** — is now:
+
+- **MERGED**;
+- **CLOSED**;
+- final PR head: `c28b8bacfead4787fdc14cd65e9e00ff4bc7abb8`;
+- target/base branch: `fix/android-exact-gauge-pass-artifact-v03`;
+- merge commit: `28343adf054ccb8f4c741edff187604cf2b0c88a`;
+- merge method: merge commit, preserving branch history;
+- merge commit parents:
+  - frozen base / PR #130 reference: `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`;
+  - final PR #131 head: `c28b8bacfead4787fdc14cd65e9e00ff4bc7abb8`.
+
+The merge is an **engineering/integration checkpoint only**. It does not promote a scientific candidate, grant new MEASURED authority, validate an unresolved calibration, or widen any real-device acceptance claim.
+
+Binding merge-prep audit:
+
+`docs/handoff/DRAW_44489_PR131_MERGE_PREP_2026-10-11.md`
+
+The exact final PR #131 head was fully green across the current workflow set before merge, including Canonical Integrity, Universal Intake, DngCreator compatibility, Free Raster/APK, Universal Physical Capture, Research Fresh Rerun, Shared Scientific Context, reconstruction integrity, Exact-Gauge/performance integrity and current Appearance integrity workflows.
+
+The repository default branch `main` is **not** made current by this merge. PR #131 was merged into `fix/android-exact-gauge-pass-artifact-v03`. Never claim that `main` contains the PR #131 integration unless a later exact merge proves that separately.
+
+A fresh post-merge architecture branch must start from the corrected post-merge 44489 documentation state. Intended branch name:
+
+`feat/draw-observation-evidence-architecture-v01`
+
+If this branch already exists when 44489 is recovered, verify its exact head and ancestry rather than recreating it.
+
+---
+
+## 1. Recovery order
+
+In a new chat:
 
 1. read this capsule completely;
-2. resolve the live head of PR #131 and compare every commit after the exact checkpoints named here;
-3. preserve frozen PR #130 / `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f` and do not rewrite its scientific meaning;
-4. distinguish four different things at all times:
-   - scientific state and authority;
-   - physically accepted real-device behavior;
-   - CI/build provenance;
-   - documentation/project-state;
-5. never infer scientific promotion from a green build, good JPEG, visually pleasing output, timing improvement, metadata presence, or a successful parser;
-6. do not reopen the broad purple/magenta tele-highlight investigation unless a real regression is observed;
-7. keep the yellow TV/subtitle/emissive-display problem separate from the solved broad-purple problem;
-8. for emissive displays include spectral observer mismatch, display subpixel/CFA interaction and temporal integration/PWM/refresh/rolling-shutter effects;
-9. preserve the design purpose of Natural Light Local Field Tone: downstream appearance of local luminous-field impression, not reconstructed physical light transport;
-10. for Source Capability work, inspect existing parser/validator coverage before adding a new validator. Do not rebuild a layer already present in previous commits.
-
-Current PR line at the validated code/test checkpoint:
-
-- PR: **#131 — `Android: D.RAW Workspace / Free Raster view v0.1`**;
-- branch: `feat/draw-workspace-free-raster-v01`;
-- base: `fix/android-exact-gauge-pass-artifact-v03`;
-- frozen base SHA: `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`;
-- state: **OPEN**;
-- review state: **DRAFT**;
-- merge state at `bc93fe...`: **UNMERGED, mergeable=true**;
-- do not mark ready or merge merely because the current CI is green.
+2. resolve the live head of `feat/draw-observation-evidence-architecture-v01` if it exists;
+3. compare any commits after the post-merge capsule checkpoint before proposing new code;
+4. preserve PR #131 merge commit `28343adf...` as the integration anchor;
+5. preserve frozen PR #130 reference `4e4f358a...` and its scientific meaning;
+6. distinguish scientific state, physical real-device acceptance, CI/build provenance and documentation state;
+7. inspect existing parser/validator coverage before adding anything;
+8. never infer scientific promotion from merge status, green CI, metadata presence, timing, visual quality or product acceptance.
 
 ---
 
-## 1. Permanent evidence law
+## 2. Permanent evidence law
 
-### 1.1 Core sentence
+### 2.1 Core sentence
 
 **Seal the evidence, not the thinking.**
 
-### 1.2 Authority classes must never collapse
+### 2.2 Authority classes never collapse
 
 `MEASURED != CALIBRATED_ESTIMATE != RECONSTRUCTED != CENSORED != UNKNOWN != APPEARANCE`
 
-The representation may become richer than the original raster, but knowledge claims may never become richer than the evidence that supports them.
-
-### 1.3 Non-negotiable rules
+### 2.3 Non-negotiable rules
 
 - Direct CFA / RAW_SENSOR evidence is immutable and sealed.
-- One physical frame remains one physical frame. Processing must never fabricate additional physical observations.
+- One physical frame remains one physical frame.
 - Scientific Master is separate from View / Appearance / Export.
-- `UNKNOWN` is a valid scientific result. It may not silently become zero, certainty, black, white, a guessed colour, or a reconstructed measurement.
-- `CENSORED` finite numbers are not automatically trustworthy chromaticity, radiance, or material reflectance.
-- Precision, higher raster density, interpolation, reconstruction, registration, visual similarity, JPEG quality, performance or AI confidence do not create scientific authority.
-- Camera/lens/vendor/container identity may describe provenance or routing, but a recognized name may never select scientific truth by itself.
-- AI/ML/neural/generative inference is not admitted as scientific evidence in the D.RAW scientific layer.
-- SOURCE/SENSOR, WORLD/SCENE and VIEW/OUTPUT are distinct domains.
-- Output cannot authorize scientific writeback.
-- APK/GCam/computational-RAW behavior may be useful as product/reference behavior but may not determine TruthRaw evidence, scientific calibration or promotion.
+- `UNKNOWN` is a valid result and may not silently become zero/certainty.
+- `CENSORED` finite values are not automatically trustworthy radiance or chromaticity.
+- Precision, interpolation, reconstruction, registration, visual similarity, JPEG quality and speed do not create scientific authority.
+- Camera/lens/vendor/container identity may describe provenance but may not choose scientific truth by name.
+- AI/ML/neural/generative inference is not admitted as scientific evidence in the scientific layer.
+- SOURCE/SENSOR, WORLD/SCENE and VIEW/OUTPUT remain distinct.
+- Output cannot authorize Scientific Master writeback.
+- APK/GCam/computational RAW behavior cannot define TruthRaw evidence/calibration truth.
+- DNG defaults may define specification dependencies but never mint physical source occurrences.
+- Parser success proves parseability, not admission.
+- Validator success proves only its named contract.
+- `VALIDATED != ADMITTED != USED`.
+- `USED` requires `CONSISTENT_ADMITTED` plus an explicit named consumer.
 - A 3×3 colour transform is not exact human colorimetry for arbitrary spectra.
-- Emitted radiance and reflected/transmitted radiance are not equivalent merely because an RGB output is similar.
-- DNG defaults can establish specification-defined dependency values; they do **not** create physical source-tag occurrences in the evidence ledger.
-- Parser success establishes parseability, not scientific admission.
-- Validator success establishes only the contract named by that validator; it does not automatically advance the Evidence Ledger lifecycle.
+- Emitted and reflected/transmitted radiance remain physically distinct.
 
 Permanent engineering sentence:
 
@@ -86,18 +95,16 @@ Permanent engineering sentence:
 
 ---
 
-## 2. Canonical architecture
-
-The current architectural direction remains:
+## 3. Canonical architecture
 
 `Readable source`
 `-> sealed Observation`
 `-> structural inspection`
-`-> Source Capability Envelope / Observation Evidence Ledger`
+`-> Source Capability / Observation Evidence Ledger`
 `-> calibration and reconstruction with explicit authority + uncertainty`
 `-> Scientific Master`
 `-> Dynamic Authority + uncertainty`
-`-> observation-bound scientific representation`
+`-> observation-bound continuous scientific representation`
 `-> Free World Observation Graph`
 `-> Deep Scene / Light Transport`
 `-> Room Capsule`
@@ -111,259 +118,238 @@ Source-agnostic law:
 
 Never replace this with:
 
-`camera X -> therefore profile Y -> therefore scientific truth`.
+`camera X -> profile Y -> scientific truth`.
 
-The project may learn more about a source, but every later claim must remain source-bound and provenance-bound.
+Free Raster belongs downstream as projection/bemonstration/output. It is not the scientific representation itself and cannot create MEASURED evidence.
 
 ---
 
-## 3. Scientific foundation that must stay synchronized with decisions
+## 4. Scientific foundation that must stay synchronized
 
-Project decisions must continue to be checked against current primary/standards/university knowledge from at least these domains:
+Relevant project decisions must continue to be checked against current primary/standards/university knowledge from:
 
 - photography, RAW/CFA imaging and sensor metrology;
 - optics, lens PSF/OTF/MTF, diffraction, aberration, sampling and aliasing;
-- radiometry, photometry, illumination, inverse-square/falloff limits, shadows and light transport;
-- artificial/emissive sources, spectral power distributions, spectral rendering and metamerism;
-- camera-vs-human observer mismatch;
-- camera and colour calibration;
-- black level, white level, clipping, censoring, reference/gauge construction and uncertainty;
-- human luminance adaptation, contrast sensitivity, colour appearance and viewing conditions;
-- 3D/projective geometry, perspective, single-view ambiguity, stereo/epipolar constraints and physically based rendering;
-- the rendering equation, with emitted and reflected/scattered contributions kept distinct;
-- stop-motion and temporal sampling, exposure integration, motion blur and temporal aliasing;
-- temporal light modulation, PWM, refresh, rolling shutter and exposure-window interactions;
-- display subpixel lattice + lens PSF + sensor aperture + CFA + reconstruction interactions;
-- architecture, perspective, scale, material/scene geometry and restoration/conservation practice;
-- conservation principles: authenticity, minimal intervention, reversibility/retreatability, documentation and provenance;
+- radiometry, photometry, artificial illumination, shadows and light transport;
+- emissive SPDs, spectral rendering, metamerism and camera-vs-human observer mismatch;
+- camera/color calibration;
+- black level, white level, clipping, censoring, gauge/reference construction and uncertainty;
+- human luminance adaptation, contrast and colour appearance/viewing conditions;
+- 3D/projective geometry, single-view ambiguity, stereo/epipolar constraints and PBR;
+- rendering equation and emitted vs reflected/scattered light;
+- stop-motion, temporal sampling, exposure integration, motion blur and temporal aliasing;
+- PWM/refresh/rolling-shutter/temporal-light-modulation interactions;
+- display subpixel lattice + lens PSF + sensor aperture + CFA + reconstruction;
+- architecture, perspective, scale and material/scene geometry;
+- conservation/restoration principles: authenticity, minimal intervention, reversibility/retreatability and documentation/provenance;
 - scene-referred versus display-referred pipelines.
 
-For the current Source Capability radiometric line, the normative implementation anchor is Adobe DNG Specification 1.7.1.0, especially Chapter 5 “Mapping Raw Values to Linear Reference Values” and the DNG tag definitions. DNG 1.7.1.0 defines the processing order as Linearization -> Black Subtraction -> Rescaling/Normalization -> Clipping. The BlackLevel repeat pattern originates at the top-left of `ActiveArea`. `BlackLevelDeltaH` and `BlackLevelDeltaV` are active-area column/row corrections. The normalization scale for each sample plane uses `1 / (WhiteLevel - maximum computed black level)`.
+For the current DNG radiometric line, Adobe DNG Specification 1.7.1.0 remains the normative implementation anchor. Mapping order remains conceptually:
 
-This does **not** mean D.RAW has already validated the entire DNG raw-to-linear mapping. The current new validator intentionally proves only the black/white metadata-domain relation. `LinearizationTable` remains a separate unresolved prerequisite before the whole raw-to-linear mapping may be described as validated.
+`Linearization -> Black Subtraction -> Rescaling/Normalization -> Clipping`
+
+The current runtime has **not** validated the complete raw-to-linear mapping because `LinearizationTable` remains a separate unresolved contract.
 
 ---
 
-## 4. Observation Evidence Ledger v0.1 / Source Capability Envelope v0.2
+## 5. Source Capability has two historically distinct layers — do not conflate them
 
-### 4.1 Purpose
+This distinction is now binding after the PR #131 merge.
 
-The Source Capability line is deliberately passive and shadow-only. It records what a sealed source and the existing parser can actually establish before scientific use.
+### 5.1 Canonical research Physical Knowledge Map v0.2
 
-Evidence lifecycle:
+The earlier canonical artifact is:
 
-`PRESENT -> PARSED -> VALIDATED -> ADMITTED -> USED`
+`D.RAW/SourceCapabilityEnvelope/0.2`
 
-A later state may be reached only through an explicit contract. Recognition, convenience or metadata presence does not skip states.
+It predates the current Android occurrence-ledger work. It is a **Physical Knowledge Map v0.2** bound to the physical Observation Record / scientific ingress lineage and deliberately separates:
 
-Current envelope status:
+- physical capture route;
+- serialized DNG/CFA storage domain;
+- compatibility ingress;
+- capture-sample domain;
+- readout domain;
+- sensor pixel mode;
+- capability knowledge origins;
+- UNKNOWN domains.
+
+Important historical integration checkpoint:
+
+`fe6275c3dd5f1f4b8f429950768378b44ab1a2c5`
+
+This canonical layer grants no automatic calibration, graph relation or fusion authority.
+
+### 5.2 Later Android parser-bound runtime shadow layer
+
+The later Kotlin class `SourceCapabilityEnvelopeV02` is operationally a passive runtime **Observation Evidence Ledger / source-parser shadow view** over facts already exposed by the existing TIFF/DNG parser.
+
+Authoritative runtime ledger schema:
+
+`D.RAW/ObservationEvidenceLedger/0.1`
+
+Runtime status:
 
 `SHADOW_READ_ONLY_ZERO_PIXEL_CHANGE`
 
-### 4.2 Admission classes
+Its lifecycle is:
 
-- `PRESENT_UNVALIDATED`
-- `CONSISTENT_ADMITTED`
-- `CONTRADICTED_FAIL_CLOSED`
-- `PROVENANCE_ONLY`
-- `UNSUPPORTED_SEMANTICS`
-- `ABSENT`
+`PRESENT -> PARSED -> VALIDATED -> ADMITTED -> USED`
 
-### 4.3 Authority classes
+Its current records carry exact parser/source occurrence provenance, lifecycle, admission and authority information.
 
-- `SOURCE_STRUCTURE`
-- `SOURCE_ACQUISITION_CONTEXT`
-- `SOURCE_CALIBRATION_CANDIDATE`
-- `SOURCE_NOISE_CONTEXT_CANDIDATE`
-- `SOURCE_OPERATION_PROVENANCE`
-- `SOURCE_IDENTITY_PROVENANCE`
-- `UNKNOWN_SEMANTICS`
+### 5.3 Schema-identity collision discovered and formally separated
 
-### 4.4 Lifecycle firewall
+The Android runtime class historically also emitted the textual envelope label:
 
-`USED` requires both:
+`D.RAW/SourceCapabilityEnvelope/0.2`
 
-1. `CONSISTENT_ADMITTED`; and
-2. one or more explicit named consumers.
+but its JSON structure is not the canonical Physical Knowledge Map serialization.
 
-Provenance-only, unsupported or contradicted evidence cannot become `ADMITTED` or `USED` by recognition alone.
+Binding post-merge rule:
 
-At the current state there is **no direct current pixel consumer** of the Source Capability validators described below.
+- canonical `D.RAW/SourceCapabilityEnvelope/0.2` = historical Physical Knowledge Map v0.2;
+- authoritative Android occurrence-ledger identity = `D.RAW/ObservationEvidenceLedger/0.1`;
+- the runtime Android envelope label is **legacy compatibility only**;
+- no new scientific consumer may bind semantic authority to that ambiguous legacy label;
+- before any new Source Capability serialized contract or `ADMITTED -> USED` consumer is introduced, the fresh architecture branch must migrate the runtime shadow envelope to a distinct schema namespace;
+- planned namespace: `D.RAW/SourceCapabilityRuntimeEvidenceEnvelope/0.1`.
+
+This migration is a **schema/governance separation**, not a scientific promotion.
 
 ---
 
-## 5. Physical occurrence / parser provenance layer — already completed
+## 6. Existing intake seam — preserve it; do not build a second path
+
+The prior chat established the correct seam and the current code retains it:
+
+1. `UniversalSourceProfiler` hashes the immutable processing source and resolves byte length before TIFF/DNG metadata interpretation;
+2. the existing DNG/TIFF parser remains the single parser path;
+3. exact physical occurrence provenance is attached to that parsed structure;
+4. the runtime Observation Evidence Ledger consumes that same parsed object and source SHA binding;
+5. parser failure yields a source-bound fail-closed unavailable ledger/envelope;
+6. no second hash path, second ingestion path or second TIFF parser is authorized.
+
+The old first-found compatibility fields may remain for product compatibility, but they do not gain scientific authority merely because the evidence ledger exists beside them.
+
+---
+
+## 7. Physical TIFF/DNG occurrence / traversal provenance — completed
 
 Do not rebuild this layer.
 
-The previous chats already established a parser-bound physical occurrence ledger for classic TIFF/DNG metadata. The system can bind source facts to exact physical occurrence/provenance including, where available:
+Current infrastructure binds, where available:
 
 - source SHA-256;
+- source byte length;
 - IFD path and IFD offset;
-- tag;
-- TIFF type;
-- count;
-- parser/decode status;
-- entry offset;
+- tag, type and count;
+- parser/decode/locator status;
+- exact entry offset;
 - value-field offset;
 - inline vs external storage;
-- byte range / external offset bounds;
-- original source value/offset field bytes;
+- external byte range;
+- original source value/offset bytes;
 - occurrence index;
-- traversal anomalies/fail-closed state.
+- traversal anomalies.
 
-Important completed checkpoint in this line:
+Hard truncation/parse failures remain hard fail-closed. Out-of-bounds/revisit/recursion-limit traversal anomalies are explicitly recorded rather than silently ignored.
 
-- physical occurrence/traversal runtime: `ca8530404fed9fd02ce6b9e2d8d7fd30a638826e`.
+Important runtime checkpoint:
 
-This is evidence provenance infrastructure only. It does not mean a parsed value is scientifically admitted.
+`ca8530404fed9fd02ce6b9e2d8d7fd30a638826e`
+
+Classic TIFF and BigTIFF must not be conflated. Unsupported container structure may fail closed rather than fabricate a classic-TIFF interpretation.
 
 ---
 
-## 6. Raw-IFD format-domain validation — already completed
+## 8. Raw-IFD format-domain validation — completed
 
 `SourceCapabilityRawIfdDomainValidatorV01` already exists.
 
-Its purpose is to decide conservatively whether an IFD belongs to a supported raw-domain description based on structural/source facts, without silently selecting an arbitrary IFD or treating vendor identity as scientific truth.
+It conservatively distinguishes supported raw-domain IFDs using structural/source facts. It does not use a shortcut such as “LinearRaw therefore primary raw”. CFA and LinearRaw rules, reduced/enhanced subfile semantics and duplicate ambiguity remain explicit.
 
 Relevant checkpoint:
 
 `02b611b246fb4db1ad3c3261ded7a7a484f7ae2f`
 
-Do not add a second “raw IFD detector” for the current work. Extend the existing validator only if new evidence requires it.
+Do not implement a second raw-IFD detector.
 
 ---
 
-## 7. Radiometric semantic validation v0.1 — already completed
+## 9. Radiometric semantic validation v0.1 — completed
 
-`SourceCapabilityRadiometricSemanticValidatorV01` already covers the basic DNG radiometric semantic family, including:
+`SourceCapabilityRadiometricSemanticValidatorV01` already validates the basic metadata semantic family including:
 
 - `SamplesPerPixel` dependency;
 - `BlackLevelRepeatDim`;
 - `BlackLevel`;
 - `WhiteLevel`.
 
-It validates source occurrence count/type/cardinality/default contracts conservatively and fails closed on ambiguity/contradiction.
+WhiteLevel parsing/semantic validation is **not** missing and must not be rebuilt.
 
-**WhiteLevel is therefore not a missing parser/semantic feature. Do not implement it again.**
+Specification defaults remain dependency semantics only and do not mint physical occurrences.
 
-Relevant historical checkpoints in this line include:
+Historical generated/runtime checkpoint:
 
-- `6cb75b1...`;
-- `e2b63ca...`;
-- `9d10d46...`;
-- generated/runtime checkpoint `1534d321...`;
-- documentation checkpoint `766db845...`.
-
-Exact full hashes remain available in Git history; the abbreviated sequence here is to preserve ordering without falsely promoting an intermediate commit to current head.
+`1534d321f56a7f57b1b34e309282b1d9ead4579b`
 
 ---
 
-## 8. Radiometric encoding consistency v0.1 — already completed
+## 10. Radiometric encoding consistency v0.1 — completed
 
-`SourceCapabilityRadiometricEncodingConsistencyValidatorV01` already relates the radiometric semantic family to image-encoding dependencies such as:
+`SourceCapabilityRadiometricEncodingConsistencyValidatorV01` already validates representability/encoding contracts around:
 
 - `BitsPerSample`;
 - `SampleFormat`;
 - `SamplesPerPixel`;
-- `PlanarConfiguration` where relevant;
-- image dimensions/domain facts;
-- `BlackLevel` cardinality;
-- `WhiteLevel` cardinality/default encoding relationship.
+- `PlanarConfiguration` where applicable;
+- dimensions/domain facts;
+- BlackLevel/WhiteLevel cardinality and representability;
+- integer vs floating-point encoding rules.
 
-It remains shadow-only and does not normalize image samples.
+It does **not** perform full RAW normalization.
 
-Historical chain includes:
-
-- `e4e19d65...`;
-- `48741835...`;
-- `ba0013bf...`;
-- generated/runtime checkpoint `6b244b04...`;
-- documentation checkpoint `557559f0...`.
+DNG version compatibility is separately validated by `SourceCapabilityDngVersionCompatibilityValidatorV01` and does not itself create calibration authority.
 
 ---
 
-## 9. DNG version compatibility v0.1 — already completed
+## 11. Spatial BlackLevel metadata/dependency v0.1 — completed and runtime-exposed
 
-`SourceCapabilityDngVersionCompatibilityValidatorV01` already exists and is part of the current envelope at the pre-capsule checkpoint.
-
-Historical implementation/test/runtime/documentation chain includes:
-
-- `68e3849e...`;
-- `9655faac...`;
-- `300dd763...`;
-- generated/runtime checkpoint `821cb917...`;
-- documentation checkpoint `08b5ae67782c5b9f42703935fea071d34af73909`.
-
-DNG version compatibility is a source-format compatibility claim only. It does not itself admit calibration truth.
-
----
-
-## 10. Spatial BlackLevel metadata/dependency validation v0.1 — already completed and envelope-exposed
-
-Current implementation:
-
-`SourceCapabilityRadiometricSpatialBlackLevelValidatorV01`
-
-This layer validates the metadata dependencies necessary to describe spatial zero-light encoding:
+`SourceCapabilityRadiometricSpatialBlackLevelValidatorV01` validates the dependencies required to describe spatial zero-light encoding:
 
 - `ImageWidth` / `ImageLength`;
 - `ActiveArea`;
 - `BlackLevelDeltaH`;
 - `BlackLevelDeltaV`.
 
-It deliberately does not read image samples and does not normalize pixels.
+Rules include:
 
-Important contracts:
-
-- DNG full-image `ActiveArea` default may be used when dimensions are exactly resolved;
-- default values are dependency values and never mint fake source occurrences;
-- `BlackLevelDeltaH` count is tied to ActiveArea width;
-- `BlackLevelDeltaV` count is tied to ActiveArea height/length;
-- duplicate/ambiguous dependency selection is not allowed;
-- contradiction/unresolved state fails closed;
-- no Evidence Ledger lifecycle mutation;
-- no scientific admission;
-- no Scientific Master/Appearance effect;
-- no new evidence;
-- no scientific writeback.
+- full-image ActiveArea default only when dimensions resolve exactly;
+- defaults do not mint source occurrences;
+- DeltaH count binds to ActiveArea width;
+- DeltaV count binds to ActiveArea height;
+- duplicates/ambiguity fail closed;
+- no pixel read, lifecycle mutation, admission, Scientific Master effect, Appearance effect or writeback.
 
 Implementation/test/exposure chain:
 
-- add validator: `3d59441a113a35b0efbf33e2c20aff687f8dae76`;
-- test validator: `6f9f0fea11ea2fb817720a9b408dfc0a143de399`;
-- expose in Source Capability Envelope: `919272ef5ad2cad5985a74c455dc2ffbcb0ee1a0`.
-
-That `919272ef...` checkpoint was the exact live head before the new Effective Black/Normalization work started.
+- `3d59441a113a35b0efbf33e2c20aff687f8dae76` — validator;
+- `6f9f0fea11ea2fb817720a9b408dfc0a143de399` — tests;
+- `919272ef5ad2cad5985a74c455dc2ffbcb0ee1a0` — runtime envelope exposure.
 
 ---
 
-## 11. NEW — Effective Black / Normalization Domain validator v0.1
+## 12. Effective Black / Normalization Domain v0.1 — newest validated scientific addition
 
-### 11.1 Exact code/test checkpoint
-
-The newest scientific implementation in this capsule is:
+Implementation:
 
 `SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01`
 
-New source commit:
+Commits:
 
-`fba30bc23e340d3a9d31c4b7f6eba7c904f03671`
-
-Initial test commit:
-
-`a0aa8d926dfabe11d9713a1fa144decf55538c1b`
-
-Corrected/final test checkpoint represented by this capsule:
-
-`bc93fe6693140262a52740b20d2e297b386b11f5`
-
-The test correction fixed two test assumptions before final CI acceptance:
-
-1. the exact first-case minimum effective black is `64`, not `63`;
-2. the default test no longer assumes that the new standalone validator is already exposed through `SourceCapabilityEnvelopeV02`.
-
-### 11.2 Schema and status
+- source: `fba30bc23e340d3a9d31c4b7f6eba7c904f03671`;
+- initial tests: `a0aa8d926dfabe11d9713a1fa144decf55538c1b`;
+- corrected + fully green code/test checkpoint: `bc93fe6693140262a52740b20d2e297b386b11f5`.
 
 Schema:
 
@@ -373,53 +359,36 @@ Status:
 
 `SHADOW_ONLY_EFFECTIVE_BLACK_NORMALIZATION_DOMAIN`
 
-Possible per-IFD outcomes:
-
-- `VALIDATED_EFFECTIVE_BLACK_NORMALIZATION_DOMAIN_SHADOW_ONLY`
-- `CONTRADICTED_EFFECTIVE_BLACK_NORMALIZATION_DOMAIN_FAIL_CLOSED`
-- `UNRESOLVED_EFFECTIVE_BLACK_NORMALIZATION_DOMAIN_FAIL_CLOSED`
-
-### 11.3 Exact scientific scope
-
-Prerequisites are existing validators, not new parser logic:
-
-- Raw-IFD domain must be validated;
-- Radiometric Encoding Consistency must be validated;
-- radiometric semantic family must not be contradicted/ambiguous;
-- Spatial BlackLevel dependencies must be validated.
-
-The validator then resolves, from already parsed metadata/dependency facts:
-
-- BlackLevel repeat rows/columns, with DNG 1×1 default where applicable;
-- `BlackLevel`, with DNG default zero where applicable;
-- `WhiteLevel`, explicit or already validated encoding default;
-- `BlackLevelDeltaH`, explicit or zero default;
-- `BlackLevelDeltaV`, explicit or zero default;
-- ActiveArea width and height.
-
-The BlackLevel repeat pattern is evaluated in coordinates whose origin is the top-left of `ActiveArea`, matching the DNG contract. The validator does not need absolute sensor origin to select repeat phase.
-
-For each sample plane it evaluates the metadata-domain effective black relation:
+It consumes already parsed/validated metadata dependencies and evaluates, per sample plane:
 
 `effective_black = BlackLevel[row mod repeatRows][column mod repeatCols][sample] + BlackLevelDeltaH[column] + BlackLevelDeltaV[row]`
 
-It computes exact extrema over the active metadata lattice without reading image sample payload. It groups horizontal and vertical delta extrema by repeat residue so it does not need an image-sized pixel loop.
-
-Then it validates only:
+with the repeat origin at the top-left of ActiveArea, then validates:
 
 `normalization_denominator = WhiteLevel[sample] - max_effective_black[sample]`
 
-The denominator must be finite and strictly greater than zero.
+The denominator must be finite and strictly positive.
 
-If valid, the diagnostic may report:
+The implementation computes extrema over the metadata lattice without reading image sample payload.
 
-`normalization_scale_factor = 1 / normalization_denominator`
+Regression coverage includes:
 
-This is a **reported metadata-domain relation**, not a pixel operation.
+- explicit repeat pattern + H/V deltas;
+- defaults without fictitious occurrences;
+- zero denominator fail-closed;
+- multiple sample planes;
+- ActiveArea smaller than repeat dimensions;
+- duplicate/ambiguous spatial dependency fail-closed;
+- scientific/pixel/writeback firewalls.
 
-### 11.4 Deliberate non-claims
+Representative tested relation:
 
-The validator explicitly keeps all of these false:
+- maximum effective black `75`;
+- WhiteLevel `1023`;
+- denominator `948`;
+- scale `1/948`.
+
+Explicit non-claims remain false:
 
 - `linearization_table_processing_validated=false`;
 - `full_raw_to_linear_mapping_validated=false`;
@@ -434,234 +403,135 @@ The validator explicitly keeps all of these false:
 - `creates_new_evidence=false`;
 - `scientific_writeback_allowed=false`.
 
-This distinction is essential. A future chat must not read `normalization_scale_factor` and assume that the Scientific Master is already normalized by this code.
+At the PR #131 merge checkpoint this validator remains **standalone** and is not yet a field of the runtime envelope.
 
-### 11.5 Regression coverage at `bc93fe...`
-
-The new unit tests cover at least:
-
-1. explicit 2×2 BlackLevel repeat pattern plus explicit H/V deltas;
-2. specification defaults without minting absent source occurrences;
-3. WhiteLevel equal to maximum effective black -> denominator zero -> contradicted fail-closed;
-4. multi-sample linear-raw case with independent per-plane denominators;
-5. repeat cells outside a smaller ActiveArea do not pollute the maximum;
-6. duplicate/ambiguous spatial dependency -> unresolved fail-closed;
-7. all top-level scientific/pixel/writeback firewalls remain closed and Linearization remains explicitly out of scope.
-
-Representative exact tested relation:
-
-- explicit sample: maximum effective black `75`, WhiteLevel `1023`, denominator `948`, scale `1/948`.
-
-### 11.6 CI proof
-
-On exact head:
-
-`bc93fe6693140262a52740b20d2e297b386b11f5`
-
-the full workflow set returned green for the checks observed on that head, including:
-
-- `Canonical Integrity` — SUCCESS;
-- `Research Fresh Rerun v0.1 Integrity` — SUCCESS;
-- `D.RAW Suite Universal Intake v0.1` — SUCCESS;
-- `D.RAW Android DngCreator Compatibility v0.1` — SUCCESS;
-- `D.RAW Universal Physical Capture v0.3 Live Preview Macro` — SUCCESS;
-- `D.RAW Deep-Censor Chroma Guard v0.1` — SUCCESS;
-- `D.RAW Free Raster v0.3 Finish APK` run `38152229685` — SUCCESS.
-
-The Free Raster workflow job `114507866066` completed successfully. Its `Test and build` step, APK verification and existing runtime-wiring verification all succeeded on `bc93fe...`.
-
-A green build proves implementation consistency and regression compatibility. It does not promote this validator into a scientific pixel consumer.
-
-### 11.7 Exact current integration boundary
-
-At `bc93fe...` the existing `SourceCapabilityEnvelopeV02.describe(...)` exposes these five validator reports:
-
-1. `raw_ifd_domain_validation_v0_1`;
-2. `radiometric_semantic_validation_v0_1`;
-3. `radiometric_encoding_consistency_v0_1`;
-4. `radiometric_spatial_black_level_v0_1`;
-5. `dng_version_compatibility_v0_1`.
-
-The new Effective Black / Normalization validator exists, compiles and passes the full build, but is **not yet an envelope field at this checkpoint**.
-
-The next narrow implementation step is therefore to expose it as an additional read-only diagnostic field from the existing envelope, using the already parsed metadata object and no new file reads. That exposure must not alter `records`, lifecycle, admission, `USED` consumers, pixels, Scientific Master, Appearance or writeback.
+Do not expose it until the runtime schema identity has first been separated from the canonical Physical Knowledge Map identity on the fresh architecture branch.
 
 ---
 
-## 12. What comes after the new validator — exact order, no skipping
+## 13. Exact next Source Capability order after merge
 
-### 12.1 First: envelope exposure only
+The safe order is now:
 
-Add the new standalone validator report to the existing Source Capability Envelope without inventing a second envelope or second parser path.
+1. migrate the runtime shadow envelope to its own unambiguous schema identity, planned `D.RAW/SourceCapabilityRuntimeEvidenceEnvelope/0.1`;
+2. preserve the same parser/source SHA/byte-length seam and do not add another parser;
+3. add regressions proving schema migration does not alter ledger digest, records, lifecycle/admission, source reads, pixel path, Scientific Master or Appearance;
+4. only then expose the existing Effective Black / Normalization report as an additional read-only diagnostic;
+5. prove that exposure changes no records/lifecycle/admission/consumers/pixels/writeback;
+6. next, design a **separate** `LinearizationTable` shadow validator anchored to DNG 1.7.1.0;
+7. keep complete raw-to-linear validity false until linearization + black subtraction + normalization contracts are jointly validated;
+8. even after joint validation, keep `VALIDATED`, `ADMITTED` and `USED` separate;
+9. later treat colour calibration families independently and source-bound.
 
-### 12.2 Then: LinearizationTable shadow validation
-
-DNG raw-to-linear mapping applies Linearization before black subtraction and normalization. Therefore full raw-to-linear validation is **not** allowed yet.
-
-The next distinct radiometric family should inspect/validate `LinearizationTable` metadata/encoding semantics conservatively, including:
-
-- exact physical occurrence/provenance;
-- TIFF type/count/value domain;
-- relationship to stored code values / `BitsPerSample` and sample format where the specification requires it;
-- duplicate/ambiguity fail-closed behavior;
-- DNG default/absence semantics without minting source occurrence;
-- no sample-payload transformation in the first shadow phase;
-- no lifecycle/admission change merely from metadata validity.
-
-Do not merge this responsibility into the Effective Black validator merely for convenience.
-
-### 12.3 Only after that: complete raw-to-linear relation can be reasoned about
-
-Only when linearization, black subtraction dependencies, WhiteLevel and normalization contracts are jointly validated may a separate layer reason about a complete DNG raw-to-linear mapping contract.
-
-Even then:
-
-`VALIDATED != ADMITTED != USED`
-
-A separate admission decision and named consumer are required before any scientific pixel path may use it.
-
-### 12.4 Later and separate: colour calibration families
-
-Do not jump straight from WhiteLevel/black normalization to camera colour truth. Later source-capability work may need separate shadow validation for families such as:
-
-- `CalibrationIlluminant1/2/3`;
-- `ColorMatrix1/2/3`;
-- `CameraCalibration1/2/3`;
-- `ForwardMatrix1/2/3`;
-- `AnalogBalance`;
-- `AsShotNeutral` / `AsShotWhiteXY`;
-- profile/camera calibration signatures and compatibility relationships.
-
-These are not the current task and must not be admitted by camera/vendor name.
+Potential later colour families include CalibrationIlluminant, ColorMatrix, CameraCalibration, ForwardMatrix, AnalogBalance and AsShotNeutral/AsShotWhiteXY. Camera/vendor identity alone may never admit them.
 
 ---
 
-## 13. Scientific Master / Exact Gauge Retained Artifact v0.3 — unchanged
+## 14. Scientific Master / Exact Gauge Retained Artifact v0.3 — unchanged
 
-The Exact Gauge line remains an execution/performance mechanism, not a new scientific estimator.
+Exact Gauge remains an execution/performance mechanism, not a new estimator.
 
 Permanent properties:
 
-- canonical v0.2 complete fallback exists before candidate semantics;
-- exact eligible Float32 bits may be retained to avoid a second Stage-2 reread;
-- retained bits do not change scientific semantics;
-- diagnostics bind the Scientific-Master SHA;
-- timing does not establish route attribution by itself;
+- canonical fallback exists before candidate semantics;
+- exact eligible Float32 bits may be retained to avoid second Stage-2 reread;
+- no scientific semantic change;
+- diagnostics bind Scientific-Master SHA;
+- timing alone does not establish route authority;
 - `candidate_applied=false`;
 - `source_values_modified=false`;
 - `creates_new_evidence=false`;
 - `scientific_writeback_allowed=false`.
 
-Real-device evidence established four sources with one Stage-2 gauge pass and `3072` avoided second-pass tile reads per source.
+Real-device evidence established four sources with one Stage-2 gauge pass and 3072 avoided second-pass tile reads per source.
 
 Historical telemetry repair runtime:
 
 `6a8e01763ca8eb0f6d371c1588a7fbeb91f0af50`
 
-Do not reinterpret Source Capability work as a replacement for Exact Gauge or vice versa.
-
 ---
 
-## 14. Scientific promotion remains closed
+## 15. Scientific promotion remains closed
 
 Current promotion state remains:
 
 `NOT_PROMOTED_FAIL_CLOSED / NO_INTERNAL_PROMOTION_DECISION`
 
-No Source Capability validator added in this line changes that.
-
 ### Anchor-Constrained Local Reconstruction v0.1 remains NOT promoted
 
-Real CFA hold-out result remains binding:
+Real CFA hold-out evidence:
 
-- total real CFA hold-outs: `21,760`;
-- affine solver valid: `21,760 / 21,760`;
+- total hold-outs: `21,760`;
+- affine valid: `21,760 / 21,760`;
 - baseline valid: `19,560 / 21,760`;
-- direct comparable points: `19,560`;
-- affine MAE ~`0.00154976`;
-- baseline MAE ~`0.00147486`;
-- affine RMSE ~`0.00205484`;
-- baseline RMSE ~`0.00190590`;
-- affine bias ~`-0.00049664`;
-- baseline bias ~`-0.00009471`;
-- affine wins: `9,363`;
-- baseline wins: `10,197`;
-- channel 2 slightly better for affine;
-- channel 1 clearly worse;
-- uncertainty undercovers: ~`47.69 / 80.19 / 93.54%` at `1σ/2σ/3σ`;
+- comparable points: `19,560`;
+- affine MAE ~`0.00154976` vs baseline ~`0.00147486`;
+- affine RMSE ~`0.00205484` vs baseline ~`0.00190590`;
+- affine bias ~`-0.00049664` vs baseline ~`-0.00009471`;
+- affine wins `9,363`, baseline `10,197`;
+- channel 2 slightly better for affine, channel 1 worse;
+- uncertainty coverage ~`47.69 / 80.19 / 93.54%` at 1σ/2σ/3σ;
 - max combined z ~`16.29`.
 
-Conclusion remains:
-
-- scientifically useful experiment;
-- solver not promoted;
-- future direction is deterministic local model selection based on structure support, direction, CFA phase and uncertainty;
-- affine plane is only one possible model;
-- `NO_SUITABLE_MODEL` remains a valid outcome.
+Conclusion remains: useful experiment, not promoted. Future direction remains deterministic local model selection using structural support, direction, CFA phase and uncertainty; affine is only one candidate and `NO_SUITABLE_MODEL` is valid.
 
 ---
 
-## 15. T5 / Deep Scene / Room Capsule — preserve existing cable
+## 16. T5 / Deep Scene / Room Capsule — preserve existing cable
 
-Current conceptual cable remains:
+`Scientific Master -> v0.4 Deep Scene Contribution -> v0.5 Deep Scene Binding -> v0.6 Light Transport -> existing Room Capsule host -> v0.7 Appearance Resolve`
 
-`Scientific Master -> v0.4 Deep Scene Contribution -> v0.5 Deep Scene Binding -> v0.6 Light Transport -> Room Capsule host -> v0.7 Appearance Resolve`
+Do not build a second cable.
 
-Do not build a second Room Capsule cable.
+Rules:
 
-Key rules:
-
-- Room Capsule already exists in the flexible Open-World host;
-- if there is no admitted geometry/material/illumination evidence, it must exact-preserving bypass;
+- no admitted geometry/material/illumination evidence -> exact-preserving bypass;
 - T5 is process-local and source-SHA-bound;
 - no cross-observation reuse without explicit authority;
-- no second Foundation evaluation merely to fabricate provenance;
-- mismatch/missing required binding -> `UNKNOWN_FAIL_CLOSED`;
-- no evidence creation, candidate application or scientific writeback.
-
-Negative missing-runtime physical evidence exists historically. A positive same-process round must be treated as its own proof, not inferred from the negative test.
+- mismatch/missing binding -> `UNKNOWN_FAIL_CLOSED`;
+- no new evidence, candidate application or writeback.
 
 ---
 
-## 16. Output architecture / Workbench / Free Raster
+## 17. Output architecture / Workbench / Free Raster
 
-Canonical downstream product cable:
+Canonical downstream cable:
 
 `Input -> Universal Intake -> Scientific Core / Scientific Master -> PURE / ADVANCED / PRO -> Unified Output State -> Free Raster / Export`
 
-Current full-resolution output cable:
+Full-resolution cable:
 
 `admitted source/scientific cable -> full-resolution presentation render -> exact display-oriented RGB24 sibling -> { Free Raster backing artifact | High-Fidelity JPEG | future sibling outputs }`
 
 Rules:
 
-- UI preview is never full-resolution scientific/output authority;
-- RGB24 sibling exists before JPEG chroma reduction;
-- Free Raster must not round-trip through preview JPEG as its master;
-- no second renderer may silently fork scientific meaning;
-- Free Raster is downstream projection/view/output, not a new measurement layer.
+- UI preview is not full-resolution authority;
+- RGB24 exists before JPEG chroma reduction;
+- Free Raster must not use preview JPEG as master;
+- no second renderer may fork scientific meaning;
+- Free Raster is downstream View/Projection/Output only.
 
-Workbench contract:
+Workbench:
 
 `IMMUTABLE_SOURCE + REVERSIBLE_EDIT_STATE -> PRESENTATION/OUTPUT`
 
 `EXPORT -> NEW_DERIVED_OUTPUT`
 
-Source mutation, Scientific Master writeback and source overwrite remain forbidden by this product cable.
+No source overwrite or Scientific Master writeback.
 
 ---
 
-## 17. High-Fidelity JPEG — accepted real-device checkpoint
+## 18. High-Fidelity JPEG — exact physical acceptance retained
 
-Physically accepted runtime/code head:
+Accepted runtime:
 
 `f42cd79ef5060e78c1c6e6bcc1e7d9d94a07d588`
 
-Regression-lock head:
+Regression lock:
 
 `e4742bf048a160b65398d93461f9fa3799faa638`
 
-Accepted stable APK SHA-256:
+Accepted APK SHA-256:
 
 `4c6a794b252a43a6bf38405b053e667738e779c0fe014bdbe02713765cfdeb22`
 
@@ -673,168 +543,60 @@ SHA-256:
 
 `7d37016b7dbf6277ce5e196ec778bb33aa927f78009dd07c49b2891f14cd47ff`
 
-Accepted properties:
+Accepted properties include 4080×3072, baseline SOF0, 8-bit, true 4:4:4, Q100 contract, strict entropy structure and successful decoding/inspection in FFmpeg/FFprobe/Pillow/ImageMagick plus user-confirmed Lightroom compatibility.
 
-- `4080 × 3072`;
-- baseline SOF0;
-- 8-bit;
-- true 4:4:4 (`1×1 / 1×1 / 1×1`);
-- Q100 contract;
-- strict entropy structure;
-- full decode accepted by FFmpeg;
-- geometry/pixel format verified by FFprobe;
-- Pillow verify/load accepted;
-- ImageMagick reports Quality 100;
-- Adobe Lightroom user-confirmed compatibility on 2026-10-08.
+Still not proven by that physical pass:
 
-Detailed evidence:
-
-`docs/handoff/DRAW_44489_HIGH_FIDELITY_JPEG_REAL_DEVICE_PASS_2026-10-08.md`
-
-Still separate / not proven by that pass:
-
-- +90° physical validation under the new Q100/4:4:4 codec;
-- route/source mismatch lifecycle fail-closed device round;
-- shared arbitrary-resolution scaling for Original/1080p/4K/8K/Custom;
+- +90° under the new Q100/4:4:4 codec;
+- route/source mismatch physical lifecycle round;
+- shared arbitrary scaling Original/1080p/4K/8K/Custom;
 - truthful ICC/output-profile handling;
-- PNG/lossless/high-bit-depth sibling output;
+- lossless/high-bit-depth sibling output;
 - broader device/source coverage.
 
-Do not let a newer CI APK erase the distinction between “build artifact” and the exact physically accepted JPEG/APK checkpoint above.
+A newer CI APK does not replace the exact physically accepted APK/file evidence above.
 
 ---
 
-## 18. Natural Appearance line — authority remains APPEARANCE_ONLY
+## 19. Natural Appearance — APPEARANCE_ONLY
 
-### 18.1 Warm Illuminant Retention v0.1
+### Warm Illuminant Retention v0.1
 
-Real-device PASS checkpoint:
+Real-device PASS runtime:
 
 `8ad695bad5be4fbc799fa781d401124e466ca48e`
 
-Key properties:
+Properties: ADVANCED/PRO only, PURE isolated, maximum warm retention about 18%, no source or Scientific Master mutation.
 
-- downstream ADVANCED/PRO Appearance only;
-- PURE isolated/bypassed;
-- maximum warm retention approximately `18%` in the accepted design;
-- no source/Scientific-Master mutation.
+### Natural Light Local Field Tone v0.1
 
-Do not increase this operator merely to repair unrelated highlight or emissive-display problems.
+Purpose: local perceived luminous-field/brightness impression around illuminated surfaces. It is **not** physical light-transport reconstruction, white balance or generic glow.
 
-### 18.2 Natural Light Local Field Tone v0.1
-
-Purpose: improve the local perceived brightness/luminous-field impression around illuminated surfaces after source-white warmth has already been handled.
-
-It is **not**:
-
-- white balance;
-- reconstructed physical light transport;
-- a generic glow/effect;
-- evidence of scene geometry or illumination.
-
-Design constraints:
-
-- operates on rendered luminance context;
-- excludes censored source samples from support;
-- resolution-dependent neighborhood; around `24 px` radius at `4080×3072`, bounded approximately `12..32`;
-- common RGB gain rather than hue rotation;
-- black and near-white protection;
-- maximum approximately `+0.14 EV`;
-- no semantics/AI/camera-identity fitting;
-- no source/Scientific-Master writeback.
+Constraints include rendered luminance context, censored support exclusion, about 24 px neighborhood at 4080×3072 with bounded scaling, common RGB gain, black/near-white protection, maximum about +0.14 EV, no semantic/AI fitting and no source/master writeback.
 
 CI checkpoint:
 
 `0a489190c474fa765431064513c0f6e52f7b63fd`
 
-Its design purpose must survive future refactors even if implementation moves.
-
 ---
 
-## 19. Tele purple / censored-highlight Appearance line
+## 20. Tele purple / deep-censor Appearance line
 
-### 19.1 Broad purple problem is not the current upstream task
+The former broad tele purple/magenta highlight problem is not the current upstream task. Do not reopen it without a new real regression capture.
 
-The former broad tele purple/magenta highlight problem was materially solved by the authority-bound `Censored Chroma Fallback v0.1` and subsequent detail-preserving chain. Do not restart the old investigation unless a new capture demonstrates a regression.
-
-### 19.2 Residual Near-Censor Shoulder v0.1
-
-This was added for the smaller near-CENSOR residual, but direct tele-sky evidence showed it was not enough for deep-censor regions.
-
-Representative direct-sky zone:
-
-- region: `x=3136, y=1088, 192×192`;
-- sampled: `36,864`;
-- candidate: `1,530`;
-- preserved: `35,334`;
-- structure: `8,034`;
-- censored: `26,591`;
-- boundary: `709`;
-- changed: `2`;
-- `candidate_applied=false`;
-- censor fraction ~`72.13%`.
-
-The near-censor shoulder fades out by about `0.55`, so it was not the operative fix at that deep-censor fraction.
-
-### 19.3 Deep-Censor Chroma Guard v0.1 -> v0.2
-
-v0.1 established the deep-censor contraction concept. v0.2 is the detail-preserving refinement.
-
-v0.2 properties:
-
-- same authority-bound deep-censor response;
-- low relative chroma (`<= ~0.02`) receives bounded relief from maximum contraction;
-- relief fades to zero by relative chroma around `0.12`;
-- never expands chroma beyond the incoming value;
-- preserves Rec.709 luminance target and chroma-vector direction;
-- no sharpening, blur or semantic edge detector;
-- no camera-identity fitting;
-- PURE bypass remains.
-
-Important v0.2 checkpoint:
+Deep-Censor v0.2 checkpoint:
 
 `0db27c2cfc6eab768d41dcdbb1014b43311bb5a2`
-
-Workflow run:
-
-`38067653940` — SUCCESS
 
 APK SHA-256:
 
 `32ec63317e9cbdfecb353b1b98a30ef0770a742370da44503a7132278b454756`
 
-### 19.4 Censored Illuminant Hue Floor v0.1
+It is APPEARANCE_ONLY, does not expand incoming chroma, preserves the defined luminance target/direction constraints and does not touch sealed scientific evidence.
 
-This is a separate downstream warm-highlight Appearance candidate. Motivation: after purple suppression, the brightest warm lamp could become too neutral white/gray relative to the observed darker yellow/amber source impression.
+### Censored Illuminant Hue Floor v0.1
 
-Current intended order around this line:
-
-`Near-Censor Shoulder -> Censored Chroma Fallback -> Deep-Censor v0.2 -> Warm Illuminant Retention -> Censored Illuminant Hue Floor -> historical highlight observer -> gamut fit`
-
-Hue Floor constraints:
-
-- ADVANCED/PRO only;
-- PURE bypass;
-- valid source-bound white point required;
-- Warm Illuminant CCT gate required;
-- high-CENSOR gate approximately `0.50 -> 0.80`;
-- high-luminance gate approximately `0.72 -> 0.95`;
-- only near-neutral output qualifies;
-- full effect through relative chroma about `.015`, zero by about `.090`;
-- maximum introduced relative chroma floor about `.060`;
-- direction derives from admitted source-white xy projected through the defined D50/linear-sRGB Appearance path;
-- no hard-coded “yellow/orange” semantic colour;
-- strong-purple sample is exact no-op;
-- Rec.709 luminance is preserved;
-- no evidence creation or scientific writeback.
-
-Code candidate:
-
-`a02e121...`
-
-CI-wired head:
-
-`2f4375e4...`
+Separate downstream warm-highlight Appearance candidate.
 
 Workflow:
 
@@ -844,145 +606,139 @@ APK SHA-256:
 
 `abec7589b9da32a1fbc2ff0674c8f83db93440274a00d2ffc3777cc92e68e85b`
 
-**Real-device warm-highlight validation of Hue Floor remains separate/pending unless newer exact evidence after this capsule proves otherwise.** Do not silently promote it from CI-green to physically accepted.
+Real-device warm-highlight physical acceptance remains pending unless newer exact evidence proves otherwise. The PR #131 merge does not change that status.
 
 ---
 
-## 20. Emissive displays / yellow subtitle problem remains separate
+## 21. Emissive-display / yellow subtitle problem remains separate
 
-A yellow TV subtitle or other emissive display reproduction issue is not automatically a white-balance or purple-highlight problem.
+Do not collapse this into white balance or broad purple correction.
 
-Future investigation must keep at least these dimensions separate:
+Future analysis must account for:
 
-- display emitted spectrum versus reflected scene spectrum;
-- camera spectral sensitivities versus human observer functions;
-- metameric camera-human mismatch;
+- emitted spectrum vs reflected scene spectrum;
+- camera spectral sensitivities vs human observer functions;
+- metameric mismatch;
 - RGB subpixel geometry;
-- lens PSF and sensor aperture integration;
-- CFA sampling/demosaic interaction;
-- refresh/PWM/temporal modulation;
-- exposure duration and phase;
-- rolling-shutter line timing;
-- display motion/temporal aliasing.
+- lens PSF/sensor aperture/CFA reconstruction;
+- PWM/refresh/temporal modulation;
+- exposure duration/phase;
+- rolling-shutter timing;
+- temporal aliasing.
 
-A simple 3×3 camera-to-XYZ transform cannot be assumed to reproduce arbitrary narrow-band emissive spectra exactly.
-
-Do not “fix” this by weakening scientific authority or by adding a semantic yellow detector.
+No semantic yellow detector or hard-coded hue patch may gain scientific authority.
 
 ---
 
-## 21. CI and build interpretation
+## 22. CI/build interpretation
 
-A workflow result has only the authority of the thing it actually tests.
+A green workflow proves only its tested contract.
 
-Current exact new-code CI checkpoint:
+Final PR #131 head:
 
-`bc93fe6693140262a52740b20d2e297b386b11f5`
+`c28b8bacfead4787fdc14cd65e9e00ff4bc7abb8`
 
-Observed workflow state at capsule preparation: the available current runs on that head completed successfully, including the Android test/build path. This proves the new validator/tests coexist with the current branch and do not break existing tested contracts.
+Before merge, the exact-head workflow set was checked and completed successfully, including the final long-running Free Raster/APK, DngCreator, Universal Intake, Universal Physical Capture and Deep-Censor jobs.
 
-It does **not** prove:
+Merge commit:
 
-- real-device correctness of a metadata combination not present in tests;
-- scientific admission;
-- pixel-route use;
-- correct behavior for every DNG dialect or unsupported TIFF feature;
-- LinearizationTable validation;
-- complete raw-to-linear mapping;
-- colour calibration truth;
-- physical acceptance of pending Appearance candidates.
+`28343adf054ccb8f4c741edff187604cf2b0c88a`
+
+Because the merge commit combines frozen base `4e4f358a...` with exact green head `c28b8bac...`, it is the integration anchor. It does not itself widen physical-device evidence or scientific authority.
 
 ---
 
-## 22. Current status matrix
+## 23. Current status matrix
 
-| Area | Current status | Scientific meaning |
+| Area | Current status | Meaning |
 |---|---|---|
-| Sealed CFA / source evidence | preserved | immutable MEASURED evidence boundary |
-| Observation Evidence Ledger v0.1 | implemented | provenance/lifecycle structure, no automatic admission |
-| Source Capability Envelope v0.2 | implemented, passive | zero-pixel-change shadow description |
-| Physical TIFF/DNG occurrence provenance | implemented | exact parser/source binding |
-| Raw-IFD domain validator v0.1 | implemented | supported raw-domain classification only |
-| Radiometric Semantic v0.1 | implemented | BlackLevel/WhiteLevel/etc semantic contracts |
-| Radiometric Encoding Consistency v0.1 | implemented | encoding dependency consistency |
-| DNG Version Compatibility v0.1 | implemented | format-version compatibility only |
-| Spatial BlackLevel v0.1 | implemented + envelope-exposed | ActiveArea/H/V dependency validation only |
-| Effective Black / Normalization v0.1 | **implemented + tested + CI-green at `bc93fe...`; standalone** | metadata-domain extrema/positive denominator only |
-| Effective Black report in envelope | **not yet exposed at `bc93fe...`** | next narrow integration step |
-| LinearizationTable validator | not yet current | required before full raw-to-linear claim |
-| Complete raw-to-linear admission/use | not implemented | must remain false |
+| Sealed CFA/source evidence | preserved | immutable MEASURED boundary |
+| Canonical Source Capability Physical Knowledge Map v0.2 | existing | physical knowledge map, UNKNOWN preserved |
+| Observation Evidence Ledger v0.1 | implemented | parser/source occurrence provenance |
+| Runtime Source Capability envelope label | legacy ambiguous label | must migrate before new consumers |
+| Physical TIFF/DNG occurrence/traversal | implemented | exact source binding, fail-closed |
+| Raw-IFD validator | implemented | supported raw-domain classification |
+| Radiometric Semantic v0.1 | implemented | BlackLevel/WhiteLevel/etc contracts |
+| Radiometric Encoding Consistency v0.1 | implemented | encoding/representability contracts |
+| DNG Version Compatibility v0.1 | implemented | version compatibility only |
+| Spatial BlackLevel v0.1 | implemented + runtime-exposed | ActiveArea/H/V dependency validation |
+| Effective Black / Normalization v0.1 | implemented/tested/CI-green | standalone metadata-domain validator |
+| Effective Black runtime-envelope exposure | not yet current | after schema migration only |
+| LinearizationTable validator | not yet current | required for complete raw-to-linear claim |
+| Complete raw-to-linear admission/use | not implemented | remains false |
 | Scientific Master writeback from Source Capability | forbidden/currently false | firewall intact |
-| Anchor affine reconstruction | tested, not promoted | baseline remains stronger overall |
+| Anchor affine reconstruction | tested, not promoted | baseline stronger overall |
 | Exact Gauge v0.3 | accepted performance mechanism | no semantic authority change |
-| High-Fidelity JPEG 0° tele/PURE | real-device accepted | downstream output compatibility only |
-| New codec +90° physical proof | pending | separate product acceptance |
-| Broad tele-purple repair | physically accepted chain | APPEARANCE_ONLY |
-| Deep-Censor v0.2 | CI-green/detail-preserving candidate line | APPEARANCE_ONLY |
-| Censored Illuminant Hue Floor | CI-green; physical warm-highlight validation pending | APPEARANCE_ONLY |
-| Yellow/emissive-display issue | separate/open research topic | requires spectral+temporal analysis |
-| PR #131 | open, draft, unmerged | do not infer promotion/merge from CI |
-| PR #130 | frozen base `4e4f358a...` | preserve audit meaning |
+| High-Fidelity JPEG 0° tele/PURE | real-device accepted exact checkpoint | downstream output only |
+| New codec +90° physical proof | pending | separate acceptance |
+| Broad tele-purple chain | physically accepted historical line | APPEARANCE_ONLY |
+| Deep-Censor v0.2 | CI-green/detail-preserving line | APPEARANCE_ONLY |
+| Censored Illuminant Hue Floor | CI-green, physical warm-highlight acceptance pending | APPEARANCE_ONLY |
+| Yellow/emissive-display issue | open separate research topic | spectral + temporal analysis |
+| PR #131 | **MERGED/CLOSED** | integration checkpoint only |
+| PR #130 | frozen reference `4e4f358a...` | preserve scientific/audit meaning |
+| `main` | not advanced by PR #131 merge | do not call it current integration branch |
 
 ---
 
-## 23. Do-not-do list for the next chat
+## 24. Do-not-do list
 
 Do **not**:
 
-- rebuild WhiteLevel parsing/validation; it already exists;
-- rebuild TIFF occurrence provenance or raw-IFD classification;
-- create a second Source Capability Envelope;
-- create a second Room Capsule cable;
-- treat DNG defaults as physical source-tag occurrences;
-- let the new Effective Black validator mutate ledger lifecycle/admission;
-- call the new scale factor a pixel transform before an admitted consumer exists;
-- claim full raw-to-linear validity before LinearizationTable is resolved;
-- infer colour-calibration truth from camera make/model/lens identity;
-- use timing to infer scientific route authority;
+- describe PR #131 as open/draft/unmerged;
+- claim PR #131 was merged into `main`;
+- rebuild TIFF occurrence provenance, raw-IFD detection or WhiteLevel semantic validation;
+- treat the runtime legacy `D.RAW/SourceCapabilityEnvelope/0.2` label as the canonical Physical Knowledge Map serialization;
+- introduce a new Source Capability consumer before runtime schema identity migration;
+- create a second parser/hash/ingest path;
+- treat DNG defaults as physical source occurrences;
+- let Effective Black mutate lifecycle/admission/pixels;
+- call its scale factor an applied pixel transform;
+- claim full raw-to-linear validity before LinearizationTable validation;
+- infer colour calibration from camera/vendor/lens identity;
 - promote Anchor-Constrained Local Reconstruction;
-- reopen broad purple correction without a new regression capture;
-- use Hue Floor as a general yellow semantic effect;
-- solve emissive-display mismatch with a hard-coded colour patch;
-- merge PR #131 merely because current CI is green;
-- modify or reinterpret frozen PR #130;
-- allow Appearance/export to write back into Scientific Master;
-- allow AI/ML/generative inference to mint scientific evidence.
+- reopen broad-purple work without a new regression;
+- treat Hue Floor as general semantic yellow correction;
+- collapse emissive-display mismatch into white balance;
+- allow Appearance/export to write to Scientific Master;
+- let AI/ML/generative inference mint scientific evidence.
 
 ---
 
-## 24. Exact next execution order
+## 25. Exact next execution order
 
-Unless a newer live-head commit already performs one of these steps, the next chat should proceed in this order:
+On the fresh architecture branch:
 
-1. **Resolve live PR #131 head.** Compare against the documentation commit containing this capsule and against code/test checkpoint `bc93fe...`.
-2. **Inspect before changing.** Confirm no newer commit has already exposed Effective Black/Normalization in the envelope.
-3. **Expose only the existing validator report** as a new read-only field from `SourceCapabilityEnvelopeV02.describe(...)` using the already parsed metadata object.
-4. Add/adjust a regression proving envelope exposure changes no ledger records, lifecycle/admission, source reads, pixels, Scientific Master or Appearance.
-5. Run current CI; classify failures by actual scope rather than assuming scientific failure.
-6. Only after that, design a separate **LinearizationTable shadow validator** anchored to the DNG specification.
-7. Keep full raw-to-linear mapping status false until linearization + black subtraction + normalization relationships are jointly validated.
-8. Keep `ADMITTED`/`USED` separate from `VALIDATED`; design explicit admission and consumer contracts only after evidence/uncertainty requirements are stated.
-9. Later treat colour-calibration families independently and source-bound.
-10. Keep pending product/physical acceptance tasks separate from this scientific metadata line.
-
-This is the current safest and most information-efficient route because it extends the existing cable rather than inventing a parallel architecture.
+1. verify ancestry from the post-merge 44489 checkpoint;
+2. migrate the runtime shadow envelope away from the ambiguous legacy schema label to `D.RAW/SourceCapabilityRuntimeEvidenceEnvelope/0.1` (or an explicitly reviewed equivalent namespace);
+3. preserve `D.RAW/ObservationEvidenceLedger/0.1` as the occurrence-ledger identity;
+4. add a compatibility/provenance field pointing back to the historical canonical Physical Knowledge Map concept rather than pretending the two serializations are identical;
+5. regression-test byte/source binding, ledger digest, record contents, lifecycle/admission, no new reads, zero pixel effect and zero writeback across the schema migration;
+6. then expose Effective Black / Normalization as an additional read-only diagnostic;
+7. prove exposure changes no records/admission/consumers/pixels/master/appearance;
+8. then implement a separate LinearizationTable shadow validator;
+9. only after those contracts may complete raw-to-linear validation be designed;
+10. later tackle colour calibration families independently;
+11. keep all pending physical/output/Appearance validation separate from the scientific metadata line.
 
 ---
 
-## 25. Key exact hashes / anchors
+## 26. Key exact anchors
 
-### Current Source Capability line
+### Integration / governance
 
-- pre-new-work envelope head: `919272ef5ad2cad5985a74c455dc2ffbcb0ee1a0`
-- new Effective Black validator source: `fba30bc23e340d3a9d31c4b7f6eba7c904f03671`
-- initial tests: `a0aa8d926dfabe11d9713a1fa144decf55538c1b`
-- corrected + CI-green code/test checkpoint: `bc93fe6693140262a52740b20d2e297b386b11f5`
-- current Free Raster build run for that head: `38152229685` — SUCCESS
-- current Free Raster job: `114507866066` — SUCCESS
+- frozen PR #130 reference: `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`
+- final PR #131 head: `c28b8bacfead4787fdc14cd65e9e00ff4bc7abb8`
+- PR #131 merge commit: `28343adf054ccb8f4c741edff187604cf2b0c88a`
+- merge-prep audit: `docs/handoff/DRAW_44489_PR131_MERGE_PREP_2026-10-11.md`
 
-### Frozen/base governance
+### Source Capability / radiometry
 
-- frozen PR #130 head: `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`
+- old canonical Physical Knowledge Map v0.2 integration: `fe6275c3dd5f1f4b8f429950768378b44ab1a2c5`
+- spatial-black runtime exposure: `919272ef5ad2cad5985a74c455dc2ffbcb0ee1a0`
+- Effective Black source: `fba30bc23e340d3a9d31c4b7f6eba7c904f03671`
+- Effective Black initial tests: `a0aa8d926dfabe11d9713a1fa144decf55538c1b`
+- Effective Black corrected green checkpoint: `bc93fe6693140262a52740b20d2e297b386b11f5`
 
 ### High-Fidelity JPEG
 
@@ -995,19 +751,19 @@ This is the current safest and most information-efficient route because it exten
 
 - Warm Illuminant real-device runtime: `8ad695bad5be4fbc799fa781d401124e466ca48e`
 - Natural Light Local Field Tone CI checkpoint: `0a489190c474fa765431064513c0f6e52f7b63fd`
-- Deep-Censor v0.2 checkpoint: `0db27c2cfc6eab768d41dcdbb1014b43311bb5a2`
+- Deep-Censor v0.2: `0db27c2cfc6eab768d41dcdbb1014b43311bb5a2`
 - Deep-Censor v0.2 APK SHA-256: `32ec63317e9cbdfecb353b1b98a30ef0770a742370da44503a7132278b454756`
 - Hue Floor workflow: `38073401245` — SUCCESS
 - Hue Floor APK SHA-256: `abec7589b9da32a1fbc2ff0674c8f83db93440274a00d2ffc3777cc92e68e85b`
 
-### Exact Gauge / performance
+### Exact Gauge
 
 - historical telemetry repair runtime: `6a8e01763ca8eb0f6d371c1588a7fbeb91f0af50`
 
 ---
 
-## 26. Recovery sentence
+## 27. Recovery sentence
 
-When continuation code **44489** is given in a future chat, recover this entire state before proposing new work:
+When continuation code **44489** is given, recover this state:
 
-**D.RAW is currently extending a sealed, source-agnostic Observation Evidence Ledger / Source Capability cable. The parser-occurrence layer, raw-IFD validation, radiometric semantic validation, encoding consistency, DNG compatibility and spatial BlackLevel dependencies already exist. The newest CI-green scientific addition at code/test checkpoint `bc93fe...` is a shadow-only Effective Black / Normalization Domain validator that computes metadata-lattice black extrema and validates a strictly positive `WhiteLevel - max(effective black)` denominator per sample plane without reading or transforming image samples. It is not yet exposed by `SourceCapabilityEnvelopeV02` at that exact checkpoint, does not validate LinearizationTable, does not claim the complete raw-to-linear mapping, does not change ledger admission/use and cannot write to Scientific Master or Appearance. The next narrow step is envelope exposure with zero-pixel-change proof, followed by a separate LinearizationTable shadow validator. PR #131 remains draft/unmerged; PR #130 remains frozen. Appearance, JPEG, T5/Room Capsule, Exact Gauge and reconstruction histories retain their separate authority and physical-acceptance states. One Free World. Many sealed observations. One evidence law.**
+**PR #131 is merged and closed. Its final green head is `c28b8bac...` and its merge integration anchor is `28343adf...` on `fix/android-exact-gauge-pass-artifact-v03`; `main` was not advanced by that merge. The scientific firewalls remain unchanged. D.RAW has an older canonical Source Capability Physical Knowledge Map v0.2 and a later Android parser-bound Observation Evidence Ledger/runtime shadow envelope that accidentally shared the textual `D.RAW/SourceCapabilityEnvelope/0.2` label; they are now formally distinguished, and the first task on the fresh post-merge architecture branch is to migrate the runtime envelope to an unambiguous schema namespace before any new consumer. The parser-occurrence layer, raw-IFD validation, radiometric semantics, encoding consistency, DNG compatibility and spatial BlackLevel dependencies already exist. Effective Black / Normalization v0.1 at `bc93fe...` is CI-green, metadata-only, standalone and non-promoting; it is not yet runtime-envelope-exposed. LinearizationTable remains unresolved, so complete raw-to-linear validity/admission/use remains false. Exact Gauge, reconstruction, T5/Room Capsule, High-Fidelity JPEG and Appearance histories retain their separate authority and physical-acceptance states. One Free World. Many sealed observations. One evidence law.**
