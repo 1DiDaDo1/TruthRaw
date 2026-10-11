@@ -6,7 +6,6 @@ on:
       - feat/source-capability-effective-black-runtime-diagnostic-v01
     paths:
       - '.github/workflows/apply-effective-black-runtime-diagnostic-v01.yml'
-      - 'tools/apply_effective_black_runtime_diagnostic_v01.py'
 
 permissions:
   contents: write
@@ -48,13 +47,7 @@ jobs:
             --tests com.truthraw.adaptiveui.SourceCapabilityEffectiveBlackRuntimeDiagnosticV01Test \
             --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01Test
 
-      - name: Remove one-time patch tooling
-        run: |
-          set -euo pipefail
-          git rm .github/workflows/apply-effective-black-runtime-diagnostic-v01.yml
-          git rm tools/apply_effective_black_runtime_diagnostic_v01.py
-
-      - name: Commit implementation and updated live handoff
+      - name: Commit only code test and live handoff
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
@@ -62,7 +55,6 @@ jobs:
           git add \
             suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt \
             suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityEffectiveBlackRuntimeDiagnosticV01Test.kt \
-            .github/workflows/source-capability-runtime-schema-migration-v01.yml \
             docs/handoff/DRAW_44489_EFFECTIVE_BLACK_RUNTIME_DIAGNOSTIC_V0_1.md
           git diff --cached --check
           git commit -m 'Expose Effective Black read-only runtime diagnostic v0.1'
