@@ -5,7 +5,11 @@ import org.json.JSONObject
 import java.security.MessageDigest
 
 /**
- * Passive Source Capability Envelope v0.2 / Observation Evidence Ledger v0.1.
+ * Runtime Source Capability Evidence Envelope v0.1 / Observation Evidence Ledger v0.1.
+ *
+ * The Kotlin object name is retained for source compatibility, but this runtime
+ * serialization is deliberately distinct from the canonical historical
+ * D.RAW/SourceCapabilityEnvelope/0.2 Physical Knowledge Map.
  *
  * This layer is intentionally read-only and shadow-only. It describes facts
  * that the existing DNG/TIFF parser already exposed. It does not parse image
@@ -15,13 +19,15 @@ import java.security.MessageDigest
  * Evidence lifecycle is explicit and monotonic:
  * PRESENT -> PARSED -> VALIDATED -> ADMITTED -> USED.
  *
- * v0.2 starts conservatively: parser facts are PARSED unless an independent
- * validator later upgrades them. Identity/private/unknown semantics remain
- * provenance-only or unsupported and can never become scientific USED merely
- * because a vendor/camera/lens name is recognizable.
+ * Parser facts remain PARSED unless an independent validator upgrades them.
+ * Identity/private/unknown semantics remain provenance-only or unsupported and
+ * can never become scientific USED merely because a vendor/camera/lens name is
+ * recognizable.
  */
 object SourceCapabilityEnvelopeV02 {
-    const val SCHEMA = "D.RAW/SourceCapabilityEnvelope/0.2"
+    const val SCHEMA = "D.RAW/SourceCapabilityRuntimeEvidenceEnvelope/0.1"
+    const val CANONICAL_PHYSICAL_KNOWLEDGE_MAP_SCHEMA = "D.RAW/SourceCapabilityEnvelope/0.2"
+    const val LEGACY_RUNTIME_SCHEMA_LABEL = "D.RAW/SourceCapabilityEnvelope/0.2"
     const val LEDGER_SCHEMA = "D.RAW/ObservationEvidenceLedger/0.1"
     const val STATUS = "SHADOW_READ_ONLY_ZERO_PIXEL_CHANGE"
 
@@ -574,6 +580,12 @@ object SourceCapabilityEnvelopeV02 {
     private fun base(sourceSha256: String): JSONObject =
         JSONObject()
             .put("schema", SCHEMA)
+            .put("canonical_physical_knowledge_map_schema", CANONICAL_PHYSICAL_KNOWLEDGE_MAP_SCHEMA)
+            .put("canonical_physical_knowledge_map_serialization_equivalent", false)
+            .put("legacy_runtime_schema_label", LEGACY_RUNTIME_SCHEMA_LABEL)
+            .put("legacy_runtime_schema_label_is_authoritative", false)
+            .put("schema_migration_changes_scientific_authority", false)
+            .put("schema_migration_changes_pixel_route", false)
             .put("source_sha256", sourceSha256.lowercase())
             .put("evidence_lifecycle", "PRESENT->PARSED->VALIDATED->ADMITTED->USED")
             .put("shadow_read_only", true)
