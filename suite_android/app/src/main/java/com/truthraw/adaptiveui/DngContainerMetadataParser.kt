@@ -50,6 +50,9 @@ object DngContainerMetadataParser {
     )
 
     private data class Entry(
+        val occurrenceIndex: Int,
+        val entryOffset: Long,
+        val valueFieldOffset: Long,
         val tag: Int,
         val type: Int,
         val count: Long,
@@ -110,7 +113,7 @@ object DngContainerMetadataParser {
         }
 
         return JSONObject()
-            .put("parser", "truthraw.classic-tiff-dng-container-metadata.v0.54")
+            .put("parser", "truthraw.classic-tiff-dng-container-metadata.v0.55-occurrence-ledger")
             .put("readOnly", true)
             .put("imageSamplesDecoded", false)
             .put("pixelPayloadBytesRead", false)
@@ -145,7 +148,9 @@ object DngContainerMetadataParser {
 
         val entries = mutableListOf<Entry>()
         var p = 2
-        repeat(count) {
+        repeat(count) { occurrenceIndex ->
+            val entryOffset = offset + 2L + occurrenceIndex.toLong() * 12L
+            val valueFieldOffset = entryOffset + 8L
             val eb = ByteBuffer.wrap(block, p, 12).slice().order(order)
             val tag = u16(eb.short)
             val type = u16(eb.short)
@@ -153,7 +158,17 @@ object DngContainerMetadataParser {
             val valueField = ByteArray(4)
             eb.get(valueField)
             val valueOffset = u32(ByteBuffer.wrap(valueField).order(order).int)
-            entries += Entry(tag, type, itemCount, valueOffset, valueField)
+            entries +=
+                Entry(
+                    occurrenceIndex = occurrenceIndex,
+                    entryOffset = entryOffset,
+                    valueFieldOffset = valueFieldOffset,
+                    tag = tag,
+                    type = type,
+                    count = itemCount,
+                    valueOffset = valueOffset,
+                    inlineBytes = valueField,
+                )
             p += 12
         }
         val nextIfdOffset = u32(ByteBuffer.wrap(block, p, 4).order(order).int)
@@ -171,13 +186,73 @@ object DngContainerMetadataParser {
 
         for (entry in entries) {
             val decoded = decodeEntry(channel, fileSize, order, entry)
+            val unitSize = typeSize(entry.type)
+            val valueByteCount =
+                if (unitSize > 0) safeMul(entry.count, unitSize.toLong()) else -1L
+            val storageKind =
+                when {
+                    unitSize <= 0 || valueByteCount < 0L -> "UNKNOWN"
+                    valueByteCount <= 4L -> "INLINE"
+                    else -> "EXTERNAL"
+                }
+            val externalEndExclusive =
+                if (
+                    storageKind == "EXTERNAL" &&
+                    entry.valueOffset <= fileSize &&
+                    valueByteCount >= 0L &&
+                    valueByteCount <= fileSize - entry.valueOffset
+                ) {
+                    entry.valueOffset + valueByteCount
+                } else {
+                    null
+                }
+            val locatorStatus =
+                when {
+                    unitSize <= 0 -> "LOCATED_UNSUPPORTED_TYPE"
+                    valueByteCount < 0L -> "LOCATED_BYTE_COUNT_OVERFLOW"
+                    storageKind == "EXTERNAL" && externalEndExclusive == null ->
+                        "LOCATED_EXTERNAL_RANGE_OUT_OF_BOUNDS"
+                    else -> "LOCATED"
+                }
+            val decodeStatus =
+                when {
+                    unitSize <= 0 -> "UNSUPPORTED_TYPE"
+                    valueByteCount < 0L -> "BYTE_COUNT_OVERFLOW"
+                    storageKind == "EXTERNAL" && externalEndExclusive == null ->
+                        "EXTERNAL_RANGE_OUT_OF_BOUNDS"
+                    valueByteCount > MAX_METADATA_VALUE_BYTES -> "NOT_DECODED_TOO_LARGE"
+                    else -> "DECODED"
+                }
             val tagJson = JSONObject()
                 .put("tag", entry.tag)
                 .put("name", tagNames[entry.tag] ?: "TAG_${entry.tag}")
                 .put("type", entry.type)
                 .put("typeName", typeNames[entry.type] ?: "TYPE_${entry.type}")
                 .put("count", entry.count)
-                .put("valueByteCount", safeMul(entry.count, typeSize(entry.type).toLong()))
+                .put("valueByteCount", valueByteCount)
+                .put("occurrenceIndex", entry.occurrenceIndex)
+                .put("entryOffset", entry.entryOffset)
+                .put("entryByteLength", 12)
+                .put("valueFieldOffset", entry.valueFieldOffset)
+                .put("valueFieldByteLength", 4)
+                .put(
+                    "originalValueOrOffsetBytesHex",
+                    entry.inlineBytes.joinToString("") {
+                        "%02x".format(it.toInt() and 0xff)
+                    },
+                )
+                .put("storageKind", storageKind)
+                .put("locatorStatus", locatorStatus)
+                .put("parseStatus", "PARSED_CLASSIC_TIFF_ENTRY")
+                .put("decodeStatus", decodeStatus)
+                .put(
+                    "externalValueOffset",
+                    if (storageKind == "EXTERNAL") entry.valueOffset else JSONObject.NULL,
+                )
+                .put(
+                    "externalValueEndExclusive",
+                    externalEndExclusive ?: JSONObject.NULL,
+                )
                 .put("value", decoded)
             entryJson.put(tagJson)
 

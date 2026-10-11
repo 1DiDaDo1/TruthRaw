@@ -286,6 +286,13 @@ object UniversalSourceProfiler {
                 .put("open_world", openWorldBlock())
         }
 
+        progress?.invoke("SOURCE_CAPABILITY_EVIDENCE_LEDGER_V02")
+        val sourceCapabilityEvidenceLedger =
+            SourceCapabilityEnvelopeV02.describe(
+                sourceSha256 = sourceSha256,
+                parsedContainerMetadata = parsed,
+            )
+
         val ifds = parsed.optJSONArray("ifds") ?: JSONArray()
         val rawCandidates = parsed.optJSONArray("rawCfaIfdCandidates") ?: JSONArray()
 
@@ -815,6 +822,7 @@ object UniversalSourceProfiler {
             .put("scientific_source_class", sourceClass)
             .put("metadata_parse_status", "PASS_READ_ONLY")
             .put("container_metadata", parsed)
+            .put("source_capability_envelope_v0_2", sourceCapabilityEvidenceLedger)
             .put("source_metadata", metadata)
             .put("primary_raw_raster", raster)
             .put("raster_independent_sample_lattice", sampleLattice)

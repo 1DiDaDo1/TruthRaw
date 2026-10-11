@@ -68,6 +68,20 @@ object SourceCapabilityEnvelopeV02 {
         val limitation: String = "NOT_INDEPENDENTLY_VALIDATED_IN_V0_2",
         val rejectionReason: String? = null,
         val consumers: List<String> = emptyList(),
+        val sourceByteLength: Long? = null,
+        val ifdPath: String? = null,
+        val ifdOffset: Long? = null,
+        val occurrenceIndex: Int? = null,
+        val entryOffset: Long? = null,
+        val valueFieldOffset: Long? = null,
+        val storageKind: String? = null,
+        val valueByteCount: Long? = null,
+        val externalValueOffset: Long? = null,
+        val externalValueEndExclusive: Long? = null,
+        val originalValueOrOffsetBytesHex: String? = null,
+        val locatorStatus: String? = null,
+        val parseStatus: String? = null,
+        val decodeStatus: String? = null,
     ) {
         init {
             require(isSha256(sourceSha256)) { "sourceSha256 must be 64 lowercase/uppercase hex chars" }
@@ -75,6 +89,22 @@ object SourceCapabilityEnvelopeV02 {
             require(semanticKey.isNotBlank()) { "semanticKey must not be blank" }
             require(parserId.isNotBlank()) { "parserId must not be blank" }
             require(itemCount >= 0L) { "itemCount must be non-negative" }
+            require(sourceByteLength == null || sourceByteLength >= 0L) {
+                "sourceByteLength must be non-negative when present"
+            }
+            require(occurrenceIndex == null || occurrenceIndex >= 0) {
+                "occurrenceIndex must be non-negative when present"
+            }
+            require(entryOffset == null || entryOffset >= 0L) {
+                "entryOffset must be non-negative when present"
+            }
+            require(valueFieldOffset == null || valueFieldOffset >= 0L) {
+                "valueFieldOffset must be non-negative when present"
+            }
+            require(
+                originalValueOrOffsetBytesHex == null ||
+                    originalValueOrOffsetBytesHex.matches(Regex("[0-9a-fA-F]{8}")),
+            ) { "classic TIFF value/offset field must be exactly four source bytes" }
             if (lifecycle == Lifecycle.USED) {
                 require(admission == Admission.CONSISTENT_ADMITTED) {
                     "USED evidence must already be CONSISTENT_ADMITTED"
@@ -110,6 +140,20 @@ object SourceCapabilityEnvelopeV02 {
                 limitation,
                 rejectionReason ?: "",
                 consumers.sorted().joinToString(","),
+                sourceByteLength?.toString() ?: "",
+                ifdPath ?: "",
+                ifdOffset?.toString() ?: "",
+                occurrenceIndex?.toString() ?: "",
+                entryOffset?.toString() ?: "",
+                valueFieldOffset?.toString() ?: "",
+                storageKind ?: "",
+                valueByteCount?.toString() ?: "",
+                externalValueOffset?.toString() ?: "",
+                externalValueEndExclusive?.toString() ?: "",
+                originalValueOrOffsetBytesHex?.lowercase() ?: "",
+                locatorStatus ?: "",
+                parseStatus ?: "",
+                decodeStatus ?: "",
             ).joinToString("\u001f")
 
         fun toJson(): JSONObject =
@@ -129,6 +173,26 @@ object SourceCapabilityEnvelopeV02 {
                 .put("limitation", limitation)
                 .put("rejection_reason", rejectionReason ?: JSONObject.NULL)
                 .put("consumers", JSONArray(consumers.sorted()))
+                .put("source_byte_length", sourceByteLength ?: JSONObject.NULL)
+                .put("ifd_path", ifdPath ?: JSONObject.NULL)
+                .put("ifd_offset", ifdOffset ?: JSONObject.NULL)
+                .put("occurrence_index", occurrenceIndex ?: JSONObject.NULL)
+                .put("entry_offset", entryOffset ?: JSONObject.NULL)
+                .put("value_field_offset", valueFieldOffset ?: JSONObject.NULL)
+                .put("storage_kind", storageKind ?: JSONObject.NULL)
+                .put("value_byte_count", valueByteCount ?: JSONObject.NULL)
+                .put("external_value_offset", externalValueOffset ?: JSONObject.NULL)
+                .put(
+                    "external_value_end_exclusive",
+                    externalValueEndExclusive ?: JSONObject.NULL,
+                )
+                .put(
+                    "original_value_or_offset_bytes_hex",
+                    originalValueOrOffsetBytesHex?.lowercase() ?: JSONObject.NULL,
+                )
+                .put("locator_status", locatorStatus ?: JSONObject.NULL)
+                .put("parse_status", parseStatus ?: JSONObject.NULL)
+                .put("decode_status", decodeStatus ?: JSONObject.NULL)
                 .put("creates_new_evidence", false)
                 .put("scientific_writeback_allowed", false)
     }
@@ -146,12 +210,15 @@ object SourceCapabilityEnvelopeV02 {
         val parserId =
             parsedContainerMetadata.optString("parser")
                 .ifBlank { "UNKNOWN_PARSER" }
+        val sourceByteLength =
+            parsedContainerMetadata.optLong("fileSizeBytes", -1L).takeIf { it >= 0L }
         val records = ArrayList<Record>()
         val ifds = parsedContainerMetadata.optJSONArray("ifds") ?: JSONArray()
 
         for (i in 0 until ifds.length()) {
             val ifd = ifds.optJSONObject(i) ?: continue
             val ifdPath = ifd.optString("path", "IFD[$i]")
+            val ifdOffset = ifd.optLong("offset", -1L).takeIf { it >= 0L }
             val entries = ifd.optJSONArray("entries") ?: JSONArray()
             for (j in 0 until entries.length()) {
                 val entry = entries.optJSONObject(j) ?: continue
@@ -160,11 +227,32 @@ object SourceCapabilityEnvelopeV02 {
                 val typeName = entry.optString("typeName", "UNKNOWN_TYPE")
                 val count = entry.optLong("count", 0L).coerceAtLeast(0L)
                 val value = entry.opt("value")
+                val occurrenceIndex =
+                    entry.optInt("occurrenceIndex", j).takeIf { it >= 0 } ?: j
+                val entryOffset =
+                    entry.optLong("entryOffset", -1L).takeIf { it >= 0L }
+                val valueFieldOffset =
+                    entry.optLong("valueFieldOffset", -1L).takeIf { it >= 0L }
+                val valueByteCount =
+                    entry.optLong("valueByteCount", -1L).takeIf { it >= 0L }
+                val externalValueOffset =
+                    entry.optLong("externalValueOffset", -1L).takeIf { it >= 0L }
+                val externalValueEndExclusive =
+                    entry.optLong("externalValueEndExclusive", -1L).takeIf { it >= 0L }
+                val originalValueOrOffsetBytesHex =
+                    entry.optString("originalValueOrOffsetBytesHex", "")
+                        .takeIf { it.matches(Regex("[0-9a-fA-F]{8}")) }
+                val location =
+                    if (entryOffset != null) {
+                        "$ifdPath/entry@$entryOffset/tag:${tag ?: -1}"
+                    } else {
+                        "$ifdPath/entry[$occurrenceIndex]/tag:${tag ?: -1}"
+                    }
                 val classification = classify(name)
                 records +=
                     Record(
                         sourceSha256 = sourceSha256,
-                        sourceLocation = "$ifdPath/tag:${tag ?: -1}",
+                        sourceLocation = location,
                         tag = tag,
                         semanticKey = name,
                         parserId = parserId,
@@ -177,11 +265,29 @@ object SourceCapabilityEnvelopeV02 {
                         unitsOrReferenceFrame = classification.units,
                         limitation = classification.limitation,
                         rejectionReason = classification.rejectionReason,
+                        sourceByteLength = sourceByteLength,
+                        ifdPath = ifdPath,
+                        ifdOffset = ifdOffset,
+                        occurrenceIndex = occurrenceIndex,
+                        entryOffset = entryOffset,
+                        valueFieldOffset = valueFieldOffset,
+                        storageKind =
+                            entry.optString("storageKind", "").takeIf { it.isNotBlank() },
+                        valueByteCount = valueByteCount,
+                        externalValueOffset = externalValueOffset,
+                        externalValueEndExclusive = externalValueEndExclusive,
+                        originalValueOrOffsetBytesHex = originalValueOrOffsetBytesHex,
+                        locatorStatus =
+                            entry.optString("locatorStatus", "").takeIf { it.isNotBlank() },
+                        parseStatus =
+                            entry.optString("parseStatus", "").takeIf { it.isNotBlank() },
+                        decodeStatus =
+                            entry.optString("decodeStatus", "").takeIf { it.isNotBlank() },
                     )
             }
         }
 
-        return buildEnvelope(sourceSha256, parserId, records)
+        return buildEnvelope(sourceSha256, sourceByteLength, parserId, records)
     }
 
     fun unavailable(
@@ -309,6 +415,7 @@ object SourceCapabilityEnvelopeV02 {
 
     private fun buildEnvelope(
         sourceSha256: String,
+        sourceByteLength: Long?,
         parserId: String,
         records: List<Record>,
     ): JSONObject {
@@ -322,6 +429,9 @@ object SourceCapabilityEnvelopeV02 {
         return base(sourceSha256)
             .put("status", STATUS)
             .put("parser_id", parserId)
+            .put("source_byte_length", sourceByteLength ?: JSONObject.NULL)
+            .put("physical_occurrence_identity", "IFD_PATH_PLUS_EXACT_ENTRY_OFFSET")
+            .put("duplicate_tags_preserved_as_distinct_occurrences", true)
             .put("ledger_schema", LEDGER_SCHEMA)
             .put("ledger_digest_sha256", ledgerDigest(sorted))
             .put("record_count", sorted.size)
