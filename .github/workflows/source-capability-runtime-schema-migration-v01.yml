@@ -12,12 +12,21 @@ permissions:
 
 jobs:
   migrate-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
           ref: feat/draw-observation-evidence-architecture-v01
           fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
 
       - name: Apply deterministic schema migration
         run: python3 tools/apply_source_capability_runtime_schema_migration_v01.py
@@ -32,7 +41,7 @@ jobs:
 
       - name: Run focused Android unit regression
         working-directory: suite_android
-        run: ./gradlew :app:testDebugUnitTest --tests com.truthraw.adaptiveui.SourceCapabilityRuntimeEvidenceEnvelopeV01Test
+        run: gradle --no-daemon :app:testDebugUnitTest --tests com.truthraw.adaptiveui.SourceCapabilityRuntimeEvidenceEnvelopeV01Test
 
       - name: Commit validated migration
         run: |
