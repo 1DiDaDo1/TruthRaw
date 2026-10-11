@@ -272,6 +272,13 @@ object UniversalSourceProfiler {
                 .put("scientific_source_class", "TIFF_CONTAINER_METADATA_PARSE_FAILED")
                 .put("metadata_parse_status", "FAILED")
                 .put("metadata_error", e.message ?: e.javaClass.simpleName)
+                .put(
+                    "source_capability_envelope_v0_2",
+                    SourceCapabilityEnvelopeV02.unavailable(
+                        sourceSha256 = sourceSha256,
+                        reason = e.message ?: e.javaClass.simpleName,
+                    ),
+                )
                 .put("source_metadata", JSONObject())
                 .put(
                     "route_hints",

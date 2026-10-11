@@ -213,6 +213,17 @@ object SourceCapabilityEnvelopeV02 {
         val sourceByteLength =
             parsedContainerMetadata.optLong("fileSizeBytes", -1L).takeIf { it >= 0L }
         val records = ArrayList<Record>()
+        val traversalStatus =
+            parsedContainerMetadata.optString(
+                "containerTraversalStatus",
+                "UNKNOWN_NOT_REPORTED_BY_PARSER",
+            )
+        val traversalAnomalies =
+            bindTraversalAnomalies(
+                sourceSha256 = sourceSha256,
+                sourceByteLength = sourceByteLength,
+                parsedContainerMetadata = parsedContainerMetadata,
+            )
         val ifds = parsedContainerMetadata.optJSONArray("ifds") ?: JSONArray()
 
         for (i in 0 until ifds.length()) {
@@ -287,7 +298,14 @@ object SourceCapabilityEnvelopeV02 {
             }
         }
 
-        return buildEnvelope(sourceSha256, sourceByteLength, parserId, records)
+        return buildEnvelope(
+            sourceSha256,
+            sourceByteLength,
+            parserId,
+            records,
+            traversalStatus,
+            traversalAnomalies,
+        )
     }
 
     fun unavailable(
@@ -301,6 +319,19 @@ object SourceCapabilityEnvelopeV02 {
             .put("ledger_digest_sha256", sha256("$LEDGER_SCHEMA|${sourceSha256.lowercase()}|UNAVAILABLE|$reason"))
             .put("record_count", 0)
             .put("records", JSONArray())
+            .put("container_traversal_status", "PARSE_FAILED_FAIL_CLOSED")
+            .put("container_structure_complete", false)
+            .put("container_traversal_anomaly_count", 0)
+            .put("container_traversal_anomalies", JSONArray())
+            .put(
+                "container_parse_failure",
+                JSONObject()
+                    .put("source_sha256", sourceSha256.lowercase())
+                    .put("reason", reason)
+                    .put("admission", Admission.CONTRADICTED_FAIL_CLOSED.name)
+                    .put("creates_new_evidence", false)
+                    .put("scientific_writeback_allowed", false),
+            )
             .put("parsed_capabilities", JSONArray())
             .put("admitted_capabilities", JSONArray())
             .put("used_capabilities", JSONArray())
@@ -418,6 +449,8 @@ object SourceCapabilityEnvelopeV02 {
         sourceByteLength: Long?,
         parserId: String,
         records: List<Record>,
+        traversalStatus: String,
+        traversalAnomalies: JSONArray,
     ): JSONObject {
         val sorted = records.sortedWith(compareBy<Record> { it.sourceLocation }.thenBy { it.semanticKey })
         val parsedCapabilities = sorted.map { it.semanticKey }.distinct().sorted()
@@ -425,6 +458,12 @@ object SourceCapabilityEnvelopeV02 {
         val used = sorted.filter { it.lifecycle == Lifecycle.USED }.map { it.semanticKey }.distinct().sorted()
         val recordsJson = JSONArray()
         sorted.forEach { recordsJson.put(it.toJson()) }
+        val traversalAnomalyDigest = traversalAnomalyDigest(traversalAnomalies)
+        val ledgerDigest = ledgerDigest(sorted)
+        val observationEvidenceDigest =
+            sha256(
+                "$LEDGER_SCHEMA\nentries=$ledgerDigest\ntraversal=$traversalAnomalyDigest",
+            )
 
         return base(sourceSha256)
             .put("status", STATUS)
@@ -433,7 +472,16 @@ object SourceCapabilityEnvelopeV02 {
             .put("physical_occurrence_identity", "IFD_PATH_PLUS_EXACT_ENTRY_OFFSET")
             .put("duplicate_tags_preserved_as_distinct_occurrences", true)
             .put("ledger_schema", LEDGER_SCHEMA)
-            .put("ledger_digest_sha256", ledgerDigest(sorted))
+            .put("ledger_digest_sha256", ledgerDigest)
+            .put("container_traversal_status", traversalStatus)
+            .put(
+                "container_structure_complete",
+                traversalStatus == "COMPLETE_NO_REPORTED_TRAVERSAL_ANOMALY",
+            )
+            .put("container_traversal_anomaly_count", traversalAnomalies.length())
+            .put("container_traversal_anomaly_digest_sha256", traversalAnomalyDigest)
+            .put("container_traversal_anomalies", traversalAnomalies)
+            .put("observation_evidence_digest_sha256", observationEvidenceDigest)
             .put("record_count", sorted.size)
             .put("parsed_capabilities", JSONArray(parsedCapabilities))
             .put("admitted_capabilities", JSONArray(admitted))
@@ -445,6 +493,46 @@ object SourceCapabilityEnvelopeV02 {
             .put("pixel_route_effect", false)
             .put("scientific_master_pixel_effect", false)
             .put("appearance_pixel_effect", false)
+    }
+
+    private fun bindTraversalAnomalies(
+        sourceSha256: String,
+        sourceByteLength: Long?,
+        parsedContainerMetadata: JSONObject,
+    ): JSONArray {
+        val source =
+            parsedContainerMetadata.optJSONArray("containerTraversalAnomalies") ?: JSONArray()
+        val canonical = mutableListOf<String>()
+        for (i in 0 until source.length()) {
+            val anomaly = source.optJSONObject(i) ?: continue
+            val bound =
+                JSONObject()
+                    .put("source_sha256", sourceSha256.lowercase())
+                    .put("source_byte_length", sourceByteLength ?: JSONObject.NULL)
+                    .put("path", anomaly.optString("path", "UNKNOWN_IFD_PATH"))
+                    .put("attempted_offset", anomaly.optLong("attemptedOffset", -1L))
+                    .put("depth", anomaly.optInt("depth", -1))
+                    .put("status", anomaly.optString("status", "UNKNOWN_TRAVERSAL_ANOMALY"))
+                    .put("lifecycle", Lifecycle.PARSED.name)
+                    .put("admission", Admission.CONTRADICTED_FAIL_CLOSED.name)
+                    .put("authority", Authority.SOURCE_STRUCTURE.name)
+                    .put("repair_attempted", false)
+                    .put("source_values_modified", false)
+                    .put("creates_new_evidence", false)
+                    .put("scientific_writeback_allowed", false)
+            canonical += canonicalJson(bound)
+        }
+        val out = JSONArray()
+        canonical.sorted().forEach { encoded -> out.put(JSONObject(encoded)) }
+        return out
+    }
+
+    private fun traversalAnomalyDigest(anomalies: JSONArray): String {
+        val lines = mutableListOf<String>()
+        for (i in 0 until anomalies.length()) {
+            lines += canonicalJson(anomalies.opt(i))
+        }
+        return sha256(lines.sorted().joinToString("\n"))
     }
 
     private fun base(sourceSha256: String): JSONObject =

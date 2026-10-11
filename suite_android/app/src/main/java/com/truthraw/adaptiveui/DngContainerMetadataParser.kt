@@ -76,8 +76,25 @@ object DngContainerMetadataParser {
         val firstIfd = u32(hb.getInt(4))
 
         val ifds = JSONArray()
+        val traversalAnomalies = JSONArray()
         val visited = mutableSetOf<Long>()
-        parseIfdRecursive(channel, fileSize, order, firstIfd, "IFD0", 0, visited, ifds)
+        parseIfdRecursive(
+            channel,
+            fileSize,
+            order,
+            firstIfd,
+            "IFD0",
+            0,
+            visited,
+            ifds,
+            traversalAnomalies,
+        )
+        val containerTraversalStatus =
+            if (traversalAnomalies.length() == 0) {
+                "COMPLETE_NO_REPORTED_TRAVERSAL_ANOMALY"
+            } else {
+                "ANOMALIES_FAIL_CLOSED"
+            }
 
         val rawCandidates = JSONArray()
         for (i in 0 until ifds.length()) {
@@ -113,7 +130,7 @@ object DngContainerMetadataParser {
         }
 
         return JSONObject()
-            .put("parser", "truthraw.classic-tiff-dng-container-metadata.v0.55-occurrence-ledger")
+            .put("parser", "truthraw.classic-tiff-dng-container-metadata.v0.56-traversal-status")
             .put("readOnly", true)
             .put("imageSamplesDecoded", false)
             .put("pixelPayloadBytesRead", false)
@@ -121,6 +138,9 @@ object DngContainerMetadataParser {
             .put("byteOrder", if (order == ByteOrder.LITTLE_ENDIAN) "II_LITTLE_ENDIAN" else "MM_BIG_ENDIAN")
             .put("tiffMagic", magic)
             .put("firstIfdOffset", firstIfd)
+            .put("containerTraversalStatus", containerTraversalStatus)
+            .put("containerTraversalAnomalyCount", traversalAnomalies.length())
+            .put("containerTraversalAnomalies", traversalAnomalies)
             .put("ifds", ifds)
             .put("rawCfaIfdCandidates", rawCandidates)
     }
@@ -134,8 +154,54 @@ object DngContainerMetadataParser {
         depth: Int,
         visited: MutableSet<Long>,
         out: JSONArray,
+        traversalAnomalies: JSONArray,
     ) {
-        if (offset <= 0L || offset >= fileSize || depth > MAX_RECURSION || !visited.add(offset)) return
+        when {
+            depth > MAX_RECURSION -> {
+                recordTraversalAnomaly(
+                    traversalAnomalies,
+                    path,
+                    offset,
+                    depth,
+                    fileSize,
+                    "RECURSION_LIMIT_EXCEEDED_FAIL_CLOSED",
+                )
+                return
+            }
+            offset <= 0L -> {
+                recordTraversalAnomaly(
+                    traversalAnomalies,
+                    path,
+                    offset,
+                    depth,
+                    fileSize,
+                    "NON_POSITIVE_IFD_OFFSET_FAIL_CLOSED",
+                )
+                return
+            }
+            offset >= fileSize -> {
+                recordTraversalAnomaly(
+                    traversalAnomalies,
+                    path,
+                    offset,
+                    depth,
+                    fileSize,
+                    "IFD_OFFSET_OUT_OF_BOUNDS_FAIL_CLOSED",
+                )
+                return
+            }
+            !visited.add(offset) -> {
+                recordTraversalAnomaly(
+                    traversalAnomalies,
+                    path,
+                    offset,
+                    depth,
+                    fileSize,
+                    "REVISITED_IFD_OFFSET_FAIL_CLOSED",
+                )
+                return
+            }
+        }
 
         val countBytes = readAt(channel, offset, 2)
         require(countBytes.size == 2) { "IFD count buiten bestand: $path@$offset" }
@@ -295,14 +361,43 @@ object DngContainerMetadataParser {
         out.put(ifdJson)
 
         subIfdOffsets.forEachIndexed { index, child ->
-            parseIfdRecursive(channel, fileSize, order, child, "$path/SubIFD[$index]", depth + 1, visited, out)
+            parseIfdRecursive(
+                channel, fileSize, order, child, "$path/SubIFD[$index]", depth + 1,
+                visited, out, traversalAnomalies,
+            )
         }
         exifIfdOffset?.let { child ->
-            parseIfdRecursive(channel, fileSize, order, child, "$path/ExifIFD", depth + 1, visited, out)
+            parseIfdRecursive(
+                channel, fileSize, order, child, "$path/ExifIFD", depth + 1,
+                visited, out, traversalAnomalies,
+            )
         }
         if (nextIfdOffset > 0L) {
-            parseIfdRecursive(channel, fileSize, order, nextIfdOffset, "$path/NextIFD", depth + 1, visited, out)
+            parseIfdRecursive(
+                channel, fileSize, order, nextIfdOffset, "$path/NextIFD", depth + 1,
+                visited, out, traversalAnomalies,
+            )
         }
+    }
+
+    private fun recordTraversalAnomaly(
+        out: JSONArray,
+        path: String,
+        offset: Long,
+        depth: Int,
+        fileSize: Long,
+        status: String,
+    ) {
+        out.put(
+            JSONObject()
+                .put("path", path)
+                .put("attemptedOffset", offset)
+                .put("depth", depth)
+                .put("fileSizeBytes", fileSize)
+                .put("status", status)
+                .put("repairAttempted", false)
+                .put("sourceBytesModified", false),
+        )
     }
 
     private fun decodeEntry(
