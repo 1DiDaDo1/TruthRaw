@@ -307,6 +307,13 @@ object SourceCapabilityEnvelopeV02 {
                 traversalStatus,
                 traversalAnomalies,
             )
+        envelope.put(
+            "raw_ifd_domain_validation_v0_1",
+            SourceCapabilityRawIfdDomainValidatorV01.describe(
+                sourceSha256 = sourceSha256,
+                parsedContainerMetadata = parsedContainerMetadata,
+            ),
+        )
         return envelope.put(
             "radiometric_semantic_validation_v0_1",
             SourceCapabilityRadiometricSemanticValidatorV01.describe(

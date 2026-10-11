@@ -96,6 +96,7 @@ object SourceCapabilityRadiometricSemanticValidatorV01 {
 
             val samplesPerPixel = resolveSamplesPerPixel(entries)
             val repeatDim = resolveBlackLevelRepeatDim(entries)
+            val rawIfdDomain = SourceCapabilityRawIfdDomainValidatorV01.classifyIfd(ifd)
             val occurrenceReports = JSONArray()
 
             familyOccurrences.forEach { entry ->
@@ -121,11 +122,14 @@ object SourceCapabilityRadiometricSemanticValidatorV01 {
                 listOf(repeatSelection, blackSelection, whiteSelection)
                     .count { it == "MULTIPLE_PHYSICAL_OCCURRENCES_NO_SELECTION_FAIL_CLOSED" }
 
+            val rawIfdDomainStatus = rawIfdDomain.getString("domain_status")
             val familyStatus =
                 when {
-                    occurrenceReportsHasStatus(occurrenceReports, CONTRADICTED) ->
+                    occurrenceReportsHasStatus(occurrenceReports, CONTRADICTED) ||
+                        rawIfdDomainStatus == SourceCapabilityRawIfdDomainValidatorV01.CONTRADICTED_NON_RAW_DOMAIN ->
                         "CONTRADICTED_FAIL_CLOSED"
                     occurrenceReportsHasStatus(occurrenceReports, DEPENDENCY_UNRESOLVED) ||
+                        rawIfdDomainStatus != SourceCapabilityRawIfdDomainValidatorV01.VALIDATED_RAW_DOMAIN ||
                         repeatSelection.startsWith("MULTIPLE_") ||
                         blackSelection.startsWith("MULTIPLE_") ||
                         whiteSelection.startsWith("MULTIPLE_") ->
@@ -138,7 +142,8 @@ object SourceCapabilityRadiometricSemanticValidatorV01 {
                     .put("ifd_path", ifd.optString("path", "IFD[$i]"))
                     .put("ifd_offset", ifd.optLong("offset", -1L))
                     .put("family_status", familyStatus)
-                    .put("raw_ifd_usage_status", "NOT_INDEPENDENTLY_VALIDATED_V0_1")
+                    .put("raw_ifd_usage_status", rawIfdUsageStatus(rawIfdDomainStatus))
+                    .put("raw_ifd_domain", rawIfdDomain)
                     .put("samples_per_pixel_dependency", samplesPerPixel.toJson())
                     .put("black_level_repeat_dim_dependency", repeatDim.toJson())
                     .put("black_level_repeat_dim_selection", repeatSelection)
@@ -366,6 +371,15 @@ object SourceCapabilityRadiometricSemanticValidatorV01 {
         (0 until entries.length())
             .mapNotNull { entries.optJSONObject(it) }
             .filter { it.optInt("tag", -1) in tags }
+
+    private fun rawIfdUsageStatus(domainStatus: String): String =
+        when (domainStatus) {
+            SourceCapabilityRawIfdDomainValidatorV01.VALIDATED_RAW_DOMAIN ->
+                "VALIDATED_RAW_IFD_FORMAT_USAGE_SHADOW_ONLY"
+            SourceCapabilityRawIfdDomainValidatorV01.CONTRADICTED_NON_RAW_DOMAIN ->
+                "CONTRADICTED_NON_RAW_IFD_USAGE_FAIL_CLOSED"
+            else -> "UNRESOLVED_RAW_IFD_USAGE_FAIL_CLOSED"
+        }
 
     private fun occurrenceReportsHasStatus(reports: JSONArray, status: String): Boolean =
         (0 until reports.length())
