@@ -348,6 +348,13 @@ object SourceCapabilityEnvelopeV02 {
                 parsedContainerMetadata = parsedContainerMetadata,
             ),
         )
+        envelope.put(
+            "radiometric_linearization_table_v0_1",
+            SourceCapabilityRadiometricLinearizationTableValidatorV01.describe(
+                sourceSha256 = sourceSha256,
+                parsedContainerMetadata = parsedContainerMetadata,
+            ),
+        )
         return envelope.put(
             "dng_version_compatibility_v0_1",
             SourceCapabilityDngVersionCompatibilityValidatorV01.describe(
