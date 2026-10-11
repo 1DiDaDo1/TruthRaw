@@ -67,7 +67,7 @@ It now requires the Effective Black diagnostic exposure and runs together:
 - `SourceCapabilityEffectiveBlackRuntimeDiagnosticV01Test`;
 - `SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01Test`.
 
-The one-time patch workflow and script were subsequently removed from the branch; they are not part of the intended final PR #133 diff.
+The one-time patch workflow and script were subsequently removed from the branch; they are not part of the final PR #133 diff.
 
 ## Step 2.1 — evidence-identity proof strengthened
 
@@ -75,7 +75,7 @@ Digest-lock regression commit:
 
 `6fcbe1ca25d449d2eac887661fb54a033d3ed07e`
 
-The focused runtime regression now independently constructs the exact expected physical occurrence records for its pre-existing TIFF/DNG fixture and verifies:
+The focused runtime regression independently constructs the exact expected physical occurrence records for its pre-existing TIFF/DNG fixture and verifies:
 
 - `ledger_digest_sha256` equals `SourceCapabilityEnvelopeV02.ledgerDigest(expectedOccurrenceRecords)`;
 - `observation_evidence_digest_sha256` equals the exact digest derived from that unchanged ledger digest plus the empty traversal-anomaly digest;
@@ -84,13 +84,41 @@ The focused runtime regression now independently constructs the exact expected p
 
 This converts the evidence-identity constraint from an architectural inference into an executable regression: adding the diagnostic may add a report field, but it may not change the underlying Observation Evidence Ledger identity.
 
-## Current state / next gate
+## Step 3 — exact-head CI acceptance for the diagnostic line
 
-PR #133 remains draft/unmerged. No scientific promotion has occurred.
+Exact green code/test/handoff checkpoint:
 
-The next gate is exact-head CI on the current branch state. Do not begin `LinearizationTable` implementation until the runtime diagnostic exposure, digest-lock regression and broader triggered integrity/build workflows are all audited green or explicitly path-scope skipped.
+`bd87bf5ceb1698fd1b4214a638d60b5e43f6420a`
 
-Even after this diagnostic becomes CI-green:
+All triggered non-skipped workflows observed on that exact head completed **SUCCESS**:
+
+- Source Capability Runtime Evidence Envelope v0.1 Integrity;
+- Canonical Integrity;
+- Documentation Governance;
+- D.RAW Suite Universal Intake v0.1;
+- D.RAW Android DngCreator Compatibility v0.1;
+- Tile-Native DNG Source v0.2 Android Compatibility;
+- D.RAW Universal Physical Capture v0.3 Live Preview Macro;
+- Shared Scientific Context v0.1 Integrity;
+- Camera RGB Covariance v0.6 Integrity;
+- XYZ D50 Uncertainty v0.7 Integrity;
+- TruthRange v0.4 Integrity;
+- TruthRange v0.5 Integrity.
+
+Path-scope `SKIPPED`, not failed:
+
+- D.RAW Deep-Censor Chroma Guard v0.1;
+- D.RAW Free Raster v0.3 Finish APK.
+
+Meaning of this acceptance is deliberately narrow: the runtime envelope can now expose the metadata-only Effective Black / Normalization report without changing observation-evidence identity or any scientific/pixel authority. CI success does **not** turn the report into admission, use, a pixel normalization operation, a calibration promotion or real-device radiometric proof.
+
+## Current state / next order
+
+PR #133 remains draft/unmerged until this step handoff is committed and its final review state is checked. No scientific promotion has occurred.
+
+After PR #133 is cleanly integrated, the next scientific branch may implement a separate `LinearizationTable` **shadow validator** anchored to DNG 1.7.1.0. It must remain metadata-only/read-only and must not silently apply linearization to pixels or make complete raw-to-linear admission/use true.
+
+Even after this diagnostic integration:
 
 `VALIDATED != ADMITTED != USED`
 
