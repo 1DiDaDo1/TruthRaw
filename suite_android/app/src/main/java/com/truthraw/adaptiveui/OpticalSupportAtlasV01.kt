@@ -50,9 +50,13 @@ object OpticalSupportAtlasV01 {
                 "optical_frequency_support_policy",
                 JSONObject()
                     .put("output_raster_density_equals_optical_resolution", false)
+                    .put("raster_upsampling_may_upgrade_spatial_authority", false)
+                    .put("unsupported_frequency_is_unknown", true)
+                    .put("measured_or_calibrated_support_required_for_frequency_claim", true)
                     .put("inverse_optics_requires_noise_transport", true)
                     .put("near_zero_transfer_may_be_blindly_inverted", false)
-                    .put("field_and_focus_dependence_must_be_preserved", true),
+                    .put("field_and_focus_dependence_must_be_preserved", true)
+                    .put("channel_or_wavelength_dependence_may_be_collapsed_without_evidence", false),
             )
             .put(
                 "candidate_measurement_runtime",
@@ -67,6 +71,7 @@ object OpticalSupportAtlasV01 {
             .put("psf_measurement_attached", false)
             .put("chromatic_displacement_attached", false)
             .put("field_curvature_attached", false)
+            .put("spatial_authority_map_promoted", false)
             .put("deconvolution_applied", false)
             .put("inverse_optics_authorized", false)
             .put("creates_new_evidence", false)

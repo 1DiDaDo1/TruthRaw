@@ -1,0 +1,280 @@
+package com.truthraw.adaptiveui
+
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.security.MessageDigest
+
+/**
+ * Process-local handoff for a full-resolution derived presentation artifact.
+ *
+ * Important authority boundary:
+ * - the backing artifact is DERIVED_PRESENTATION_OUTPUT;
+ * - the Free Raster viewport itself remains PRESENTATION_ONLY;
+ * - no preview raster can become the full-resolution pixel source;
+ * - publishing never creates MEASURED evidence or writes to Scientific Master.
+ *
+ * The preferred v0.2 artifact is exact display-oriented RGB24 from the native
+ * renderer before NV21/JPEG chroma reduction. JPEG publication remains as a
+ * compatibility entry point for older callers only.
+ */
+data class UnifiedOutputFreeRasterSnapshotV01(
+    val generation: Long,
+    val request: DrawUnifiedOutputRasterRequestV01,
+    val artifactPath: String,
+    val artifactSha256: String,
+    val artifactBytes: Long,
+    val rasterWidth: Int,
+    val rasterHeight: Int,
+    val mediaType: String = "image/jpeg",
+    val pixelFormat: String = "ENCODED_JPEG",
+    val artifactAuthority: String = DrawPhotoOutputCableV01.OUTPUT_AUTHORITY,
+    val viewportAuthority: String = "PRESENTATION_ONLY",
+)
+
+sealed interface UnifiedOutputFreeRasterPublishResultV01 {
+    data class Ready(
+        val snapshot: UnifiedOutputFreeRasterSnapshotV01,
+    ) : UnifiedOutputFreeRasterPublishResultV01
+
+    data class Failed(
+        val reason: String,
+    ) : UnifiedOutputFreeRasterPublishResultV01
+}
+
+object UnifiedOutputFreeRasterBridge {
+    const val CONTRACT_VERSION = "UnifiedOutputFreeRasterBridge/0.2"
+
+    @Volatile
+    private var current: UnifiedOutputFreeRasterSnapshotV01? = null
+
+    @Volatile
+    private var generation: Long = 0L
+
+    @Volatile
+    var lastClearReason: String? = null
+        private set
+
+    /** Compatibility publication path retained for callers that still own JPEG. */
+    @Synchronized
+    fun publishRenderedJpeg(
+        renderedFile: File,
+        freeRasterRequest: DrawUnifiedOutputRasterRequestV01,
+        expectedSha256: String,
+        artifactDirectory: File,
+    ): UnifiedOutputFreeRasterPublishResultV01 = publishPrivateArtifact(
+        renderedFile = renderedFile,
+        freeRasterRequest = freeRasterRequest,
+        expectedSha256 = expectedSha256,
+        artifactDirectory = artifactDirectory,
+        expectedBytes = null,
+        extension = "jpg",
+        mediaType = "image/jpeg",
+        pixelFormat = "ENCODED_JPEG",
+    )
+
+    /**
+     * Preferred v0.2 publication path. The file is tightly packed RGB24 in
+     * display orientation, one sRGB 8-bit triplet per output pixel, with no
+     * chroma subsampling and no encoder transform.
+     */
+    @Synchronized
+    fun publishRenderedRgb24(
+        renderedFile: File,
+        freeRasterRequest: DrawUnifiedOutputRasterRequestV01,
+        expectedSha256: String,
+        artifactDirectory: File,
+    ): UnifiedOutputFreeRasterPublishResultV01 {
+        val expectedBytes =
+            freeRasterRequest.targetWidth.toLong() *
+                freeRasterRequest.targetHeight.toLong() * 3L
+        return publishPrivateArtifact(
+            renderedFile = renderedFile,
+            freeRasterRequest = freeRasterRequest,
+            expectedSha256 = expectedSha256,
+            artifactDirectory = artifactDirectory,
+            expectedBytes = expectedBytes,
+            extension = "rgb24",
+            mediaType = FullResPresentationRasterV01.MEDIA_TYPE,
+            pixelFormat = FullResPresentationRasterV01.PIXEL_FORMAT,
+        )
+    }
+
+    private fun publishPrivateArtifact(
+        renderedFile: File,
+        freeRasterRequest: DrawUnifiedOutputRasterRequestV01,
+        expectedSha256: String,
+        artifactDirectory: File,
+        expectedBytes: Long?,
+        extension: String,
+        mediaType: String,
+        pixelFormat: String,
+    ): UnifiedOutputFreeRasterPublishResultV01 {
+        if (freeRasterRequest.purpose !=
+            DrawUnifiedOutputRasterRequestV01.Purpose.FREE_RASTER_VIEW
+        ) {
+            return UnifiedOutputFreeRasterPublishResultV01.Failed(
+                "Free Raster publish geblokkeerd: request is geen FREE_RASTER_VIEW sibling.",
+            )
+        }
+
+        when (
+            val validation = DrawUnifiedOutputRasterContractV01.validate(
+                freeRasterRequest,
+                freeRasterRequest.sourceJobId,
+            )
+        ) {
+            is DrawUnifiedOutputRasterBindResultV01.Failed ->
+                return UnifiedOutputFreeRasterPublishResultV01.Failed(validation.reason)
+            is DrawUnifiedOutputRasterBindResultV01.Ready -> Unit
+        }
+
+        val normalizedExpected = expectedSha256.trim().lowercase()
+        if (!normalizedExpected.matches(Regex("[0-9a-f]{64}"))) {
+            return UnifiedOutputFreeRasterPublishResultV01.Failed(
+                "Free Raster publish geblokkeerd: ongeldige artifact-SHA-256.",
+            )
+        }
+        if (!renderedFile.isFile || renderedFile.length() <= 0L) {
+            return UnifiedOutputFreeRasterPublishResultV01.Failed(
+                "Free Raster publish geblokkeerd: full-resolution artifact ontbreekt.",
+            )
+        }
+        if (expectedBytes != null && renderedFile.length() != expectedBytes) {
+            return UnifiedOutputFreeRasterPublishResultV01.Failed(
+                "Free Raster publish geblokkeerd: RGB24-bytegeometrie wijkt af van de output-binding.",
+            )
+        }
+        if (!artifactDirectory.exists() && !artifactDirectory.mkdirs()) {
+            return UnifiedOutputFreeRasterPublishResultV01.Failed(
+                "Free Raster publish geblokkeerd: private artifactmap kon niet worden gemaakt.",
+            )
+        }
+        if (!artifactDirectory.isDirectory) {
+            return UnifiedOutputFreeRasterPublishResultV01.Failed(
+                "Free Raster publish geblokkeerd: private artifactlocatie is ongeldig.",
+            )
+        }
+
+        val temp = File(
+            artifactDirectory,
+            ".free_raster_${freeRasterRequest.sourceJobId.take(16)}_${System.nanoTime()}.tmp",
+        )
+
+        val digest = MessageDigest.getInstance("SHA-256")
+        val copiedBytes = try {
+            FileInputStream(renderedFile).use { input ->
+                FileOutputStream(temp).use { output ->
+                    val buffer = ByteArray(256 * 1024)
+                    var total = 0L
+                    while (true) {
+                        val count = input.read(buffer)
+                        if (count < 0) break
+                        if (count == 0) continue
+                        output.write(buffer, 0, count)
+                        digest.update(buffer, 0, count)
+                        total += count.toLong()
+                    }
+                    output.flush()
+                    output.fd.sync()
+                    total
+                }
+            }
+        } catch (t: Throwable) {
+            temp.delete()
+            return UnifiedOutputFreeRasterPublishResultV01.Failed(
+                "Free Raster publish faalde tijdens private artifactcopy: ${t.message ?: t.javaClass.simpleName}",
+            )
+        }
+
+        val copiedSha = digest.digest().joinToString("") { byte -> "%02x".format(byte) }
+        if (
+            copiedBytes <= 0L ||
+            copiedSha != normalizedExpected ||
+            (expectedBytes != null && copiedBytes != expectedBytes)
+        ) {
+            temp.delete()
+            return UnifiedOutputFreeRasterPublishResultV01.Failed(
+                "Free Raster publish geblokkeerd: artifactcopy SHA-256/byte mismatch.",
+            )
+        }
+
+        val finalFile = File(
+            artifactDirectory,
+            "free_raster_${freeRasterRequest.sourceJobId.take(16)}_${copiedSha.take(16)}.$extension",
+        )
+
+        if (finalFile.exists()) {
+            if (finalFile.length() != copiedBytes || sha256(finalFile) != copiedSha) {
+                temp.delete()
+                return UnifiedOutputFreeRasterPublishResultV01.Failed(
+                    "Free Raster publish geblokkeerd: bestaand bridge-artifact heeft afwijkende inhoud.",
+                )
+            }
+            temp.delete()
+        } else if (!temp.renameTo(finalFile)) {
+            temp.delete()
+            return UnifiedOutputFreeRasterPublishResultV01.Failed(
+                "Free Raster publish faalde: private artifact kon niet atomair worden vastgelegd.",
+            )
+        }
+
+        generation += 1L
+        val snapshot = UnifiedOutputFreeRasterSnapshotV01(
+            generation = generation,
+            request = freeRasterRequest,
+            artifactPath = finalFile.absolutePath,
+            artifactSha256 = copiedSha,
+            artifactBytes = copiedBytes,
+            rasterWidth = freeRasterRequest.targetWidth,
+            rasterHeight = freeRasterRequest.targetHeight,
+            mediaType = mediaType,
+            pixelFormat = pixelFormat,
+        )
+        current = snapshot
+        lastClearReason = null
+        return UnifiedOutputFreeRasterPublishResultV01.Ready(snapshot)
+    }
+
+    /**
+     * Acquire never decodes the raster. It only returns the immutable binding
+     * when the private artifact still exists with the published byte length.
+     */
+    @Synchronized
+    fun acquire(): UnifiedOutputFreeRasterSnapshotV01? {
+        val snapshot = current ?: return null
+        val file = File(snapshot.artifactPath)
+        if (!file.isFile || file.length() != snapshot.artifactBytes) {
+            current = null
+            lastClearReason = "free_raster_artifact_missing_or_length_changed"
+            return null
+        }
+        return snapshot
+    }
+
+    /**
+     * Clears authority/state only. Existing immutable derived files are not
+     * deleted here because a Workspace decode may still hold a read handle.
+     * Lifecycle cleanup can remove superseded files after consumers release.
+     */
+    @Synchronized
+    fun clear(reason: String) {
+        current = null
+        generation += 1L
+        lastClearReason = reason
+    }
+
+    private fun sha256(file: File): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        FileInputStream(file).use { input ->
+            val buffer = ByteArray(256 * 1024)
+            while (true) {
+                val count = input.read(buffer)
+                if (count < 0) break
+                if (count == 0) continue
+                digest.update(buffer, 0, count)
+            }
+        }
+        return digest.digest().joinToString("") { byte -> "%02x".format(byte) }
+    }
+}

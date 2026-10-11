@@ -24,6 +24,12 @@ object PhysicalObservationNoiseContextV01 {
         val r = raster ?: JSONObject()
         val backside = backsideSignalSupport ?: JSONObject()
         val field = opticalFieldChart ?: JSONObject()
+        val sourceCapabilityShadow =
+            SourceCapabilityProfileProjectionV01.describe(
+                sourceSha256 = sourceSha256,
+                metadata = m,
+                raster = r,
+            )
 
         val measuredBackside =
             backside.optString("status") ==
@@ -74,6 +80,7 @@ object PhysicalObservationNoiseContextV01 {
                 },
             )
             .put("source_sha256", sourceSha256)
+            .put("source_capability_envelope_v0_2_shadow", sourceCapabilityShadow)
             .put(
                 "capture_context",
                 JSONObject()

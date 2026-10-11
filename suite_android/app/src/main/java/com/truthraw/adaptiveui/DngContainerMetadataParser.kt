@@ -50,6 +50,9 @@ object DngContainerMetadataParser {
     )
 
     private data class Entry(
+        val occurrenceIndex: Int,
+        val entryOffset: Long,
+        val valueFieldOffset: Long,
         val tag: Int,
         val type: Int,
         val count: Long,
@@ -73,8 +76,25 @@ object DngContainerMetadataParser {
         val firstIfd = u32(hb.getInt(4))
 
         val ifds = JSONArray()
+        val traversalAnomalies = JSONArray()
         val visited = mutableSetOf<Long>()
-        parseIfdRecursive(channel, fileSize, order, firstIfd, "IFD0", 0, visited, ifds)
+        parseIfdRecursive(
+            channel,
+            fileSize,
+            order,
+            firstIfd,
+            "IFD0",
+            0,
+            visited,
+            ifds,
+            traversalAnomalies,
+        )
+        val containerTraversalStatus =
+            if (traversalAnomalies.length() == 0) {
+                "COMPLETE_NO_REPORTED_TRAVERSAL_ANOMALY"
+            } else {
+                "ANOMALIES_FAIL_CLOSED"
+            }
 
         val rawCandidates = JSONArray()
         for (i in 0 until ifds.length()) {
@@ -110,7 +130,7 @@ object DngContainerMetadataParser {
         }
 
         return JSONObject()
-            .put("parser", "truthraw.classic-tiff-dng-container-metadata.v0.54")
+            .put("parser", "truthraw.classic-tiff-dng-container-metadata.v0.56-traversal-status")
             .put("readOnly", true)
             .put("imageSamplesDecoded", false)
             .put("pixelPayloadBytesRead", false)
@@ -118,6 +138,9 @@ object DngContainerMetadataParser {
             .put("byteOrder", if (order == ByteOrder.LITTLE_ENDIAN) "II_LITTLE_ENDIAN" else "MM_BIG_ENDIAN")
             .put("tiffMagic", magic)
             .put("firstIfdOffset", firstIfd)
+            .put("containerTraversalStatus", containerTraversalStatus)
+            .put("containerTraversalAnomalyCount", traversalAnomalies.length())
+            .put("containerTraversalAnomalies", traversalAnomalies)
             .put("ifds", ifds)
             .put("rawCfaIfdCandidates", rawCandidates)
     }
@@ -131,8 +154,54 @@ object DngContainerMetadataParser {
         depth: Int,
         visited: MutableSet<Long>,
         out: JSONArray,
+        traversalAnomalies: JSONArray,
     ) {
-        if (offset <= 0L || offset >= fileSize || depth > MAX_RECURSION || !visited.add(offset)) return
+        when {
+            depth > MAX_RECURSION -> {
+                recordTraversalAnomaly(
+                    traversalAnomalies,
+                    path,
+                    offset,
+                    depth,
+                    fileSize,
+                    "RECURSION_LIMIT_EXCEEDED_FAIL_CLOSED",
+                )
+                return
+            }
+            offset <= 0L -> {
+                recordTraversalAnomaly(
+                    traversalAnomalies,
+                    path,
+                    offset,
+                    depth,
+                    fileSize,
+                    "NON_POSITIVE_IFD_OFFSET_FAIL_CLOSED",
+                )
+                return
+            }
+            offset >= fileSize -> {
+                recordTraversalAnomaly(
+                    traversalAnomalies,
+                    path,
+                    offset,
+                    depth,
+                    fileSize,
+                    "IFD_OFFSET_OUT_OF_BOUNDS_FAIL_CLOSED",
+                )
+                return
+            }
+            !visited.add(offset) -> {
+                recordTraversalAnomaly(
+                    traversalAnomalies,
+                    path,
+                    offset,
+                    depth,
+                    fileSize,
+                    "REVISITED_IFD_OFFSET_FAIL_CLOSED",
+                )
+                return
+            }
+        }
 
         val countBytes = readAt(channel, offset, 2)
         require(countBytes.size == 2) { "IFD count buiten bestand: $path@$offset" }
@@ -145,7 +214,9 @@ object DngContainerMetadataParser {
 
         val entries = mutableListOf<Entry>()
         var p = 2
-        repeat(count) {
+        repeat(count) { occurrenceIndex ->
+            val entryOffset = offset + 2L + occurrenceIndex.toLong() * 12L
+            val valueFieldOffset = entryOffset + 8L
             val eb = ByteBuffer.wrap(block, p, 12).slice().order(order)
             val tag = u16(eb.short)
             val type = u16(eb.short)
@@ -153,7 +224,17 @@ object DngContainerMetadataParser {
             val valueField = ByteArray(4)
             eb.get(valueField)
             val valueOffset = u32(ByteBuffer.wrap(valueField).order(order).int)
-            entries += Entry(tag, type, itemCount, valueOffset, valueField)
+            entries +=
+                Entry(
+                    occurrenceIndex = occurrenceIndex,
+                    entryOffset = entryOffset,
+                    valueFieldOffset = valueFieldOffset,
+                    tag = tag,
+                    type = type,
+                    count = itemCount,
+                    valueOffset = valueOffset,
+                    inlineBytes = valueField,
+                )
             p += 12
         }
         val nextIfdOffset = u32(ByteBuffer.wrap(block, p, 4).order(order).int)
@@ -171,13 +252,73 @@ object DngContainerMetadataParser {
 
         for (entry in entries) {
             val decoded = decodeEntry(channel, fileSize, order, entry)
+            val unitSize = typeSize(entry.type)
+            val valueByteCount =
+                if (unitSize > 0) safeMul(entry.count, unitSize.toLong()) else -1L
+            val storageKind =
+                when {
+                    unitSize <= 0 || valueByteCount < 0L -> "UNKNOWN"
+                    valueByteCount <= 4L -> "INLINE"
+                    else -> "EXTERNAL"
+                }
+            val externalEndExclusive =
+                if (
+                    storageKind == "EXTERNAL" &&
+                    entry.valueOffset <= fileSize &&
+                    valueByteCount >= 0L &&
+                    valueByteCount <= fileSize - entry.valueOffset
+                ) {
+                    entry.valueOffset + valueByteCount
+                } else {
+                    null
+                }
+            val locatorStatus =
+                when {
+                    unitSize <= 0 -> "LOCATED_UNSUPPORTED_TYPE"
+                    valueByteCount < 0L -> "LOCATED_BYTE_COUNT_OVERFLOW"
+                    storageKind == "EXTERNAL" && externalEndExclusive == null ->
+                        "LOCATED_EXTERNAL_RANGE_OUT_OF_BOUNDS"
+                    else -> "LOCATED"
+                }
+            val decodeStatus =
+                when {
+                    unitSize <= 0 -> "UNSUPPORTED_TYPE"
+                    valueByteCount < 0L -> "BYTE_COUNT_OVERFLOW"
+                    storageKind == "EXTERNAL" && externalEndExclusive == null ->
+                        "EXTERNAL_RANGE_OUT_OF_BOUNDS"
+                    valueByteCount > MAX_METADATA_VALUE_BYTES -> "NOT_DECODED_TOO_LARGE"
+                    else -> "DECODED"
+                }
             val tagJson = JSONObject()
                 .put("tag", entry.tag)
                 .put("name", tagNames[entry.tag] ?: "TAG_${entry.tag}")
                 .put("type", entry.type)
                 .put("typeName", typeNames[entry.type] ?: "TYPE_${entry.type}")
                 .put("count", entry.count)
-                .put("valueByteCount", safeMul(entry.count, typeSize(entry.type).toLong()))
+                .put("valueByteCount", valueByteCount)
+                .put("occurrenceIndex", entry.occurrenceIndex)
+                .put("entryOffset", entry.entryOffset)
+                .put("entryByteLength", 12)
+                .put("valueFieldOffset", entry.valueFieldOffset)
+                .put("valueFieldByteLength", 4)
+                .put(
+                    "originalValueOrOffsetBytesHex",
+                    entry.inlineBytes.joinToString("") {
+                        "%02x".format(it.toInt() and 0xff)
+                    },
+                )
+                .put("storageKind", storageKind)
+                .put("locatorStatus", locatorStatus)
+                .put("parseStatus", "PARSED_CLASSIC_TIFF_ENTRY")
+                .put("decodeStatus", decodeStatus)
+                .put(
+                    "externalValueOffset",
+                    if (storageKind == "EXTERNAL") entry.valueOffset else JSONObject.NULL,
+                )
+                .put(
+                    "externalValueEndExclusive",
+                    externalEndExclusive ?: JSONObject.NULL,
+                )
                 .put("value", decoded)
             entryJson.put(tagJson)
 
@@ -220,14 +361,43 @@ object DngContainerMetadataParser {
         out.put(ifdJson)
 
         subIfdOffsets.forEachIndexed { index, child ->
-            parseIfdRecursive(channel, fileSize, order, child, "$path/SubIFD[$index]", depth + 1, visited, out)
+            parseIfdRecursive(
+                channel, fileSize, order, child, "$path/SubIFD[$index]", depth + 1,
+                visited, out, traversalAnomalies,
+            )
         }
         exifIfdOffset?.let { child ->
-            parseIfdRecursive(channel, fileSize, order, child, "$path/ExifIFD", depth + 1, visited, out)
+            parseIfdRecursive(
+                channel, fileSize, order, child, "$path/ExifIFD", depth + 1,
+                visited, out, traversalAnomalies,
+            )
         }
         if (nextIfdOffset > 0L) {
-            parseIfdRecursive(channel, fileSize, order, nextIfdOffset, "$path/NextIFD", depth + 1, visited, out)
+            parseIfdRecursive(
+                channel, fileSize, order, nextIfdOffset, "$path/NextIFD", depth + 1,
+                visited, out, traversalAnomalies,
+            )
         }
+    }
+
+    private fun recordTraversalAnomaly(
+        out: JSONArray,
+        path: String,
+        offset: Long,
+        depth: Int,
+        fileSize: Long,
+        status: String,
+    ) {
+        out.put(
+            JSONObject()
+                .put("path", path)
+                .put("attemptedOffset", offset)
+                .put("depth", depth)
+                .put("fileSizeBytes", fileSize)
+                .put("status", status)
+                .put("repairAttempted", false)
+                .put("sourceBytesModified", false),
+        )
     }
 
     private fun decodeEntry(

@@ -103,6 +103,8 @@ add_library(truthraw_ui_preview_bridge SHARED
     truthnegative_appearance_headroom_sweep_bridge.cpp
     truthnegative_n2_crop_ab_bridge.cpp
     photo_export_bridge.cpp
+    high_fidelity_jpeg_bridge.cpp
+    third_party/jo_jpeg.cpp
     empirical_source_probe.cpp
     linear_dng_export_bridge.cpp
     pure_float32_dng_export_bridge.cpp

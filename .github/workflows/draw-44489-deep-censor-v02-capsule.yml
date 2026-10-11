@@ -1,0 +1,36 @@
+name: D.RAW 44489 Deep-Censor v0.2 Capsule
+
+on:
+  push:
+    branches:
+      - feat/draw-workspace-free-raster-v01
+    paths:
+      - 'tools/append_44489_deep_censor_v02_checkpoint.py'
+      - '.github/workflows/draw-44489-deep-censor-v02-capsule.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/draw-workspace-free-raster-v01
+          fetch-depth: 0
+      - name: Append binding 44489 checkpoint
+        run: python3 tools/append_44489_deep_censor_v02_checkpoint.py
+      - name: Commit capsule checkpoint
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/handoff/DRAW_44489_KNOWLEDGE_CAPSULE.md
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo '44489 v0.2 checkpoint already present.'
+          else
+            git commit -m 'docs: bind deep-censor chroma detail v0.2 in 44489'
+            git push origin HEAD:feat/draw-workspace-free-raster-v01
+          fi
+          git rev-parse HEAD

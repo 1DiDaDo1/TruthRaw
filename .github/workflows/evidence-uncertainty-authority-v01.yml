@@ -1,0 +1,132 @@
+name: D.RAW Evidence Uncertainty Authority v0.1
+
+on:
+  push:
+    branches:
+      - research/evidence-uncertainty-authority-v01-2026-10-10
+      - feat/draw-workspace-free-raster-v01
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ScientificNoiseMathV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ScientificNoiseTransportV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/RadiometricResponseAtlasV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/RadiometricReliabilityEnvelopeV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/TemporalFootprintV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/OpticalSupportAtlasV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/FreeWorldUncertaintyTransportV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/ColourDomainAuthorityV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalObservationAuthorityAdmissionV02.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/GlobalResearchSnapshotV01.kt'
+      - '.github/workflows/evidence-uncertainty-authority-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract-and-build:
+    name: Contract invariants and Android compile
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify fail-closed scientific invariants
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path('suite_android/app/src/main/java/com/truthraw/adaptiveui')
+          names = [
+              'ScientificNoiseMathV01.kt',
+              'ScientificNoiseTransportV01.kt',
+              'RadiometricResponseAtlasV01.kt',
+              'RadiometricReliabilityEnvelopeV01.kt',
+              'TemporalFootprintV01.kt',
+              'OpticalSupportAtlasV01.kt',
+              'FreeWorldUncertaintyTransportV01.kt',
+              'ColourDomainAuthorityV01.kt',
+              'UniversalObservationAuthorityAdmissionV02.kt',
+              'GlobalResearchSnapshotV01.kt',
+          ]
+          files = {name: (root / name).read_text(encoding='utf-8') for name in names}
+          compact = {name: ''.join(text.split()) for name, text in files.items()}
+
+          def require_text(name, needle):
+              if needle not in files[name]:
+                  raise SystemExit(f'{name}: missing required text: {needle}')
+
+          def require_put(name, key, value):
+              expected = str(value).lower()
+              pattern = re.compile(r'\.put\("' + re.escape(key) + r'",' + expected + r',?\)')
+              if not pattern.search(compact[name]):
+                  raise SystemExit(f'{name}: missing required invariant: {key}={expected}')
+
+          require_text('ScientificNoiseMathV01.kt', 'positiveSemidefiniteCovariance3x3')
+          require_put('ScientificNoiseTransportV01.kt', 'input_covariance_must_be_positive_semidefinite', True)
+          require_put('ScientificNoiseTransportV01.kt', 'invalid_covariance_may_be_projected_to_psd_silently', False)
+          require_put('ScientificNoiseTransportV01.kt', 'numeric_noise_transport_performed', False)
+
+          require_text('RadiometricResponseAtlasV01.kt', 'PRE_SATURATION_RELIABILITY')
+          require_put('RadiometricResponseAtlasV01.kt', 'white_level_proves_pre_saturation_reliability', False)
+          require_put('RadiometricResponseAtlasV01.kt', 'pre_saturation_reliability_proven', False)
+          require_put('RadiometricReliabilityEnvelopeV01.kt', 'white_level_percentage_threshold_used', False)
+          require_put('RadiometricReliabilityEnvelopeV01.kt', 'uncensored_value_alone_proves_linearity', False)
+          require_put('RadiometricReliabilityEnvelopeV01.kt', 'pre_saturation_reliability_boundary_proven', False)
+
+          require_put('TemporalFootprintV01.kt', 'rolling_shutter_readout_proven', False)
+          require_put('TemporalFootprintV01.kt', 'pwm_phase_relation_proven', False)
+          require_put('TemporalFootprintV01.kt', 'temporal_colour_correction_authorized', False)
+
+          require_put('OpticalSupportAtlasV01.kt', 'raster_upsampling_may_upgrade_spatial_authority', False)
+          require_put('OpticalSupportAtlasV01.kt', 'unsupported_frequency_is_unknown', True)
+          require_put('OpticalSupportAtlasV01.kt', 'spatial_authority_map_promoted', False)
+
+          require_text('FreeWorldUncertaintyTransportV01.kt', 'RADIOMETRIC_RELIABILITY')
+          require_text('FreeWorldUncertaintyTransportV01.kt', 'SPECTRAL_COLOUR_DOMAIN')
+          require_put('FreeWorldUncertaintyTransportV01.kt', 'unknown_radiometric_reliability_may_be_treated_as_linear', False)
+
+          require_put('ColourDomainAuthorityV01.kt', 'fixed_3x3_is_universal_spectral_truth', False)
+          require_put('ColourDomainAuthorityV01.kt', 'finite_rgb_implies_known_human_chromaticity', False)
+          require_put('ColourDomainAuthorityV01.kt', 'automatic_emissive_colour_correction_authorized', False)
+
+          require_text('UniversalObservationAuthorityAdmissionV02.kt', 'RADIOMETRIC_RELIABILITY')
+          require_text('UniversalObservationAuthorityAdmissionV02.kt', 'OPTICAL_SUPPORT')
+          require_text('UniversalObservationAuthorityAdmissionV02.kt', 'TEMPORAL_SUPPORT')
+          require_put('UniversalObservationAuthorityAdmissionV02.kt', 'no_suitable_model_is_valid_result', True)
+          require_put('UniversalObservationAuthorityAdmissionV02.kt', 'v01_selection_outcome_changed', False)
+
+          require_text('GlobalResearchSnapshotV01.kt', 'RADIOMETRIC_RELIABILITY_ENVELOPE')
+          require_text('GlobalResearchSnapshotV01.kt', 'COLOUR_CALIBRATION_DOMAIN_AUTHORITY')
+          require_text('GlobalResearchSnapshotV01.kt', 'MULTIDIMENSIONAL_MODEL_AUTHORITY_ADMISSION')
+          require_put('GlobalResearchSnapshotV01.kt', 'contains_photo_measurement', False)
+
+          forbidden = re.compile(r'\.put\("(candidate_applied|scientific_writeback_allowed|creates_new_evidence)",true,?\)')
+          for name, text in compact.items():
+              match = forbidden.search(text)
+              if match:
+                  raise SystemExit(f'{name}: forbidden research promotion: {match.group(1)}=true')
+
+          print('Evidence/uncertainty authority invariants: PASS')
+          PY
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK / NDK
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Compile Android research module
+        working-directory: suite_android
+        run: gradle --no-daemon :app:assembleDebug

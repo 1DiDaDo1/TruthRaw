@@ -14,6 +14,12 @@ class TruthRawSuiteApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        // Presentation-only process runtime. It never renders or mutates source
+        // evidence; it only stages an already-rendered full-resolution JPEG for
+        // the downstream Free Raster cable after the normal JPEG path confirms
+        // a successful authority-checked export.
+        UnifiedOutputFreeRasterRuntimeV01.initialize(this)
+
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             runCatching {

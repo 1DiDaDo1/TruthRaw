@@ -1,0 +1,114 @@
+name: D.RAW Censored Illuminant Hue Floor v0.1
+
+on:
+  push:
+    branches:
+      - feat/draw-workspace-free-raster-v01
+    paths:
+      - 'suite_android/app/src/main/cpp/presentation_censored_illuminant_hue_floor_v0_1.h'
+      - 'tools/apply_presentation_censored_illuminant_hue_floor_v0_1.py'
+      - 'tools/test_presentation_censored_illuminant_hue_floor_v0_1.py'
+      - '.github/workflows/draw-censored-illuminant-hue-floor-v01.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/draw-workspace-free-raster-v01
+          fetch-depth: 0
+
+      - name: Apply censored illuminant hue floor v0.1
+        run: python3 tools/apply_presentation_censored_illuminant_hue_floor_v0_1.py
+
+      - name: Hue floor regression
+        run: python3 tools/test_presentation_censored_illuminant_hue_floor_v0_1.py
+
+      - name: Preserve deep-censor detail regression v0.2
+        run: python3 tools/test_presentation_deep_censor_chroma_guard_v0_2.py
+
+      - name: Preserve Warm Illuminant regression
+        run: python3 tools/test_presentation_illuminant_warmth_retention_v0_1.py
+
+      - name: Preserve censored chroma fallback regression
+        run: python3 tools/test_presentation_censored_chroma_fallback_v0_1.py
+
+      - name: Preserve near-censor shoulder regression
+        run: python3 tools/test_presentation_near_censor_chroma_shoulder_v0_1.py
+
+      - name: Preserve Natural Light local field regression
+        run: python3 tools/test_presentation_natural_light_field_tone_v0_1.py
+
+      - name: Preserve gamut-fit regression
+        run: python3 tools/test_presentation_gamut_fit_v0_1.py
+
+      - name: Preserve PURE headroom regression
+        run: python3 tools/test_presentation_headroom_map_v0_1.py
+
+      - name: Verify sealed Full-Frame Streaming untouched
+        run: python3 docs/research/full-frame-streaming-v0.1/tools/verify_integrity_v0_1.py
+
+      - name: Install strict JPEG decoder
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Preserve High-Fidelity JPEG codec regression
+        run: python3 tools/test_high_fidelity_jpeg_codec_v0_1.py
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK and NDK
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'cmake;3.22.1' 'ndk;27.2.12479018'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Test and build
+        working-directory: suite_android
+        run: gradle --no-daemon :app:testDebugUnitTest :app:assembleDebug
+
+      - name: Verify APK
+        run: |
+          APK=suite_android/app/build/outputs/apk/debug/app-debug.apk
+          test -s "$APK"
+          unzip -l "$APK" | grep -F classes.dex
+          unzip -p "$APK" lib/arm64-v8a/libtruthraw_ui_preview_bridge.so > /tmp/libtruthraw_ui_preview_bridge.so
+          test -s /tmp/libtruthraw_ui_preview_bridge.so
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'full-res censored illuminant hue floor failed'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'full-res deep-censor chroma guard failed'
+          strings /tmp/libtruthraw_ui_preview_bridge.so | grep -F 'scientific_writeback=0'
+          echo "apk_bytes=$(stat -c%s "$APK")"
+          echo "apk_sha256=$(sha256sum "$APK" | awk '{print $1}')"
+
+      - name: Commit validated hue-floor runtime wiring
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+1DiDaDo1@users.noreply.github.com'
+          git add suite_android/app/src/main/cpp/photo_export_bridge.cpp
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'Hue-floor runtime wiring already applied.'
+          else
+            git commit -m 'android: wire censored illuminant hue floor v0.1'
+            git push origin HEAD:feat/draw-workspace-free-raster-v01
+          fi
+          git rev-parse HEAD
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: draw-censored-illuminant-hue-floor-v01-apk
+          path: suite_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

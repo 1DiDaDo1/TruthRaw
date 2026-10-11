@@ -68,6 +68,7 @@ object FreeWorldUncertaintyTransportV01 {
                 JSONArray()
                     .put("SOURCE_MEASUREMENT")
                     .put("RADIOMETRIC_RESPONSE")
+                    .put("RADIOMETRIC_RELIABILITY")
                     .put("NOISE_COMPONENT")
                     .put("NOISE_COVARIANCE_OR_PSD")
                     .put("RECONSTRUCTION")
@@ -76,6 +77,7 @@ object FreeWorldUncertaintyTransportV01 {
                     .put("WORLD_RELATION")
                     .put("FIELD_RESPONSE")
                     .put("COLOUR")
+                    .put("SPECTRAL_COLOUR_DOMAIN")
                     .put("OPTICAL_SUPPORT")
                     .put("TEMPORAL")
                     .put("RESTORATION")
@@ -131,6 +133,14 @@ object FreeWorldUncertaintyTransportV01 {
                     .put(
                         "unknown_axis_is_valid_state",
                         true,
+                    )
+                    .put(
+                        "unknown_radiometric_reliability_may_be_treated_as_linear",
+                        false,
+                    )
+                    .put(
+                        "unknown_spectral_colour_domain_may_be_treated_as_in_domain",
+                        false,
                     )
                     .put(
                         "appearance_confidence_may_upgrade_measurement_authority",

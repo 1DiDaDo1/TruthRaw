@@ -284,7 +284,26 @@ object TilePreviewLoader {
             )
         }
 
-        return TilePreviewUiState.Ready(job.id, bitmap, metrics)
+        return when (
+            val exact = PreJpegRgb24PreviewRendererV01.render(
+                resolver = resolver,
+                job = job,
+                flags = 0,
+                presentationHeadroomMode = PresentationHeadroomModeV01.PURE_MAP_90_TO_100,
+            )
+        ) {
+            is PreJpegRgb24PreviewRendererV01.Result.Ready -> {
+                bitmap.recycle()
+                TilePreviewUiState.Ready(job.id, exact.bitmap, metrics)
+            }
+            is PreJpegRgb24PreviewRendererV01.Result.Failed -> {
+                bitmap.recycle()
+                TilePreviewUiState.Failed(
+                    job.id,
+                    "PURE exact output-preview geblokkeerd: ${exact.reason}",
+                )
+            }
+        }
     }
 
     private fun nativeStatusDescription(status: Int): String = when (status) {

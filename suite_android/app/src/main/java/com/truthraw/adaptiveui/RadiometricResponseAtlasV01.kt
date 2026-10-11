@@ -9,7 +9,7 @@ import org.json.JSONObject
  * This contract separates source exposure/gain metadata, sensor black/white
  * coding bounds, scientific Zero-Line and an eventual measured OECF/linearity
  * relation. Metadata may describe capture context but cannot by itself prove a
- * radiometric response curve.
+ * radiometric response curve or pre-saturation reliability boundary.
  */
 object RadiometricResponseAtlasV01 {
     const val SCHEMA = "D.RAW/RadiometricResponseAtlas/0.1"
@@ -52,7 +52,8 @@ object RadiometricResponseAtlasV01 {
                     .put("black_level_present", blackPresent)
                     .put("white_level_present", whitePresent)
                     .put("capture_context_authority", "SOURCE_METADATA_PROVENANCE_WHEN_PRESENT")
-                    .put("radiometric_response_measured", false),
+                    .put("radiometric_response_measured", false)
+                    .put("pre_saturation_reliability_proven", false),
             )
         }
 
@@ -70,6 +71,7 @@ object RadiometricResponseAtlasV01 {
                     .put("EFFECTIVE_GAIN")
                     .put("BLACK_OFFSET")
                     .put("SATURATION_CENSOR_BOUND")
+                    .put("PRE_SATURATION_RELIABILITY")
                     .put("LINEARITY")
                     .put("OECF_OR_EQUIVALENT"),
             )
@@ -80,15 +82,22 @@ object RadiometricResponseAtlasV01 {
                     .put("metadata_iso_equals_measured_gain", false)
                     .put("exposure_metadata_proves_linearity", false)
                     .put("white_level_proves_scene_clipping_point", false)
+                    .put("white_level_proves_pre_saturation_reliability", false)
+                    .put("finite_uncensored_code_proves_reliable_linearity", false)
                     .put("zero_line_may_be_derived_from_black_level_alone", false),
             )
             .put(
                 "candidate_solver",
                 "RadiometricResponseCandidateSolverV01",
             )
+            .put(
+                "reliability_envelope_candidate",
+                RadiometricReliabilityEnvelopeV01.SCHEMA,
+            )
             .put("oecf_measurement_attached", false)
             .put("effective_gain_calibrated", false)
             .put("response_linearity_proven", false)
+            .put("pre_saturation_reliability_proven", false)
             .put("saturation_model_promoted", false)
             .put("radiometric_calibration_promoted", false)
             .put("automatic_radiometric_correction_applied", false)
