@@ -73,4 +73,8 @@ android {
 
 dependencies {
     testImplementation("junit:junit:4.13.2")
+    // Local JVM tests execute parser/envelope code that uses Android's org.json API.
+    // The Android framework supplies org.json on-device; this test-only dependency
+    // replaces the throwing SDK stubs without entering the production APK/runtime.
+    testImplementation("org.json:json:20260814")
 }
