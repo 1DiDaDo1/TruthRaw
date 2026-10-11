@@ -1,13 +1,14 @@
 # D.RAW 44489 — LinearizationTable shadow audit v0.1 — 2026-10-11
 
-Status: binding audit checkpoint before runtime implementation.
+Status: active implementation checkpoint; standalone validator and focused regressions are now present on PR #134, exact-head CI still to be evaluated.
 
 Base integration anchor: `c81d4430f5c82d2de83cd480452c8bd01d60878b` (PR #133 merge).
 Working branch: `feat/source-capability-linearization-table-shadow-v01`.
+Draft PR: #134 — `Source Capability: LinearizationTable shadow validator v0.1`.
 
 ## Why this audit exists
 
-The current radiometric chain validates Raw-IFD domain, radiometric semantics, encoding consistency, DNG version compatibility, spatial BlackLevel dependencies and Effective Black / normalization as read-only diagnostics. Complete DNG raw-to-linear validity is still intentionally false because `LinearizationTable` has not yet been given its own parser-bound contract.
+The current radiometric chain validates Raw-IFD domain, radiometric semantics, encoding consistency, DNG version compatibility, spatial BlackLevel dependencies and Effective Black / normalization as read-only diagnostics. Complete DNG raw-to-linear application is still intentionally false because `LinearizationTable` has not yet been given a proven pixel-domain application contract.
 
 This step must not create a second TIFF parser, second source read, new admission path, pixel consumer, Scientific Master writeback or Appearance effect.
 
@@ -15,13 +16,21 @@ This step must not create a second TIFF parser, second source read, new admissio
 
 On base `c81d4430...`, `DngContainerMetadataParser` already generically records every classic-TIFF IFD entry with exact occurrence provenance, type/count, decode status, inline/external storage, byte range and decoded value. TIFF `SHORT` is already supported.
 
-However tag `50712` is not present in the parser tag-name map and is not projected as a named IFD semantic field. Therefore a physical 50712 occurrence can exist in the generic `entries` array, but today it is exposed as an unnamed tag rather than as `LinearizationTable`.
+Tag `50712` is not present in the parser tag-name map and is not projected as a named IFD semantic field. Therefore a physical 50712 occurrence can exist in the generic `entries` array, but today it is exposed as `TAG_50712` rather than as a named `LinearizationTable` parser field.
 
-No second parser is required. The minimal parser extension is to name tag 50712 `LinearizationTable` and project its already-decoded value onto the parsed IFD object. The physical occurrence remains the same existing entry and must not be duplicated or regenerated.
+### Binding implementation refinement
+
+The initial audit proposed renaming/projecting tag 50712 in the parser first. That is now deliberately **deferred**.
+
+Reason: `SourceCapabilityRuntimeEvidenceEnvelope/0.1` canonicalizes the parser-provided semantic key into the Observation Evidence Ledger digest. Renaming an already-present physical occurrence from `TAG_50712` to `LinearizationTable` would therefore change the ledger canonical line/digest for sources carrying tag 50712, even though the physical source bytes did not change.
+
+The standalone validator does not need that migration: it can bind the existing exact physical occurrence by numeric tag `50712` from the already-parsed `entries` array. This preserves ledger identity while proving the metadata contract. Any future parser/ledger semantic rename must be a separate explicit provenance/schema migration, never a hidden side effect of this validator.
+
+No second parser is required and no parser source file is changed in the current standalone step.
 
 ## Normative DNG contract
 
-Normative anchor: Adobe Digital Negative Specification 1.7.1.0, with the Adobe DNG SDK validation behavior used as an implementation cross-check.
+Normative anchor: Adobe Digital Negative Specification 1.7.1.0, with Adobe DNG SDK validation behavior used as an implementation cross-check.
 
 `LinearizationTable`:
 
@@ -42,40 +51,69 @@ Adobe DNG SDK validation additionally establishes for an explicit table:
 
 Important non-rule: the SDK does **not** require count to equal `2^BitsPerSample`. D.RAW must not invent that restriction.
 
-## Planned shadow validator v0.1
+## Standalone validator now implemented
 
-Proposed object: `SourceCapabilityRadiometricLinearizationTableValidatorV01`.
+Object: `SourceCapabilityRadiometricLinearizationTableValidatorV01`.
+Schema: `D.RAW/SourceCapabilityRadiometricLinearizationTable/0.1`.
+Status: `SHADOW_ONLY_LINEARIZATION_TABLE_METADATA_CONTRACT`.
+Implementation commit: `78fe7360e59c67bc039a819d20442949a000d5c3`.
+Focused regression commit: `038a585a36f2fd3a8daf0f66440ec41e23b178bc`.
 
-The validator will consume only the already-parsed metadata object and existing Raw-IFD / encoding validators. It will not read image samples.
+The validator consumes only the already-parsed metadata object and the existing Raw-IFD and radiometric encoding validators. It does not read image samples.
 
-For each relevant IFD it will distinguish:
+For each relevant IFD it distinguishes:
 
 - absent tag -> specification identity default, zero physical occurrences minted;
 - one explicit valid physical occurrence -> validated metadata contract;
 - duplicate physical occurrences -> unresolved fail-closed, no silent selection;
-- wrong TIFF type, invalid count, failed decode, floating-point raw encoding or BitsPerSample >16 -> contradicted/fail-closed as appropriate.
+- wrong TIFF type or count outside `2..65536` -> contradicted fail-closed;
+- decode/cardinality/value-domain uncertainty -> unresolved fail-closed;
+- floating-point raw or BitsPerSample >16 with explicit table -> contradicted fail-closed;
+- one explicit table may serve all sample planes;
+- table count is not forced to `2^BitsPerSample`.
 
-It must explicitly report that:
+The report explicitly keeps false:
 
-- table application to image samples has not occurred;
-- full raw-to-linear mapping has not been applied or scientifically admitted;
-- validator success is not admission or use;
-- record lifecycle/admission/consumer state is unchanged;
-- ledger and observation-evidence identity remain governed by the original physical occurrences;
-- defaults do not mint source occurrences;
-- source values are not modified;
-- no MEASURED evidence is created;
-- no Scientific Master or Appearance pixel effect occurs;
-- scientific writeback remains false.
+- `table_application_to_image_samples_validated`;
+- `linearization_applied_to_image_samples`;
+- `full_raw_to_linear_mapping_validated`;
+- `image_sample_payload_read`;
+- `record_lifecycle_effect`;
+- `scientific_admission_effect`;
+- `pixel_route_effect`;
+- `scientific_master_pixel_effect`;
+- `appearance_pixel_effect`;
+- `source_values_modified`;
+- `creates_new_evidence`;
+- `scientific_writeback_allowed`.
 
-## Implementation order
+It also reports `parser_tag_rename_performed=false` and `observation_evidence_ledger_identity_changed=false`.
 
-1. Minimal parser naming/projection for tag 50712 using the existing occurrence entry.
-2. Standalone shadow validator + focused unit tests.
-3. Regression proving explicit/default/duplicate/type/count/floating-point/>16-bit behavior and closed firewalls.
-4. Only after standalone tests are green: decide whether the diagnostic is exposed read-only through `SourceCapabilityRuntimeEvidenceEnvelope/0.1`.
-5. No claim of complete raw-to-linear application until a later explicit contract proves the remaining pixel-domain application/clipping behavior.
+## Focused regression scope now present
+
+`SourceCapabilityRadiometricLinearizationTableValidatorV01Test` covers:
+
+- absent identity default without minting tag 50712 evidence;
+- explicit valid SHORT table shorter than `2^BitsPerSample`;
+- duplicate occurrences -> unresolved;
+- wrong TIFF type -> contradicted;
+- count below 2 or above 65536 -> contradicted;
+- floating-point raw + explicit table -> contradicted;
+- unsigned raw above 16 bits + explicit table -> contradicted;
+- one table shared across multi-sample raw;
+- undecoded explicit occurrence -> unresolved;
+- ledger digest and observation-evidence digest unchanged by standalone validation;
+- the underlying ledger record remains `TAG_50712`, lifecycle `PARSED`, admission `UNSUPPORTED_SEMANTICS`, zero consumers;
+- all scientific/pixel/writeback firewalls remain false.
+
+## Remaining order
+
+1. Evaluate exact-head CI for the standalone validator/tests and fix only actual compile/test defects.
+2. If standalone exact-head CI is green, record the exact validated checkpoint here and in PR #134.
+3. Only then decide whether read-only diagnostic exposure through `SourceCapabilityRuntimeEvidenceEnvelope/0.1` should be a separate step. Exposure must preserve ledger/observation digests and lifecycle/admission/consumer state.
+4. Parser semantic renaming of 50712 remains separate from validator logic and is not required for scientific validation.
+5. No claim of complete raw-to-linear pixel application until a later explicit contract proves application/clipping behavior.
 
 ## Permanent boundary
 
-This audit changes no scientific state by itself. `VALIDATED != ADMITTED != USED`; absence defaults are specification dependencies, not physical evidence; and no `LinearizationTable` metadata may be used to rewrite sealed CFA evidence.
+`VALIDATED != ADMITTED != USED`; absence defaults are specification dependencies, not physical evidence; and no `LinearizationTable` metadata may rewrite sealed CFA evidence or become a pixel consumer by implication.
