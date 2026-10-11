@@ -6,6 +6,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.security.MessageDigest
 
 class SourceCapabilityEffectiveBlackRuntimeDiagnosticV01Test {
     private val sha = "d".repeat(64)
@@ -48,7 +49,22 @@ class SourceCapabilityEffectiveBlackRuntimeDiagnosticV01Test {
         assertEquals(4095.0, plane.getDouble("normalization_denominator"), 0.0)
         assertTrue(plane.getBoolean("denominator_strictly_positive"))
 
+        val expectedLedgerDigest = SourceCapabilityEnvelopeV02.ledgerDigest(expectedOccurrenceRecords())
+        val expectedTraversalDigest = sha256("")
+        val expectedObservationEvidenceDigest =
+            sha256(
+                "${SourceCapabilityEnvelopeV02.LEDGER_SCHEMA}\n" +
+                    "entries=$expectedLedgerDigest\n" +
+                    "traversal=$expectedTraversalDigest",
+            )
+        assertEquals(expectedLedgerDigest, envelope.getString("ledger_digest_sha256"))
+        assertEquals(
+            expectedObservationEvidenceDigest,
+            envelope.getString("observation_evidence_digest_sha256"),
+        )
+
         val records = envelope.getJSONArray("records")
+        assertEquals(expectedOccurrenceRecords().size, records.length())
         assertEquals(envelope.getInt("record_count"), records.length())
         val physicalTags =
             (0 until records.length())
@@ -92,6 +108,56 @@ class SourceCapabilityEffectiveBlackRuntimeDiagnosticV01Test {
         assertEquals(0, envelope.getJSONArray("used_capabilities").length())
         assertFalse(envelope.getBoolean("creates_new_evidence"))
         assertFalse(envelope.getBoolean("scientific_writeback_allowed"))
+    }
+
+    private fun expectedOccurrenceRecords(): List<SourceCapabilityEnvelopeV02.Record> =
+        listOf(
+            expectedRecord(0, 262, "PhotometricInterpretation", "SHORT", 1, "32803", 10),
+            expectedRecord(1, 33421, "CFARepeatPatternDim", "SHORT", 2, "[2,2]", 22),
+            expectedRecord(2, 33422, "CFAPattern", "BYTE", 4, "[0,1,1,2]", 34),
+            expectedRecord(3, 256, "ImageWidth", "LONG", 1, "3", 46),
+            expectedRecord(4, 257, "ImageLength", "LONG", 1, "2", 58),
+            expectedRecord(5, 258, "BitsPerSample", "SHORT", 1, "12", 70),
+        )
+
+    private fun expectedRecord(
+        occurrenceIndex: Int,
+        tag: Int,
+        semanticKey: String,
+        parserType: String,
+        itemCount: Long,
+        canonicalValue: String,
+        entryOffset: Long,
+    ): SourceCapabilityEnvelopeV02.Record =
+        SourceCapabilityEnvelopeV02.Record(
+            sourceSha256 = sha,
+            sourceLocation = "IFD0/entry@$entryOffset/tag:$tag",
+            tag = tag,
+            semanticKey = semanticKey,
+            parserId = "truthraw.test.classic-tiff",
+            parserType = parserType,
+            itemCount = itemCount,
+            canonicalValue = canonicalValue,
+            lifecycle = SourceCapabilityEnvelopeV02.Lifecycle.PARSED,
+            admission = SourceCapabilityEnvelopeV02.Admission.PRESENT_UNVALIDATED,
+            authority = SourceCapabilityEnvelopeV02.Authority.SOURCE_STRUCTURE,
+            unitsOrReferenceFrame = "UNSPECIFIED",
+            limitation = "PARSED_SOURCE_FACT_NOT_YET_INDEPENDENTLY_VALIDATED",
+            sourceByteLength = 4096L,
+            ifdPath = "IFD0",
+            ifdOffset = 8L,
+            occurrenceIndex = occurrenceIndex,
+            entryOffset = entryOffset,
+            valueFieldOffset = entryOffset + 8L,
+            storageKind = "INLINE",
+            locatorStatus = "LOCATED",
+            parseStatus = "PARSED_CLASSIC_TIFF_ENTRY",
+            decodeStatus = "DECODED",
+        )
+
+    private fun sha256(value: String): String {
+        val digest = MessageDigest.getInstance("SHA-256").digest(value.toByteArray(Charsets.UTF_8))
+        return digest.joinToString("") { "%02x".format(it.toInt() and 0xff) }
     }
 
     private fun parsed(vararg ifds: JSONObject): JSONObject {
