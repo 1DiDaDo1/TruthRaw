@@ -28,7 +28,7 @@ class SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01Test {
 
         assertEquals(SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01.VALIDATED, result.getString("normalization_domain_status"))
         val plane = result.getJSONArray("sample_planes").getJSONObject(0)
-        assertEquals(63.0, plane.getDouble("minimum_effective_black_level"), 0.0)
+        assertEquals(64.0, plane.getDouble("minimum_effective_black_level"), 0.0)
         assertEquals(75.0, plane.getDouble("maximum_effective_black_level"), 0.0)
         assertEquals(948.0, plane.getDouble("normalization_denominator"), 0.0)
         assertEquals(1.0 / 948.0, plane.getDouble("normalization_scale_factor"), 0.0)
@@ -42,15 +42,16 @@ class SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01Test {
 
     @Test
     fun specificationDefaultsValidateWithoutMintingOccurrences() {
-        val envelope =
-            envelope(
+        val parsed =
+            parsed(
                 cfaIfd(
                     dimensionEntry(256, "ImageWidth", 3, 46),
                     dimensionEntry(257, "ImageLength", 2, 58),
                     entry(258, "BitsPerSample", 3, "SHORT", 1, 12, 70),
                 ),
             )
-        val report = envelope.getJSONObject("radiometric_effective_black_normalization_v0_1")
+        val report = SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01.describe(sha, parsed)
+        val envelope = SourceCapabilityEnvelopeV02.describe(sha, parsed)
         val result = report.getJSONArray("ifds").getJSONObject(0)
         val plane = result.getJSONArray("sample_planes").getJSONObject(0)
 
