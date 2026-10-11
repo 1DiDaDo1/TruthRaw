@@ -314,9 +314,16 @@ object SourceCapabilityEnvelopeV02 {
                 parsedContainerMetadata = parsedContainerMetadata,
             ),
         )
-        return envelope.put(
+        envelope.put(
             "radiometric_semantic_validation_v0_1",
             SourceCapabilityRadiometricSemanticValidatorV01.describe(
+                sourceSha256 = sourceSha256,
+                parsedContainerMetadata = parsedContainerMetadata,
+            ),
+        )
+        return envelope.put(
+            "radiometric_encoding_consistency_v0_1",
+            SourceCapabilityRadiometricEncodingConsistencyValidatorV01.describe(
                 sourceSha256 = sourceSha256,
                 parsedContainerMetadata = parsedContainerMetadata,
             ),
