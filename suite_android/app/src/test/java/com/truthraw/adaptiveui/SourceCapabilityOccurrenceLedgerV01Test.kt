@@ -117,6 +117,107 @@ class SourceCapabilityOccurrenceLedgerV01Test {
     }
 
     @Test
+    fun bigEndianInlineValueRetainsOriginalSourceByteOrder() {
+        val bytes = ByteArray(26)
+        val b = ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN)
+        b.put(0, 'M'.code.toByte())
+        b.put(1, 'M'.code.toByte())
+        b.putShort(2, 42.toShort())
+        b.putInt(4, 8)
+        b.putShort(8, 1.toShort())
+        b.position(10)
+        b.putShort(50717.toShort()) // WhiteLevel.
+        b.putShort(3.toShort()) // SHORT.
+        b.putInt(1)
+        b.putShort(0x1234.toShort())
+        b.putShort(0.toShort())
+        b.putInt(22, 0)
+
+        val parsed = parse(bytes)
+        assertEquals("MM_BIG_ENDIAN", parsed.getString("byteOrder"))
+        val entry =
+            parsed.getJSONArray("ifds")
+                .getJSONObject(0)
+                .getJSONArray("entries")
+                .getJSONObject(0)
+        assertEquals(10L, entry.getLong("entryOffset"))
+        assertEquals(18L, entry.getLong("valueFieldOffset"))
+        assertEquals("12340000", entry.getString("originalValueOrOffsetBytesHex"))
+        assertEquals(0x1234, entry.getInt("value"))
+        assertEquals("INLINE", entry.getString("storageKind"))
+        assertEquals("DECODED", entry.getString("decodeStatus"))
+
+        val record =
+            SourceCapabilityEnvelopeV02.describe(sha, parsed)
+                .getJSONArray("records")
+                .getJSONObject(0)
+        assertEquals("12340000", record.getString("original_value_or_offset_bytes_hex"))
+        assertEquals(10L, record.getLong("entry_offset"))
+        assertEquals(18L, record.getLong("value_field_offset"))
+        assertFalse(record.getBoolean("creates_new_evidence"))
+    }
+
+    @Test
+    fun sameTagAcrossTwoIfdsRemainsTwoPhysicalOccurrences() {
+        val bytes = ByteArray(44)
+        val b = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
+        b.put(0, 'I'.code.toByte())
+        b.put(1, 'I'.code.toByte())
+        b.putShort(2, 42.toShort())
+        b.putInt(4, 8)
+
+        // IFD0 at offset 8, one inline BlackLevel occurrence, then NextIFD -> 26.
+        b.putShort(8, 1.toShort())
+        b.position(10)
+        b.putShort(50714.toShort())
+        b.putShort(3.toShort())
+        b.putInt(1)
+        b.putShort(64.toShort())
+        b.putShort(0.toShort())
+        b.putInt(22, 26)
+
+        // NextIFD at offset 26, independent occurrence of the same tag.
+        b.putShort(26, 1.toShort())
+        b.position(28)
+        b.putShort(50714.toShort())
+        b.putShort(3.toShort())
+        b.putInt(1)
+        b.putShort(128.toShort())
+        b.putShort(0.toShort())
+        b.putInt(40, 0)
+
+        val parsed = parse(bytes)
+        val ifds = parsed.getJSONArray("ifds")
+        assertEquals(2, ifds.length())
+        assertEquals("IFD0", ifds.getJSONObject(0).getString("path"))
+        assertEquals(8L, ifds.getJSONObject(0).getLong("offset"))
+        assertEquals(64, ifds.getJSONObject(0).getInt("blackLevel"))
+        assertEquals("IFD0/NextIFD", ifds.getJSONObject(1).getString("path"))
+        assertEquals(26L, ifds.getJSONObject(1).getLong("offset"))
+        assertEquals(128, ifds.getJSONObject(1).getInt("blackLevel"))
+
+        val envelope = SourceCapabilityEnvelopeV02.describe(sha, parsed)
+        assertEquals(2, envelope.getInt("record_count"))
+        val records = envelope.getJSONArray("records")
+        val blackLevels =
+            (0 until records.length())
+                .map { records.getJSONObject(it) }
+                .filter { it.getInt("tag") == 50714 }
+        assertEquals(2, blackLevels.size)
+        assertNotEquals(
+            blackLevels[0].getString("source_location"),
+            blackLevels[1].getString("source_location"),
+        )
+        assertEquals(setOf(10L, 28L), blackLevels.map { it.getLong("entry_offset") }.toSet())
+        assertEquals(setOf("IFD0", "IFD0/NextIFD"), blackLevels.map { it.getString("ifd_path") }.toSet())
+        blackLevels.forEach {
+            assertEquals("PRESENT_UNVALIDATED", it.getString("admission"))
+            assertFalse(it.getBoolean("creates_new_evidence"))
+            assertFalse(it.getBoolean("scientific_writeback_allowed"))
+        }
+    }
+
+    @Test
     fun externalOutOfBoundsOccurrenceIsRetainedButFailsClosed() {
         val bytes = ByteArray(26)
         val b = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
