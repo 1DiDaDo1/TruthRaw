@@ -49,7 +49,8 @@ jobs:
           grep -F '.put("scientific_writeback_allowed", false)' "$SRC"
 
           ! grep -F '50712 to "LinearizationTable"' "$PARSER"
-          ! grep -F 'SourceCapabilityRadiometricLinearizationTableValidatorV01.describe' "$ENVELOPE"
+          test "$(grep -F '"radiometric_linearization_table_v0_1"' "$ENVELOPE" | wc -l)" -eq 1
+          test "$(grep -F 'SourceCapabilityRadiometricLinearizationTableValidatorV01.describe(' "$ENVELOPE" | wc -l)" -eq 1
 
       - name: Run LinearizationTable and dependency regressions
         working-directory: suite_android

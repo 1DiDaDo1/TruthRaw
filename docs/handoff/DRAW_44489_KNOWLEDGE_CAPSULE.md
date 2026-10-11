@@ -9,30 +9,39 @@ Permanent motto: **One Free World. Many sealed observations. One evidence law.**
 
 <!-- 44489_LINEARIZATION_TABLE_V01_START -->
 
-## 0B. Binding LinearizationTable v0.1 standalone checkpoint — 2026-10-11
+## 0B. Binding LinearizationTable v0.1 runtime-diagnostic checkpoint — 2026-10-11
 
 This block is authoritative over older LinearizationTable wording later in this capsule.
 
 - PR #132 schema/governance separation is merged; merge commit: `4c27255ee1f5f95f4b623289d3785e5038c8cbe6`.
 - PR #133 Effective Black / Normalization read-only runtime diagnostic is merged; integration anchor: `c81d4430f5c82d2de83cd480452c8bd01d60878b`.
-- Current LinearizationTable branch: `feat/source-capability-linearization-table-shadow-v01`.
-- Current PR: **#134 — Source Capability: LinearizationTable shadow validator v0.1**; open, draft, unmerged at this checkpoint.
-- Standalone LinearizationTable validator: `D.RAW/SourceCapabilityRadiometricLinearizationTable/0.1`, status `SHADOW_ONLY_LINEARIZATION_TABLE_METADATA_CONTRACT`.
-- Exact standalone code/CI checkpoint: `488a20065a9ef3f11695fa0167c70bc12bc7dac4`.
-- Dedicated integrity run `38165699523`: **SUCCESS**.
-- On exact `488a200...`, all triggered non-skipped checks completed without failure/action-required; Deep-Censor and Free Raster were path-scope skips.
-- Physical tag `50712` remains represented by the existing parser occurrence as `TAG_50712`; parser semantic renaming is deliberately deferred because a rename would change the canonical Observation Evidence Ledger line/digest for unchanged source bytes.
-- The validator binds numeric tag `50712` from the existing parsed `entries`; it creates no second parser or source-read path.
+- PR #134 `Source Capability: LinearizationTable shadow validator v0.1` is merged; final head `c4474904ec9bd00552f1378fd50896dac0d7be61`, merge commit `f9547cfe9b04c732d5543d2b42cd4513e83ab9ab`.
+- Current branch: `feat/source-capability-linearization-table-runtime-diagnostic-v01`.
+- Current PR: **#135 — Source Capability: expose LinearizationTable read-only runtime diagnostic v0.1**; still draft/unmerged at this checkpoint.
+- Standalone validator remains `D.RAW/SourceCapabilityRadiometricLinearizationTable/0.1`, status `SHADOW_ONLY_LINEARIZATION_TABLE_METADATA_CONTRACT`.
+- Runtime exposure adds exactly one read-only `radiometric_linearization_table_v0_1` report through `SourceCapabilityRuntimeEvidenceEnvelope/0.1` / `SourceCapabilityEnvelopeV02.describe(...)`.
+- Exposure code commit: `090b7330f2ca93e682bf864cb307a4fb3b75aecc`.
+- Permanent runtime-diagnostic integrity workflow commit: `5a201fc0293c27f68f1cbfdbe25c8685d474faab`.
+- The older standalone integrity gate initially failed on that post-exposure head because it still forbade any envelope call. That was a stale pre-exposure governance assertion, not a validator/pixel regression.
+- The stale assertion was replaced, without weakening the remaining firewall, at exact validated code/workflow head `d0e2ed9921662c1bce9324115705989e8dee99d4`: parser rename remains forbidden; exactly one report key and exactly one validator call are required.
+- `Source Capability LinearizationTable v0.1 Integrity`, run `38167611304`: **SUCCESS** on `d0e2ed99...`.
+- `Source Capability LinearizationTable Runtime Diagnostic v0.1 Integrity`, run `38167611297`: **SUCCESS** on `d0e2ed99...`.
+- All other triggered non-skipped workflows on exact `d0e2ed99...` also completed **SUCCESS**; Free Raster and Deep-Censor were path-scope skips. No queued/in-progress/failure/action-required result remained at completion.
+- Physical tag `50712` remains represented by the existing parser occurrence as `TAG_50712`; parser semantic renaming remains deliberately deferred because a rename would change canonical Observation Evidence Ledger identity for unchanged source bytes.
+- The validator consumes numeric tag `50712` from the existing parsed `entries`; there is no second parser, source-read or source-hash path.
 - Absent `LinearizationTable` uses the DNG identity default but mints no physical occurrence.
 - Explicit-table validation enforces TIFF `SHORT`, count `2..65536`, rejects floating-point raw and `BitsPerSample > 16`, and deliberately does **not** require count `== 2^BitsPerSample`.
-- Standalone regressions prove ledger digest and observation-evidence digest unchanged; the underlying tag-50712 ledger record remains `TAG_50712`, lifecycle `PARSED`, admission `UNSUPPORTED_SEMANTICS`, zero consumers.
-- The validator is **not yet exposed through `SourceCapabilityRuntimeEvidenceEnvelope/0.1`**.
-- `table_application_to_image_samples_validated=false`, `linearization_applied_to_image_samples=false`, `full_raw_to_linear_mapping_validated=false`, `image_sample_payload_read=false`, `scientific_admission_effect=false`, `pixel_route_effect=false`, `scientific_master_pixel_effect=false`, `appearance_pixel_effect=false`, `creates_new_evidence=false`, `scientific_writeback_allowed=false`.
-- `VALIDATED != ADMITTED != USED` remains binding; CI success does not promote scientific authority.
+- The runtime-exposure regression locks pre-exposure identities: `ledger_digest_sha256=6740e6e04c18797e8b57604f30c1884c6e8428e9a469e53cb139c26abe59afb3` and `observation_evidence_digest_sha256=2bdaa44fe3435929310b79fa38d6ce3b0aa0cc05ef68f9522b4554c6862b38e6`.
+- The tag-50712 record remains `TAG_50712`, lifecycle `PARSED`, admission `UNSUPPORTED_SEMANTICS`, authority `UNKNOWN_SEMANTICS`, zero consumers.
+- `table_application_to_image_samples_validated=false`, `linearization_applied_to_image_samples=false`, `full_raw_to_linear_mapping_validated=false`, `image_sample_payload_read=false`, `record_lifecycle_effect=false`, `scientific_admission_effect=false`, `pixel_route_effect=false`, `scientific_master_pixel_effect=false`, `appearance_pixel_effect=false`, `source_values_modified=false`, `creates_new_evidence=false`, `scientific_writeback_allowed=false`.
+- `VALIDATED != ADMITTED != USED` remains binding. Green CI and future merge status do not promote scientific authority.
 
-Binding detailed handoff: `docs/handoff/DRAW_44489_LINEARIZATION_TABLE_AUDIT_V0_1_2026-10-11.md`.
+Binding detailed handoffs:
 
-Next boundary: first obtain exact-head green CI after this documentation refresh; then PR #134 may be merged only as a standalone validator/integrity checkpoint. Any runtime-envelope exposure belongs on a fresh branch/PR and must preserve ledger/observation digests, lifecycle/admission/consumers, source reads, pixels, Scientific Master, Appearance and writeback. Parser renaming remains a separate provenance/schema migration.
+- `docs/handoff/DRAW_44489_LINEARIZATION_TABLE_AUDIT_V0_1_2026-10-11.md`
+- `docs/handoff/DRAW_44489_LINEARIZATION_TABLE_RUNTIME_DIAGNOSTIC_V0_1_2026-10-11.md`
+
+Next boundary: validate the documentation-refresh head itself. Only if that exact head, PR scope, mergeability and review state are clean may PR #135 be merged as a **read-only diagnostic integration boundary**. After integration, the next scientific task is a separate read-only audit of `Linearization -> Black Subtraction -> Normalization -> Clipping`; no pixel application is authorized here. Parser semantic renaming remains a separate provenance/schema migration.
 
 <!-- 44489_LINEARIZATION_TABLE_V01_END -->
 
