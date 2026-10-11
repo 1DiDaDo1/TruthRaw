@@ -298,13 +298,21 @@ object SourceCapabilityEnvelopeV02 {
             }
         }
 
-        return buildEnvelope(
-            sourceSha256,
-            sourceByteLength,
-            parserId,
-            records,
-            traversalStatus,
-            traversalAnomalies,
+        val envelope =
+            buildEnvelope(
+                sourceSha256,
+                sourceByteLength,
+                parserId,
+                records,
+                traversalStatus,
+                traversalAnomalies,
+            )
+        return envelope.put(
+            "radiometric_semantic_validation_v0_1",
+            SourceCapabilityRadiometricSemanticValidatorV01.describe(
+                sourceSha256 = sourceSha256,
+                parsedContainerMetadata = parsedContainerMetadata,
+            ),
         )
     }
 
