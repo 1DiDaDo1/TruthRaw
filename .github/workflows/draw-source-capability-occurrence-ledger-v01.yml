@@ -33,7 +33,7 @@ jobs:
           git diff --check
           grep -F 'truthraw.classic-tiff-dng-container-metadata.v0.55-occurrence-ledger' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt
           grep -F '.put("entryOffset", entry.entryOffset)' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt
-          grep -F '.put("originalValueOrOffsetBytesHex",' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt
+          grep -F '"originalValueOrOffsetBytesHex",' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt
           grep -F 'duplicate_tags_preserved_as_distinct_occurrences' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
           grep -F 'source_capability_envelope_v0_2' suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt
           grep -F 'scientific_writeback_allowed' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
