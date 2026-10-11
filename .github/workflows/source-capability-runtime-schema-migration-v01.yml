@@ -1,3 +1,4 @@
+# Governance revalidation trigger after self-cleaning 44489 finalization; no scientific/runtime semantics change.
 name: Source Capability Runtime Evidence Envelope v0.1 Integrity
 
 on:
