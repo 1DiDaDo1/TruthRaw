@@ -42,7 +42,8 @@ jobs:
           grep -F 'const val CANONICAL_PHYSICAL_KNOWLEDGE_MAP_SCHEMA = "D.RAW/SourceCapabilityEnvelope/0.2"' "$SRC"
           grep -F 'const val LEDGER_SCHEMA = "D.RAW/ObservationEvidenceLedger/0.1"' "$SRC"
           ! grep -F 'const val SCHEMA = "D.RAW/SourceCapabilityEnvelope/0.2"' "$SRC"
-          ! grep -F 'SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01' "$SRC"
+          grep -F '"effective_black_normalization_v0_1"' "$SRC"
+          grep -F 'SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01.describe' "$SRC"
           grep -F '.put("canonical_physical_knowledge_map_serialization_equivalent", false)' "$SRC"
           grep -F '.put("legacy_runtime_schema_label_is_authoritative", false)' "$SRC"
           grep -F '.put("schema_migration_changes_scientific_authority", false)' "$SRC"
@@ -54,4 +55,8 @@ jobs:
 
       - name: Run runtime evidence-envelope regression
         working-directory: suite_android
-        run: gradle --no-daemon :app:testDebugUnitTest --tests com.truthraw.adaptiveui.SourceCapabilityRuntimeEvidenceEnvelopeV01Test
+        run: >-
+          gradle --no-daemon :app:testDebugUnitTest
+          --tests com.truthraw.adaptiveui.SourceCapabilityRuntimeEvidenceEnvelopeV01Test
+          --tests com.truthraw.adaptiveui.SourceCapabilityEffectiveBlackRuntimeDiagnosticV01Test
+          --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01Test
