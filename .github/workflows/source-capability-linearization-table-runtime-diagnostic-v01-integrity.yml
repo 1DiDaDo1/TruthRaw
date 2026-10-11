@@ -1,0 +1,76 @@
+name: Source Capability LinearizationTable Runtime Diagnostic v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricLinearizationTableValidatorV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricLinearizationTableRuntimeDiagnosticV01Test.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricLinearizationTableValidatorV01Test.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRuntimeEvidenceEnvelopeV01Test.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01Test.kt'
+      - 'docs/handoff/DRAW_44489_LINEARIZATION_TABLE_RUNTIME_DIAGNOSTIC_V0_1_2026-10-11.md'
+      - '.github/workflows/source-capability-linearization-table-runtime-diagnostic-v01-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-linearization-table-runtime-diagnostic:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Enforce read-only runtime-diagnostic boundary
+        run: |
+          set -euo pipefail
+          ENV='suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
+          LIN='suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricLinearizationTableValidatorV01.kt'
+          PARSER='suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
+          TEST='suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricLinearizationTableRuntimeDiagnosticV01Test.kt'
+
+          test "$(grep -F '"radiometric_linearization_table_v0_1"' "$ENV" | wc -l)" -eq 1
+          test "$(grep -F 'SourceCapabilityRadiometricLinearizationTableValidatorV01.describe(' "$ENV" | wc -l)" -eq 1
+          ! grep -F '50712 to "LinearizationTable"' "$PARSER"
+
+          grep -F '.put("parser_tag_rename_performed", false)' "$LIN"
+          grep -F '.put("observation_evidence_ledger_identity_changed", false)' "$LIN"
+          grep -F '.put("table_application_to_image_samples_validated", false)' "$LIN"
+          grep -F '.put("linearization_applied_to_image_samples", false)' "$LIN"
+          grep -F '.put("full_raw_to_linear_mapping_validated", false)' "$LIN"
+          grep -F '.put("image_sample_payload_read", false)' "$LIN"
+          grep -F '.put("record_lifecycle_effect", false)' "$LIN"
+          grep -F '.put("scientific_admission_effect", false)' "$LIN"
+          grep -F '.put("pixel_route_effect", false)' "$LIN"
+          grep -F '.put("scientific_master_pixel_effect", false)' "$LIN"
+          grep -F '.put("appearance_pixel_effect", false)' "$LIN"
+          grep -F '.put("source_values_modified", false)' "$LIN"
+          grep -F '.put("creates_new_evidence", false)' "$LIN"
+          grep -F '.put("scientific_writeback_allowed", false)' "$LIN"
+
+          grep -F '6740e6e04c18797e8b57604f30c1884c6e8428e9a469e53cb139c26abe59afb3' "$TEST"
+          grep -F '2bdaa44fe3435929310b79fa38d6ce3b0aa0cc05ef68f9522b4554c6862b38e6' "$TEST"
+          grep -F 'assertEquals("TAG_50712", tag50712.getString("semantic_key"))' "$TEST"
+          grep -F 'assertEquals("PARSED", tag50712.getString("lifecycle"))' "$TEST"
+          grep -F 'assertEquals("UNSUPPORTED_SEMANTICS", tag50712.getString("admission"))' "$TEST"
+          grep -F 'assertEquals(0, tag50712.getJSONArray("consumers").length())' "$TEST"
+
+      - name: Run runtime-diagnostic and dependency regressions
+        working-directory: suite_android
+        run: >-
+          gradle --no-daemon :app:testDebugUnitTest
+          --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricLinearizationTableRuntimeDiagnosticV01Test
+          --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricLinearizationTableValidatorV01Test
+          --tests com.truthraw.adaptiveui.SourceCapabilityRuntimeEvidenceEnvelopeV01Test
+          --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01Test
