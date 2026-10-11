@@ -328,6 +328,13 @@ object SourceCapabilityEnvelopeV02 {
                 parsedContainerMetadata = parsedContainerMetadata,
             ),
         )
+        envelope.put(
+            "radiometric_spatial_black_level_v0_1",
+            SourceCapabilityRadiometricSpatialBlackLevelValidatorV01.describe(
+                sourceSha256 = sourceSha256,
+                parsedContainerMetadata = parsedContainerMetadata,
+            ),
+        )
         return envelope.put(
             "dng_version_compatibility_v0_1",
             SourceCapabilityDngVersionCompatibilityValidatorV01.describe(
