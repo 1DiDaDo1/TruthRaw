@@ -8,15 +8,18 @@ on:
       - 'tools/apply_source_capability_occurrence_ledger_v01.py'
       - 'tools/apply_source_capability_traversal_status_v01.py'
       - 'tools/apply_source_capability_radiometric_semantics_v01.py'
+      - 'tools/apply_source_capability_raw_ifd_domain_v01.py'
       - 'suite_android/app/build.gradle.kts'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricSemanticValidatorV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRawIfdDomainValidatorV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02Test.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityOccurrenceLedgerV01Test.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityTraversalStatusV01Test.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricSemanticValidatorV01Test.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRawIfdDomainValidatorV01Test.kt'
       - '.github/workflows/draw-source-capability-occurrence-ledger-v01.yml'
 
 concurrency:
@@ -51,8 +54,11 @@ jobs:
             python3 tools/apply_source_capability_traversal_status_v01.py
           fi
 
-      - name: Apply shadow radiometric semantic validator
+      - name: Ensure shadow radiometric semantic validator
         run: python3 tools/apply_source_capability_radiometric_semantics_v01.py
+
+      - name: Apply shadow raw-IFD format-domain validator
+        run: python3 tools/apply_source_capability_raw_ifd_domain_v01.py
 
       - name: Verify evidence-ledger invariants
         run: |
@@ -67,7 +73,13 @@ jobs:
           grep -F 'container_traversal_anomaly_digest_sha256' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
           grep -F 'CONTRADICTED_FAIL_CLOSED' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
           grep -F 'radiometric_semantic_validation_v0_1' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
+          grep -F 'raw_ifd_domain_validation_v0_1' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
           grep -F 'D.RAW/SourceCapabilityRadiometricSemanticValidation/0.1' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricSemanticValidatorV01.kt
+          grep -F 'D.RAW/SourceCapabilityRawIfdDomainValidation/0.1' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRawIfdDomainValidatorV01.kt
+          grep -F 'VALIDATED_RAW_IFD_FORMAT_DOMAIN_SHADOW_ONLY' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRawIfdDomainValidatorV01.kt
+          grep -F 'domain_validation_is_scientific_admission' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRawIfdDomainValidatorV01.kt
+          grep -F 'duplicate_occurrence_selection_allowed' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRawIfdDomainValidatorV01.kt
+          grep -F 'VALIDATED_RAW_IFD_FORMAT_USAGE_SHADOW_ONLY' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricSemanticValidatorV01.kt
           grep -F 'defaults_mint_source_occurrence' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricSemanticValidatorV01.kt
           grep -F 'scientific_admission_effect' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricSemanticValidatorV01.kt
           grep -F 'SourceCapabilityEnvelopeV02.unavailable' suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt
@@ -105,12 +117,13 @@ jobs:
             suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt \
             suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt \
             suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricSemanticValidatorV01.kt \
+            suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRawIfdDomainValidatorV01.kt \
             suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt
           git diff --cached --check
           if git diff --cached --quiet; then
             echo 'Passive source-evidence wiring already applied.'
           else
-            git commit -m 'android: add shadow DNG radiometric semantic validator v0.1'
+            git commit -m 'android: add shadow DNG raw-IFD format-domain validator v0.1'
             git push origin HEAD:feat/draw-workspace-free-raster-v01
           fi
           git rev-parse HEAD
