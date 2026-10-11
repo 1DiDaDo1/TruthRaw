@@ -7,14 +7,21 @@ on:
     paths:
       - 'tools/apply_source_capability_occurrence_ledger_v01.py'
       - 'tools/apply_source_capability_traversal_status_v01.py'
+      - 'tools/apply_source_capability_radiometric_semantics_v01.py'
       - 'suite_android/app/build.gradle.kts'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricSemanticValidatorV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02Test.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityOccurrenceLedgerV01Test.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityTraversalStatusV01Test.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricSemanticValidatorV01Test.kt'
       - '.github/workflows/draw-source-capability-occurrence-ledger-v01.yml'
+
+concurrency:
+  group: draw-source-capability-evidence-ledger-v02-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -34,6 +41,9 @@ jobs:
       - name: Apply passive traversal-status patch
         run: python3 tools/apply_source_capability_traversal_status_v01.py
 
+      - name: Apply shadow radiometric semantic validator
+        run: python3 tools/apply_source_capability_radiometric_semantics_v01.py
+
       - name: Verify evidence-ledger invariants
         run: |
           git diff --check
@@ -46,6 +56,10 @@ jobs:
           grep -F 'duplicate_tags_preserved_as_distinct_occurrences' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
           grep -F 'container_traversal_anomaly_digest_sha256' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
           grep -F 'CONTRADICTED_FAIL_CLOSED' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
+          grep -F 'radiometric_semantic_validation_v0_1' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
+          grep -F 'D.RAW/SourceCapabilityRadiometricSemanticValidation/0.1' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricSemanticValidatorV01.kt
+          grep -F 'defaults_mint_source_occurrence' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricSemanticValidatorV01.kt
+          grep -F 'scientific_admission_effect' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricSemanticValidatorV01.kt
           grep -F 'SourceCapabilityEnvelopeV02.unavailable' suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt
           grep -F 'scientific_writeback_allowed' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
           grep -F 'testImplementation("org.json:json:20260814")' suite_android/app/build.gradle.kts
@@ -80,12 +94,13 @@ jobs:
           git add \
             suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt \
             suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt \
+            suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricSemanticValidatorV01.kt \
             suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt
           git diff --cached --check
           if git diff --cached --quiet; then
             echo 'Passive source-evidence wiring already applied.'
           else
-            git commit -m 'android: report fail-closed TIFF traversal evidence v0.1'
+            git commit -m 'android: add shadow DNG radiometric semantic validator v0.1'
             git push origin HEAD:feat/draw-workspace-free-raster-v01
           fi
           git rev-parse HEAD
