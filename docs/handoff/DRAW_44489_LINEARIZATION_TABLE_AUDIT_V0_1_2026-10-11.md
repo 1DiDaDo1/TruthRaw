@@ -1,12 +1,13 @@
 # D.RAW 44489 — LinearizationTable shadow audit v0.1 — 2026-10-11
 
-Status: **standalone validator validated on exact head; not runtime-envelope-exposed, not admitted, not used, no pixel application**.
+Status: **standalone validator validated on clean exact head; not runtime-envelope-exposed, not admitted, not used, no pixel application**.
 
 Base integration anchor: `c81d4430f5c82d2de83cd480452c8bd01d60878b` (PR #133 merge).
 Working branch: `feat/source-capability-linearization-table-shadow-v01`.
 Draft PR: #134 — `Source Capability: LinearizationTable shadow validator v0.1`.
 Validated standalone code/CI checkpoint: `488a20065a9ef3f11695fa0167c70bc12bc7dac4`.
-Targeted integrity run: `38165699523` — SUCCESS.
+Validated clean post-documentation/post-cleanup head: `aefbf6c62a0caddb5de0acf4bed511dbd7abd9a6`.
+Targeted integrity run on the standalone code checkpoint: `38165699523` — SUCCESS.
 
 ## Why this audit exists
 
@@ -111,18 +112,16 @@ It also reports `parser_tag_rename_performed=false` and `observation_evidence_le
 
 ## Exact-head validation result
 
-Exact standalone checkpoint: `488a20065a9ef3f11695fa0167c70bc12bc7dac4`.
+The dedicated workflow `Source Capability LinearizationTable v0.1 Integrity` completed SUCCESS in run `38165699523` on exact code checkpoint `488a20065a9ef3f11695fa0167c70bc12bc7dac4`. It enforces the standalone boundary and executes the LinearizationTable validator tests plus the Raw-IFD and radiometric-encoding dependency regressions.
 
-The dedicated workflow `Source Capability LinearizationTable v0.1 Integrity` completed SUCCESS in run `38165699523`. It enforces the standalone boundary and executes the LinearizationTable validator tests plus the Raw-IFD and radiometric-encoding dependency regressions.
-
-On the same exact head there are no remaining in-progress runs and no failure/action-required conclusions. All triggered non-skipped checks completed successfully. Deep-Censor and Free Raster are path-scope skips and are not classified as failures.
+After the canonical 44489 refresh and removal of all temporary refresh tooling, clean head `aefbf6c62a0caddb5de0acf4bed511dbd7abd9a6` was also checked as an exact head: no check remained queued or in progress, and no check concluded failure or action-required. All triggered non-skipped checks completed successfully; Deep-Censor and Free Raster were path-scope skips rather than failures.
 
 This proves code/contract compatibility only. It does **not** establish scientific admission, use, pixel-domain table application, complete raw-to-linear validity or physical real-device acceptance.
 
 ## Next order
 
-1. Keep PR #134 standalone until its documentation head is also exact-head green.
-2. Merge PR #134 only as the standalone validator/integrity boundary; merge status must not promote scientific authority.
+1. Validate the present documentation-only status commit as an exact head.
+2. If that exact head is green, merge PR #134 only as the standalone validator/integrity boundary; merge status must not promote scientific authority.
 3. After that merge, create a fresh branch/PR for optional read-only exposure through `SourceCapabilityRuntimeEvidenceEnvelope/0.1`.
 4. Any exposure must prove ledger digest, observation-evidence digest, records, lifecycle, admission, consumers, source reads, pixels, Scientific Master, Appearance and writeback are unchanged.
 5. Parser semantic renaming of 50712 remains a separate explicit provenance/schema migration and is not required for validation or exposure.
