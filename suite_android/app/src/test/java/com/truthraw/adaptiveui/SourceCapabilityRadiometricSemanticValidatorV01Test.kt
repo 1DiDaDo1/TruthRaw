@@ -14,7 +14,7 @@ class SourceCapabilityRadiometricSemanticValidatorV01Test {
     fun specDefaultsValidateCountsWithoutMintingSourceOccurrencesOrAdmission() {
         val parsed =
             parsed(
-                ifd(
+                rawCfaIfd(
                     entry(50714, "BlackLevel", 3, "SHORT", 1, 64, 10),
                     entry(50717, "WhiteLevel", 4, "LONG", 1, 1023, 22),
                 ),
@@ -34,6 +34,11 @@ class SourceCapabilityRadiometricSemanticValidatorV01Test {
         assertFalse(semantic.getBoolean("scientific_writeback_allowed"))
 
         val ifdResult = semantic.getJSONArray("ifds").getJSONObject(0)
+        assertEquals("VALIDATED_SHADOW_ONLY", ifdResult.getString("family_status"))
+        assertEquals(
+            "VALIDATED_RAW_IFD_FORMAT_USAGE_SHADOW_ONLY",
+            ifdResult.getString("raw_ifd_usage_status"),
+        )
         assertEquals(
             "RESOLVED_SPEC_DEFAULT_1",
             ifdResult.getJSONObject("samples_per_pixel_dependency").getString("status"),
@@ -61,7 +66,7 @@ class SourceCapabilityRadiometricSemanticValidatorV01Test {
         val repeat = JSONArray().put(2).put(2)
         val parsed =
             parsed(
-                ifd(
+                rawCfaIfd(
                     entry(277, "SamplesPerPixel", 3, "SHORT", 1, 1, 10),
                     entry(50713, "BlackLevelRepeatDim", 3, "SHORT", 2, repeat, 22),
                     entry(50714, "BlackLevel", 5, "RATIONAL", 4, JSONArray(), 34),
@@ -79,6 +84,10 @@ class SourceCapabilityRadiometricSemanticValidatorV01Test {
         val ifdResult = semantic.getJSONArray("ifds").getJSONObject(0)
         assertEquals("VALIDATED_SHADOW_ONLY", ifdResult.getString("family_status"))
         assertEquals(
+            "VALIDATED_RAW_IFD_FORMAT_USAGE_SHADOW_ONLY",
+            ifdResult.getString("raw_ifd_usage_status"),
+        )
+        assertEquals(
             "RESOLVED_EXPLICIT_SOURCE_OCCURRENCE",
             ifdResult.getJSONObject("samples_per_pixel_dependency").getString("status"),
         )
@@ -95,7 +104,7 @@ class SourceCapabilityRadiometricSemanticValidatorV01Test {
     fun blackLevelCountMismatchIsContradictedFailClosed() {
         val parsed =
             parsed(
-                ifd(
+                rawCfaIfd(
                     entry(50713, "BlackLevelRepeatDim", 3, "SHORT", 2, JSONArray().put(2).put(2), 10),
                     entry(50714, "BlackLevel", 3, "SHORT", 1, 64, 22),
                 ),
@@ -118,7 +127,7 @@ class SourceCapabilityRadiometricSemanticValidatorV01Test {
     fun whiteLevelRationalTypeIsContradictedByDngContract() {
         val parsed =
             parsed(
-                ifd(
+                rawCfaIfd(
                     entry(50717, "WhiteLevel", 5, "RATIONAL", 1, JSONObject().put("numerator", 1).put("denominator", 1), 10),
                 ),
             )
@@ -136,7 +145,7 @@ class SourceCapabilityRadiometricSemanticValidatorV01Test {
     fun duplicateRepeatDimNeverSelectsWinnerAndLeavesBlackCountUnresolved() {
         val parsed =
             parsed(
-                ifd(
+                rawCfaIfd(
                     entry(50713, "BlackLevelRepeatDim", 3, "SHORT", 2, JSONArray().put(2).put(2), 10),
                     entry(50713, "BlackLevelRepeatDim", 3, "SHORT", 2, JSONArray().put(1).put(1), 22),
                     entry(50714, "BlackLevel", 3, "SHORT", 4, JSONArray().put(1).put(1).put(1).put(1), 34),
@@ -185,9 +194,12 @@ class SourceCapabilityRadiometricSemanticValidatorV01Test {
             .put("ifds", array)
     }
 
-    private fun ifd(vararg entries: JSONObject): JSONObject {
+    private fun rawCfaIfd(vararg radiometricEntries: JSONObject): JSONObject {
         val array = JSONArray()
-        entries.forEach(array::put)
+        array.put(entry(262, "PhotometricInterpretation", 3, "SHORT", 1, 32803, 1000))
+        array.put(entry(33421, "CFARepeatPatternDim", 3, "SHORT", 2, JSONArray().put(2).put(2), 1012))
+        array.put(entry(33422, "CFAPattern", 1, "BYTE", 4, JSONArray().put(0).put(1).put(1).put(2), 1024))
+        radiometricEntries.forEach(array::put)
         return JSONObject()
             .put("path", "IFD0")
             .put("offset", 8L)
