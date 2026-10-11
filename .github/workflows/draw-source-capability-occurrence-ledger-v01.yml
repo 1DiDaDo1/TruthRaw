@@ -1,4 +1,4 @@
-name: D.RAW Source Capability Occurrence Ledger v0.1
+name: D.RAW Source Capability Evidence Ledger v0.2
 
 on:
   push:
@@ -6,12 +6,14 @@ on:
       - feat/draw-workspace-free-raster-v01
     paths:
       - 'tools/apply_source_capability_occurrence_ledger_v01.py'
+      - 'tools/apply_source_capability_traversal_status_v01.py'
       - 'suite_android/app/build.gradle.kts'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02Test.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityOccurrenceLedgerV01Test.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityTraversalStatusV01Test.kt'
       - '.github/workflows/draw-source-capability-occurrence-ledger-v01.yml'
 
 permissions:
@@ -29,14 +31,22 @@ jobs:
       - name: Apply passive occurrence-ledger patch
         run: python3 tools/apply_source_capability_occurrence_ledger_v01.py
 
-      - name: Verify patch invariants
+      - name: Apply passive traversal-status patch
+        run: python3 tools/apply_source_capability_traversal_status_v01.py
+
+      - name: Verify evidence-ledger invariants
         run: |
           git diff --check
-          grep -F 'truthraw.classic-tiff-dng-container-metadata.v0.55-occurrence-ledger' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt
+          grep -F 'truthraw.classic-tiff-dng-container-metadata.v0.56-traversal-status' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt
           grep -F '.put("entryOffset", entry.entryOffset)' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt
           grep -F '"originalValueOrOffsetBytesHex",' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt
+          grep -F 'REVISITED_IFD_OFFSET_FAIL_CLOSED' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt
+          grep -F 'RECURSION_LIMIT_EXCEEDED_FAIL_CLOSED' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt
+          grep -F 'IFD_OFFSET_OUT_OF_BOUNDS_FAIL_CLOSED' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt
           grep -F 'duplicate_tags_preserved_as_distinct_occurrences' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
-          grep -F 'source_capability_envelope_v0_2' suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt
+          grep -F 'container_traversal_anomaly_digest_sha256' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
+          grep -F 'CONTRADICTED_FAIL_CLOSED' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
+          grep -F 'SourceCapabilityEnvelopeV02.unavailable' suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt
           grep -F 'scientific_writeback_allowed' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
           grep -F 'testImplementation("org.json:json:20260814")' suite_android/app/build.gradle.kts
 
@@ -63,7 +73,7 @@ jobs:
         working-directory: suite_android
         run: gradle --no-daemon :app:testDebugUnitTest
 
-      - name: Commit validated passive ledger wiring
+      - name: Commit validated passive source-evidence wiring
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -73,9 +83,9 @@ jobs:
             suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt
           git diff --cached --check
           if git diff --cached --quiet; then
-            echo 'Passive occurrence-ledger wiring already applied.'
+            echo 'Passive source-evidence wiring already applied.'
           else
-            git commit -m 'android: bind exact TIFF occurrences to source capability ledger v0.1'
+            git commit -m 'android: report fail-closed TIFF traversal evidence v0.1'
             git push origin HEAD:feat/draw-workspace-free-raster-v01
           fi
           git rev-parse HEAD
