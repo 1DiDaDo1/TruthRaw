@@ -1,0 +1,60 @@
+name: Source Capability LinearizationTable v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricLinearizationTableValidatorV01.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricLinearizationTableValidatorV01Test.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
+      - 'docs/handoff/DRAW_44489_LINEARIZATION_TABLE_AUDIT_V0_1_2026-10-11.md'
+      - '.github/workflows/source-capability-linearization-table-v01-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-linearization-table-shadow:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Enforce standalone metadata-only boundary
+        run: |
+          set -euo pipefail
+          SRC='suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricLinearizationTableValidatorV01.kt'
+          PARSER='suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
+          ENVELOPE='suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
+
+          grep -F 'const val SCHEMA = "D.RAW/SourceCapabilityRadiometricLinearizationTable/0.1"' "$SRC"
+          grep -F 'private const val TAG_LINEARIZATION_TABLE = 50712' "$SRC"
+          grep -F '.put("parser_tag_rename_performed", false)' "$SRC"
+          grep -F '.put("observation_evidence_ledger_identity_changed", false)' "$SRC"
+          grep -F '.put("linearization_applied_to_image_samples", false)' "$SRC"
+          grep -F '.put("full_raw_to_linear_mapping_validated", false)' "$SRC"
+          grep -F '.put("image_sample_payload_read", false)' "$SRC"
+          grep -F '.put("scientific_admission_effect", false)' "$SRC"
+          grep -F '.put("scientific_master_pixel_effect", false)' "$SRC"
+          grep -F '.put("appearance_pixel_effect", false)' "$SRC"
+          grep -F '.put("scientific_writeback_allowed", false)' "$SRC"
+
+          ! grep -F '50712 to "LinearizationTable"' "$PARSER"
+          ! grep -F 'SourceCapabilityRadiometricLinearizationTableValidatorV01.describe' "$ENVELOPE"
+
+      - name: Run LinearizationTable and dependency regressions
+        working-directory: suite_android
+        run: >-
+          gradle --no-daemon :app:testDebugUnitTest
+          --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricLinearizationTableValidatorV01Test
+          --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricEncodingConsistencyValidatorV01Test
+          --tests com.truthraw.adaptiveui.SourceCapabilityRawIfdDomainValidatorV01Test
