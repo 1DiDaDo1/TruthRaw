@@ -1,0 +1,79 @@
+name: D.RAW Source Capability Occurrence Ledger v0.1
+
+on:
+  push:
+    branches:
+      - feat/draw-workspace-free-raster-v01
+    paths:
+      - 'tools/apply_source_capability_occurrence_ledger_v01.py'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02Test.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityOccurrenceLedgerV01Test.kt'
+      - '.github/workflows/draw-source-capability-occurrence-ledger-v01.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/draw-workspace-free-raster-v01
+          fetch-depth: 0
+
+      - name: Apply passive occurrence-ledger patch
+        run: python3 tools/apply_source_capability_occurrence_ledger_v01.py
+
+      - name: Verify patch invariants
+        run: |
+          git diff --check
+          grep -F 'truthraw.classic-tiff-dng-container-metadata.v0.55-occurrence-ledger' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt
+          grep -F '.put("entryOffset", entry.entryOffset)' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt
+          grep -F '.put("originalValueOrOffsetBytesHex",' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt
+          grep -F 'duplicate_tags_preserved_as_distinct_occurrences' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
+          grep -F 'source_capability_envelope_v0_2' suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt
+          grep -F 'scientific_writeback_allowed' suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt
+
+      - name: Verify sealed Full-Frame Streaming untouched
+        run: python3 docs/research/full-frame-streaming-v0.1/tools/verify_integrity_v0_1.py
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(command -v sdkmanager)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Run complete Android unit-test suite
+        working-directory: suite_android
+        run: gradle --no-daemon :app:testDebugUnitTest
+
+      - name: Commit validated passive ledger wiring
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt \
+            suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt \
+            suite_android/app/src/main/java/com/truthraw/adaptiveui/UniversalSourceProfiler.kt
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'Passive occurrence-ledger wiring already applied.'
+          else
+            git commit -m 'android: bind exact TIFF occurrences to source capability ledger v0.1'
+            git push origin HEAD:feat/draw-workspace-free-raster-v01
+          fi
+          git rev-parse HEAD
