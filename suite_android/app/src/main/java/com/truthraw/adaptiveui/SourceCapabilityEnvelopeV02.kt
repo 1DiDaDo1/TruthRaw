@@ -321,9 +321,16 @@ object SourceCapabilityEnvelopeV02 {
                 parsedContainerMetadata = parsedContainerMetadata,
             ),
         )
-        return envelope.put(
+        envelope.put(
             "radiometric_encoding_consistency_v0_1",
             SourceCapabilityRadiometricEncodingConsistencyValidatorV01.describe(
+                sourceSha256 = sourceSha256,
+                parsedContainerMetadata = parsedContainerMetadata,
+            ),
+        )
+        return envelope.put(
+            "dng_version_compatibility_v0_1",
+            SourceCapabilityDngVersionCompatibilityValidatorV01.describe(
                 sourceSha256 = sourceSha256,
                 parsedContainerMetadata = parsedContainerMetadata,
             ),
