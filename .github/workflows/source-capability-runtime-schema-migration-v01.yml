@@ -1,0 +1,57 @@
+# Governance revalidation trigger after self-cleaning 44489 finalization; no scientific/runtime semantics change.
+name: Source Capability Runtime Evidence Envelope v0.1 Integrity
+
+on:
+  push:
+    branches:
+      - feat/draw-observation-evidence-architecture-v01
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRuntimeEvidenceEnvelopeV01Test.kt'
+      - '.github/workflows/source-capability-runtime-schema-migration-v01.yml'
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRuntimeEvidenceEnvelopeV01Test.kt'
+      - '.github/workflows/source-capability-runtime-schema-migration-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-runtime-evidence-envelope:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Enforce unambiguous schema and closed scientific firewalls
+        run: |
+          set -euo pipefail
+          SRC='suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
+          grep -F 'const val SCHEMA = "D.RAW/SourceCapabilityRuntimeEvidenceEnvelope/0.1"' "$SRC"
+          grep -F 'const val CANONICAL_PHYSICAL_KNOWLEDGE_MAP_SCHEMA = "D.RAW/SourceCapabilityEnvelope/0.2"' "$SRC"
+          grep -F 'const val LEDGER_SCHEMA = "D.RAW/ObservationEvidenceLedger/0.1"' "$SRC"
+          ! grep -F 'const val SCHEMA = "D.RAW/SourceCapabilityEnvelope/0.2"' "$SRC"
+          ! grep -F 'SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01' "$SRC"
+          grep -F '.put("canonical_physical_knowledge_map_serialization_equivalent", false)' "$SRC"
+          grep -F '.put("legacy_runtime_schema_label_is_authoritative", false)' "$SRC"
+          grep -F '.put("schema_migration_changes_scientific_authority", false)' "$SRC"
+          grep -F '.put("schema_migration_changes_pixel_route", false)' "$SRC"
+          grep -F '.put("downstream_consumers_enabled", false)' "$SRC"
+          grep -F '.put("scientific_master_pixel_effect", false)' "$SRC"
+          grep -F '.put("appearance_pixel_effect", false)' "$SRC"
+          grep -F '.put("scientific_writeback_allowed", false)' "$SRC"
+
+      - name: Run runtime evidence-envelope regression
+        working-directory: suite_android
+        run: gradle --no-daemon :app:testDebugUnitTest --tests com.truthraw.adaptiveui.SourceCapabilityRuntimeEvidenceEnvelopeV01Test

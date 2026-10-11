@@ -1,4 +1,4 @@
-# D.RAW 44489 — canonical current knowledge capsule — post-PR #131 integration — 2026-10-11
+# D.RAW 44489 — canonical current knowledge capsule — post-PR #131 / runtime-schema governance repair — 2026-10-11
 
 Purpose: **binding recovery state for continuation code 44489**. Read this file completely before changing runtime code, scientific authority, promotion state, source-capability admission, observation/evidence architecture, output contracts, Appearance behavior, or APK provenance.
 
@@ -6,6 +6,32 @@ Project: **D.RAW** (`TruthRaw` remains repository/history naming)
 Repository: `1DiDaDo1/TruthRaw`  
 Continuation code: **44489**  
 Permanent motto: **One Free World. Many sealed observations. One evidence law.**
+
+<!-- 44489_POST_AUDIT_GOVERNANCE_V01_START -->
+
+## 0A. Binding post-audit governance correction — 2026-10-11
+
+This block is authoritative over any conflicting older wording later in this file.
+
+- Historical Exact Gauge PR #130 checkpoint `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f` remains the immutable narrow scientific/review reference.
+- The **live PR #130 did not remain frozen**: PR #131 was merged into its head branch `fix/android-exact-gauge-pass-artifact-v03`, which advanced that live review object. PR #130 has therefore been **closed superseded/unmerged**, without force-resetting branch history.
+- PR #131 is merged/closed. Final head: `c28b8bacfead4787fdc14cd65e9e00ff4bc7abb8`; merge commit: `28343adf054ccb8f4c741edff187604cf2b0c88a`.
+- Post-merge checkpoint/base for the new architecture line: `bfc3dd2b587709498704ee6127854b4ef715383b`.
+- Current architecture branch: `feat/draw-observation-evidence-architecture-v01`.
+- Current architecture PR: **#132 — Architecture: separate runtime Source Capability evidence-envelope schema v0.1**; final clean schema code/test checkpoint `7e176006c8e4e7be379ce8a613a695ef750900b1` has all triggered non-skipped checks SUCCESS. PR #132 remains deliberately open/draft/unmerged as the narrow review boundary before any new Source Capability consumer.
+- Runtime schema migration is complete at `e0527b374d6477a0b239125f7aa8d3f8750c5d32`:
+  - canonical Physical Knowledge Map: `D.RAW/SourceCapabilityEnvelope/0.2`;
+  - runtime parser-bound evidence envelope: `D.RAW/SourceCapabilityRuntimeEvidenceEnvelope/0.1`;
+  - occurrence/evidence ledger: `D.RAW/ObservationEvidenceLedger/0.1`.
+- The schema split creates no new parser, source read, lifecycle/admission transition, consumer, pixel operation, Scientific Master effect, Appearance effect, evidence or scientific writeback.
+- Effective Black / Normalization v0.1 remains standalone/read-only and is **not yet runtime-envelope-exposed**.
+- `LinearizationTable` and complete raw-to-linear validity/admission/use remain unresolved.
+- A previous one-time 44489 refresh workflow failed fail-closed on a stale text anchor (`key anchor missing`) and made no project-code change. The replacement deterministic refresh succeeded; all temporary refresh workflow/script files were then removed from the clean PR #132 diff.
+- Repository default branch `main` was not advanced by the PR #131 merge.
+
+Recovery rule: never again describe the live PR #130 itself as frozen. Say **historical frozen checkpoint `4e4f358a...`; live PR #130 superseded/closed**.
+
+<!-- 44489_POST_AUDIT_GOVERNANCE_V01_END -->
 
 This file supersedes every older passage that described PR #131 as open/draft/unmerged or treated the later Android runtime `SourceCapabilityEnvelopeV02` as interchangeable with the earlier canonical Source Capability Physical Knowledge Map v0.2.
 
@@ -35,11 +61,11 @@ The exact final PR #131 head was fully green across the current workflow set bef
 
 The repository default branch `main` is **not** made current by this merge. PR #131 was merged into `fix/android-exact-gauge-pass-artifact-v03`. Never claim that `main` contains the PR #131 integration unless a later exact merge proves that separately.
 
-A fresh post-merge architecture branch must start from the corrected post-merge 44489 documentation state. Intended branch name:
+The post-merge architecture branch now exists:
 
 `feat/draw-observation-evidence-architecture-v01`
 
-If this branch already exists when 44489 is recovered, verify its exact head and ancestry rather than recreating it.
+It was created from post-merge checkpoint `bfc3dd2b587709498704ee6127854b4ef715383b` and is represented by PR #132. Resolve the live PR #132 head on recovery rather than recreating the branch.
 
 ---
 
@@ -208,13 +234,14 @@ but its JSON structure is not the canonical Physical Knowledge Map serialization
 Binding post-merge rule:
 
 - canonical `D.RAW/SourceCapabilityEnvelope/0.2` = historical Physical Knowledge Map v0.2;
-- authoritative Android occurrence-ledger identity = `D.RAW/ObservationEvidenceLedger/0.1`;
-- the runtime Android envelope label is **legacy compatibility only**;
-- no new scientific consumer may bind semantic authority to that ambiguous legacy label;
-- before any new Source Capability serialized contract or `ADMITTED -> USED` consumer is introduced, the fresh architecture branch must migrate the runtime shadow envelope to a distinct schema namespace;
-- planned namespace: `D.RAW/SourceCapabilityRuntimeEvidenceEnvelope/0.1`.
+- authoritative Android occurrence-ledger identity remains `D.RAW/ObservationEvidenceLedger/0.1`;
+- runtime parser-bound envelope identity is now `D.RAW/SourceCapabilityRuntimeEvidenceEnvelope/0.1`;
+- the old runtime `D.RAW/SourceCapabilityEnvelope/0.2` label is retained only as non-authoritative legacy provenance;
+- `canonical_physical_knowledge_map_serialization_equivalent=false`;
+- schema migration commit: `e0527b374d6477a0b239125f7aa8d3f8750c5d32`;
+- no new scientific consumer or authority was introduced by this migration.
 
-This migration is a **schema/governance separation**, not a scientific promotion.
+This completed migration is a **schema/governance separation**, not a scientific promotion.
 
 ---
 
@@ -655,7 +682,7 @@ Because the merge commit combines frozen base `4e4f358a...` with exact green hea
 | Sealed CFA/source evidence | preserved | immutable MEASURED boundary |
 | Canonical Source Capability Physical Knowledge Map v0.2 | existing | physical knowledge map, UNKNOWN preserved |
 | Observation Evidence Ledger v0.1 | implemented | parser/source occurrence provenance |
-| Runtime Source Capability envelope label | legacy ambiguous label | must migrate before new consumers |
+| Runtime Source Capability evidence envelope | `D.RAW/SourceCapabilityRuntimeEvidenceEnvelope/0.1` | schema-separated; no new consumer/authority |
 | Physical TIFF/DNG occurrence/traversal | implemented | exact source binding, fail-closed |
 | Raw-IFD validator | implemented | supported raw-domain classification |
 | Radiometric Semantic v0.1 | implemented | BlackLevel/WhiteLevel/etc contracts |
@@ -663,7 +690,7 @@ Because the merge commit combines frozen base `4e4f358a...` with exact green hea
 | DNG Version Compatibility v0.1 | implemented | version compatibility only |
 | Spatial BlackLevel v0.1 | implemented + runtime-exposed | ActiveArea/H/V dependency validation |
 | Effective Black / Normalization v0.1 | implemented/tested/CI-green | standalone metadata-domain validator |
-| Effective Black runtime-envelope exposure | not yet current | after schema migration only |
+| Effective Black runtime-envelope exposure | not yet current | next narrow diagnostic step after clean PR #132 boundary |
 | LinearizationTable validator | not yet current | required for complete raw-to-linear claim |
 | Complete raw-to-linear admission/use | not implemented | remains false |
 | Scientific Master writeback from Source Capability | forbidden/currently false | firewall intact |
@@ -676,7 +703,7 @@ Because the merge commit combines frozen base `4e4f358a...` with exact green hea
 | Censored Illuminant Hue Floor | CI-green, physical warm-highlight acceptance pending | APPEARANCE_ONLY |
 | Yellow/emissive-display issue | open separate research topic | spectral + temporal analysis |
 | PR #131 | **MERGED/CLOSED** | integration checkpoint only |
-| PR #130 | frozen reference `4e4f358a...` | preserve scientific/audit meaning |
+| PR #130 | **closed superseded/unmerged**; historical checkpoint `4e4f358a...` remains frozen | live PR advanced after #131 merge; never call live PR frozen |
 | `main` | not advanced by PR #131 merge | do not call it current integration branch |
 
 ---
@@ -689,7 +716,7 @@ Do **not**:
 - claim PR #131 was merged into `main`;
 - rebuild TIFF occurrence provenance, raw-IFD detection or WhiteLevel semantic validation;
 - treat the runtime legacy `D.RAW/SourceCapabilityEnvelope/0.2` label as the canonical Physical Knowledge Map serialization;
-- introduce a new Source Capability consumer before runtime schema identity migration;
+- reintroduce the ambiguous legacy runtime schema identity or treat it as canonical Physical Knowledge Map serialization;
 - create a second parser/hash/ingest path;
 - treat DNG defaults as physical source occurrences;
 - let Effective Black mutate lifecycle/admission/pixels;
@@ -705,21 +732,28 @@ Do **not**:
 
 ---
 
-## 25. Exact next execution order
+## 25. Exact current execution state and next order
 
-On the fresh architecture branch:
+Completed in the 2026-10-11 three-chat governance repair:
 
-1. verify ancestry from the post-merge 44489 checkpoint;
-2. migrate the runtime shadow envelope away from the ambiguous legacy schema label to `D.RAW/SourceCapabilityRuntimeEvidenceEnvelope/0.1` (or an explicitly reviewed equivalent namespace);
-3. preserve `D.RAW/ObservationEvidenceLedger/0.1` as the occurrence-ledger identity;
-4. add a compatibility/provenance field pointing back to the historical canonical Physical Knowledge Map concept rather than pretending the two serializations are identical;
-5. regression-test byte/source binding, ledger digest, record contents, lifecycle/admission, no new reads, zero pixel effect and zero writeback across the schema migration;
-6. then expose Effective Black / Normalization as an additional read-only diagnostic;
-7. prove exposure changes no records/admission/consumers/pixels/master/appearance;
-8. then implement a separate LinearizationTable shadow validator;
-9. only after those contracts may complete raw-to-linear validation be designed;
-10. later tackle colour calibration families independently;
-11. keep all pending physical/output/Appearance validation separate from the scientific metadata line.
+1. historical Exact Gauge checkpoint `4e4f358a...` is preserved as the frozen narrow scientific/review reference;
+2. the live PR #130, which had advanced after PR #131 was merged into its head branch, is closed **superseded/unmerged** without force-resetting history;
+3. PR #131 remains merged/closed at integration anchor `28343adf...` and `main` remains unadvanced by that merge;
+4. runtime schema separation is complete at `e0527b374d6477a0b239125f7aa8d3f8750c5d32`;
+5. canonical 44489 has been repaired to distinguish the historical Physical Knowledge Map, runtime evidence envelope and occurrence ledger;
+6. the failed temporary 44489 refresh tooling was replaced by a deterministic refresh, succeeded, and all temporary refresh files were removed from the PR diff;
+7. final clean schema code/test checkpoint `7e176006c8e4e7be379ce8a613a695ef750900b1` passed every triggered non-skipped check observed in the audit; Deep-Censor and Free Raster were path-scope SKIPPED, not failed;
+8. PR #132 is now a clean four-file schema/governance boundary and remains deliberately draft/unmerged.
+
+Next scientific order — not yet implemented by this governance repair:
+
+1. expose the already-existing Effective Black / Normalization v0.1 report only as an additional **read-only runtime diagnostic**;
+2. prove that exposure changes no ledger digest, records, lifecycle/admission, consumers, source reads, pixels, Scientific Master, Appearance or writeback;
+3. implement a separate `LinearizationTable` shadow validator anchored to DNG 1.7.1.0;
+4. keep complete raw-to-linear validity false until linearization + black subtraction + normalization contracts are jointly validated;
+5. even after joint validation keep `VALIDATED`, `ADMITTED` and `USED` separate;
+6. later treat colour-calibration families independently and source-bound;
+7. keep pending physical/output/Appearance validation separate from the scientific metadata line.
 
 ---
 
@@ -727,13 +761,15 @@ On the fresh architecture branch:
 
 ### Integration / governance
 
-- frozen PR #130 reference: `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`
+- historical frozen PR #130 checkpoint: `4e4f358ac5d6fb4a8562286257b8edb76ae5d33f`; live PR #130 is superseded/closed unmerged
 - final PR #131 head: `c28b8bacfead4787fdc14cd65e9e00ff4bc7abb8`
 - PR #131 merge commit: `28343adf054ccb8f4c741edff187604cf2b0c88a`
 - merge-prep audit: `docs/handoff/DRAW_44489_PR131_MERGE_PREP_2026-10-11.md`
 
 ### Source Capability / radiometry
 
+- runtime schema migration: `e0527b374d6477a0b239125f7aa8d3f8750c5d32`;
+- current schema/governance PR: #132 on `feat/draw-observation-evidence-architecture-v01`;
 - old canonical Physical Knowledge Map v0.2 integration: `fe6275c3dd5f1f4b8f429950768378b44ab1a2c5`
 - spatial-black runtime exposure: `919272ef5ad2cad5985a74c455dc2ffbcb0ee1a0`
 - Effective Black source: `fba30bc23e340d3a9d31c4b7f6eba7c904f03671`
@@ -766,4 +802,4 @@ On the fresh architecture branch:
 
 When continuation code **44489** is given, recover this state:
 
-**PR #131 is merged and closed. Its final green head is `c28b8bac...` and its merge integration anchor is `28343adf...` on `fix/android-exact-gauge-pass-artifact-v03`; `main` was not advanced by that merge. The scientific firewalls remain unchanged. D.RAW has an older canonical Source Capability Physical Knowledge Map v0.2 and a later Android parser-bound Observation Evidence Ledger/runtime shadow envelope that accidentally shared the textual `D.RAW/SourceCapabilityEnvelope/0.2` label; they are now formally distinguished, and the first task on the fresh post-merge architecture branch is to migrate the runtime envelope to an unambiguous schema namespace before any new consumer. The parser-occurrence layer, raw-IFD validation, radiometric semantics, encoding consistency, DNG compatibility and spatial BlackLevel dependencies already exist. Effective Black / Normalization v0.1 at `bc93fe...` is CI-green, metadata-only, standalone and non-promoting; it is not yet runtime-envelope-exposed. LinearizationTable remains unresolved, so complete raw-to-linear validity/admission/use remains false. Exact Gauge, reconstruction, T5/Room Capsule, High-Fidelity JPEG and Appearance histories retain their separate authority and physical-acceptance states. One Free World. Many sealed observations. One evidence law.**
+**PR #131 is merged and closed. Its final green head is `c28b8bac...` and merge integration anchor is `28343adf...` on `fix/android-exact-gauge-pass-artifact-v03`; `main` was not advanced by that merge. Historical Exact Gauge checkpoint `4e4f358a...` remains the frozen narrow scientific/review reference, but the live PR #130 advanced after the PR #131 merge and is now closed superseded/unmerged rather than force-reset. The post-merge branch `feat/draw-observation-evidence-architecture-v01` and draft PR #132 carry the runtime schema/governance separation. Runtime schema migration is complete at `e0527b374d6477a0b239125f7aa8d3f8750c5d32`: canonical Physical Knowledge Map remains `D.RAW/SourceCapabilityEnvelope/0.2`, runtime evidence envelope is `D.RAW/SourceCapabilityRuntimeEvidenceEnvelope/0.1`, and occurrence ledger remains `D.RAW/ObservationEvidenceLedger/0.1`; no new scientific consumer or authority was created. The clean schema code/test checkpoint is `7e176006c8e4e7be379ce8a613a695ef750900b1`, where every triggered non-skipped check observed in the audit succeeded; Deep-Censor and Free Raster were skipped by path scope. The PR #132 diff is limited to the schema integrity workflow, canonical 44489 capsule, runtime schema change and focused test; temporary governance-refresh tooling has been removed. Parser-occurrence, raw-IFD, radiometric semantics, encoding consistency, DNG compatibility and spatial BlackLevel dependencies already exist. Effective Black / Normalization v0.1 at `bc93fe...` remains CI-green, metadata-only, standalone and non-promoting; runtime-envelope exposure is the next narrow scientific diagnostic and is not yet implemented. `LinearizationTable` remains unresolved, so complete raw-to-linear validity/admission/use remains false. Exact Gauge, reconstruction, T5/Room Capsule, High-Fidelity JPEG and Appearance histories retain their separate authority and physical-acceptance states. One Free World. Many sealed observations. One evidence law.**
