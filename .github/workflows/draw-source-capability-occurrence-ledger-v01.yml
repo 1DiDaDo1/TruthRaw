@@ -35,11 +35,21 @@ jobs:
           ref: feat/draw-workspace-free-raster-v01
           fetch-depth: 0
 
-      - name: Apply passive occurrence-ledger patch
-        run: python3 tools/apply_source_capability_occurrence_ledger_v01.py
+      - name: Ensure passive occurrence-ledger state
+        run: |
+          if grep -Fq 'truthraw.classic-tiff-dng-container-metadata.v0.56-traversal-status' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt; then
+            echo 'Occurrence-ledger state already superseded by validated v0.56 traversal runtime.'
+          else
+            python3 tools/apply_source_capability_occurrence_ledger_v01.py
+          fi
 
-      - name: Apply passive traversal-status patch
-        run: python3 tools/apply_source_capability_traversal_status_v01.py
+      - name: Ensure passive traversal-status state
+        run: |
+          if grep -Fq 'truthraw.classic-tiff-dng-container-metadata.v0.56-traversal-status' suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt; then
+            echo 'Passive traversal-status state already applied.'
+          else
+            python3 tools/apply_source_capability_traversal_status_v01.py
+          fi
 
       - name: Apply shadow radiometric semantic validator
         run: python3 tools/apply_source_capability_radiometric_semantics_v01.py
