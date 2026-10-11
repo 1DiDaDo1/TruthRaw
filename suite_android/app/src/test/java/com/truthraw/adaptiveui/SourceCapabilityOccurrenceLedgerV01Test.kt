@@ -52,7 +52,7 @@ class SourceCapabilityOccurrenceLedgerV01Test {
 
         val parsed = parse(bytes)
         assertEquals(
-            "truthraw.classic-tiff-dng-container-metadata.v0.55-occurrence-ledger",
+            "truthraw.classic-tiff-dng-container-metadata.v0.56-traversal-status",
             parsed.getString("parser"),
         )
         val entries = parsed.getJSONArray("ifds").getJSONObject(0).getJSONArray("entries")
