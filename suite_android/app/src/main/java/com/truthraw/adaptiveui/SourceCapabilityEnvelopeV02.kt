@@ -341,6 +341,13 @@ object SourceCapabilityEnvelopeV02 {
                 parsedContainerMetadata = parsedContainerMetadata,
             ),
         )
+        envelope.put(
+            "effective_black_normalization_v0_1",
+            SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01.describe(
+                sourceSha256 = sourceSha256,
+                parsedContainerMetadata = parsedContainerMetadata,
+            ),
+        )
         return envelope.put(
             "dng_version_compatibility_v0_1",
             SourceCapabilityDngVersionCompatibilityValidatorV01.describe(

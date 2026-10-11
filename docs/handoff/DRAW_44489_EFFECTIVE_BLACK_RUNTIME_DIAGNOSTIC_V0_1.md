@@ -46,6 +46,24 @@ Required proof before this branch can be considered complete:
 7. `LinearizationTable` and `full_raw_to_linear_mapping_validated` remain false;
 8. exact-head CI passes before promotion of this branch state.
 
+## Step 2 — runtime diagnostic exposure implemented
+
+Implemented in this step:
+
+- `SourceCapabilityEnvelopeV02.describe(...)` now attaches `effective_black_normalization_v0_1` only after the Observation Evidence Ledger has already been built;
+- the attached value is the existing `SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01.describe(...)` report, without reinterpretation or admission;
+- `SourceCapabilityEnvelopeV02.unavailable(...)` remains fail-closed and does not invent a diagnostic when parsing failed;
+- a focused runtime regression compares the attached diagnostic byte-for-byte at JSON level with a standalone validator run on equivalent parsed metadata;
+- the regression proves the parsed metadata object is not mutated by runtime-envelope construction;
+- DNG defaults still do not create BlackLevel/DeltaH/DeltaV/WhiteLevel physical ledger occurrences;
+- admitted/used capability sets remain empty in the focused case and downstream consumers remain disabled;
+- all validator, pixel-route, Scientific Master, Appearance, evidence-creation and writeback firewalls remain false;
+- `LinearizationTable` and complete raw-to-linear validation remain explicitly false.
+
+The existing runtime-schema integrity workflow is updated to require the diagnostic exposure and run the schema regression, the new attachment regression, and the standalone Effective Black validator regression together.
+
+Exact implementation commit is recorded after the self-cleaning patch workflow completes.
+
 ## Next step
 
-Implement only the envelope diagnostic exposure and its focused regression. After that commit, update this handoff immediately with the exact new head and test contract before proceeding to CI.
+Record the exact implementation commit in this handoff, then run and audit exact-head CI. Do not begin `LinearizationTable` work until this exposure is fully green.
