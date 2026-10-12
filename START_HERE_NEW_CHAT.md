@@ -4,7 +4,7 @@ Continuation code: **44489**
 
 Permanent motto: **One Free World. Many sealed observations. One evidence law.**
 
-## Mandatory first read
+## Mandatory current reading order
 
 A new chat receiving only `44489` must read, in this order:
 
@@ -135,7 +135,7 @@ The following dated files remain explicit historical/governance pointers. Their 
 - `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
 - `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
 
-These are historical overlays/provenance. The **current** operational reading order remains the four-step sequence at the top of this file.
+These are historical overlays/provenance. The **current** operational reading order remains the five-step sequence at the top of this file.
 
 ## Where the rest now lives
 
