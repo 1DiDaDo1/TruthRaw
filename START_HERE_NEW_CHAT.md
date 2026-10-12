@@ -98,6 +98,45 @@ Do not change these as a side effect of a read-only composition validator.
 
 Direct CFA / RAW_SENSOR evidence remains sealed and immutable. One physical frame remains one physical frame. Scientific Master remains separate from View / Appearance / Export. `UNKNOWN` is a valid outcome. Precision, reconstruction, resolution, visual quality, performance and AI confidence never create scientific authority.
 
+## Historical governance discoverability
+
+The following dated files remain explicit historical/governance pointers. Their presence here is **not** a claim that they outrank the 2026-10-12 master capsule; it keeps older provenance discoverable and satisfies the repository's long-lived documentation-governance contract.
+
+- `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-16.json`
+- `docs/DOCUMENT_STATUS_INDEX_2026-09-16.md`
+- `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
+- `docs/handoff/TRUTHRAW_CONSOLIDATED_HANDOFF_2026-09-16.md`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
+- `docs/DOCUMENT_STATUS_INDEX_2026-09-19_MULTIVENDOR.md`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-20.json`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-21.json`
+- `state/CURRENT_PROJECT_STATE_2026-09-24.json`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-25.json`
+- `docs/DRAW_MAIN_PROJECT_STATE_2026-09-25.md`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-25.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-27.json`
+- `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
+- `docs/research/free-world-observation-graph-v0.1/README.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-28.json`
+- `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
+- `state/CURRENT_PROJECT_STATE_2026-10-01.json`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
+- `docs/research/measured-field-support-coordinate-bridge-v0.1/README.md`
+- `docs/research/optical-field-topography-v0.1/README.md`
+- `state/CURRENT_PROJECT_STATE_2026-10-02.json`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
+
+These are historical overlays/provenance. The **current** operational reading order remains the four-step sequence at the top of this file.
+
 ## Where the rest now lives
 
 The master capsule contains the readable current map for:
@@ -123,6 +162,6 @@ The older `DRAW_44489_KNOWLEDGE_CAPSULE.md` and all dated handoffs remain reposi
 
 ## Immediate next action
 
-Read the raw-to-linear audit document completely, inspect the existing validator APIs on the live auditbranch, and only then decide whether the proposed read-only composition validator can be implemented without touching parser identity, ledger identity, image samples, Scientific Master, Appearance, admission or use.
+Read the raw-to-linear audit document completely, inspect the existing validator APIs on the live audit branch, and only then decide whether the proposed read-only composition validator can be implemented without touching parser identity, ledger identity, image samples, Scientific Master, Appearance, admission or use.
 
 If those boundaries cannot be proven, stop fail-closed at the audit layer.
