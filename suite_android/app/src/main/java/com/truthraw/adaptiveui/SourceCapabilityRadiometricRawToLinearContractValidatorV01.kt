@@ -27,10 +27,10 @@ object SourceCapabilityRadiometricRawToLinearContractValidatorV01 {
     const val PREFIX_CONTRADICTED = "CONTRADICTED_LINEARIZATION_BLACK_NORMALIZATION_PREFIX_FAIL_CLOSED"
     const val CLIPPING_UNRESOLVED = "UNRESOLVED_CLIPPING_COMPONENT_NOT_VALIDATED"
 
-    private const val COMPONENT_BOUND = "VALIDATED_EXISTING_COMPONENT_REPORT_BINDING"
-    private const val COMPONENT_MISSING = "UNRESOLVED_COMPONENT_REPORT_MISSING_FAIL_CLOSED"
-    private const val COMPONENT_SCHEMA_UNRESOLVED = "UNRESOLVED_COMPONENT_REPORT_SCHEMA_OR_STATUS_FAIL_CLOSED"
-    private const val COMPONENT_SOURCE_CONTRADICTED = "CONTRADICTED_COMPONENT_SOURCE_BINDING_FAIL_CLOSED"
+    const val COMPONENT_BOUND = "VALIDATED_EXISTING_COMPONENT_REPORT_BINDING"
+    const val COMPONENT_MISSING = "UNRESOLVED_COMPONENT_REPORT_MISSING_FAIL_CLOSED"
+    const val COMPONENT_SCHEMA_UNRESOLVED = "UNRESOLVED_COMPONENT_REPORT_SCHEMA_OR_STATUS_FAIL_CLOSED"
+    const val COMPONENT_SOURCE_CONTRADICTED = "CONTRADICTED_COMPONENT_SOURCE_BINDING_FAIL_CLOSED"
 
     private data class ComponentIndex(
         val byIdentity: Map<String, JSONObject>,
@@ -281,7 +281,8 @@ object SourceCapabilityRadiometricRawToLinearContractValidatorV01 {
         val duplicates = linkedSetOf<String>()
         var malformed = 0
         for (i in 0 until array.length()) {
-            val item = array.optJSONObject(i) ?: run {
+            val item = array.optJSONObject(i)
+            if (item == null) {
                 malformed += 1
                 continue
             }
@@ -292,7 +293,11 @@ object SourceCapabilityRadiometricRawToLinearContractValidatorV01 {
                 continue
             }
             val identity = "$path@$offset"
-            if (out.containsKey(identity)) duplicates += identity else out[identity] = item
+            if (out.containsKey(identity)) {
+                duplicates += identity
+            } else {
+                out[identity] = item
+            }
         }
         return ComponentIndex(out, duplicates, malformed)
     }
