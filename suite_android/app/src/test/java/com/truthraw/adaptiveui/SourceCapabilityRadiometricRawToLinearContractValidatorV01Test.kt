@@ -20,6 +20,12 @@ class SourceCapabilityRadiometricRawToLinearContractValidatorV01Test {
             report.getString("raw_to_linear_composition_status"),
         )
         assertEquals(1, report.getInt("prefix_validated_ifd_count"))
+        assertEquals(
+            SourceCapabilityRadiometricRawToLinearContractValidatorV01.IFD_IDENTITY_INTEGRITY_VALIDATED,
+            report.getString("dependency_ifd_identity_integrity_status"),
+        )
+        assertTrue(report.getBoolean("all_existing_dependency_ifd_identities_well_formed"))
+        assertTrue(report.getBoolean("all_existing_dependency_ifd_identities_unique"))
         assertFalse(report.getBoolean("clipping_component_validator_present"))
         assertEquals(
             SourceCapabilityRadiometricRawToLinearContractValidatorV01.CLIPPING_UNRESOLVED,
@@ -140,6 +146,44 @@ class SourceCapabilityRadiometricRawToLinearContractValidatorV01Test {
     }
 
     @Test
+    fun malformedIfdIdentityRemainsUnresolvedWithoutInvalidatingKnownGoodIdentity() {
+        val linearization = linearization()
+        linearization
+            .getJSONArray("ifds")
+            .put(
+                JSONObject()
+                    .put("ifd_offset", 16L)
+                    .put("linearization_table_status", SourceCapabilityRadiometricLinearizationTableValidatorV01.VALIDATED),
+            )
+        val normalization = normalization()
+        normalization
+            .getJSONArray("ifds")
+            .put(
+                JSONObject()
+                    .put("ifd_path", "IFD1")
+                    .put("normalization_domain_status", SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01.VALIDATED),
+            )
+
+        val report = compose(linearization, normalization)
+
+        assertEquals(1, report.getInt("linearization_malformed_ifd_identity_count"))
+        assertEquals(1, report.getInt("normalization_malformed_ifd_identity_count"))
+        assertEquals(
+            SourceCapabilityRadiometricRawToLinearContractValidatorV01.IFD_IDENTITY_INTEGRITY_UNRESOLVED,
+            report.getString("dependency_ifd_identity_integrity_status"),
+        )
+        assertFalse(report.getBoolean("all_existing_dependency_ifd_identities_well_formed"))
+        assertTrue(report.getBoolean("all_existing_dependency_ifd_identities_unique"))
+        assertEquals(1, report.getInt("prefix_validated_ifd_count"))
+        assertEquals(
+            SourceCapabilityRadiometricRawToLinearContractValidatorV01.UNRESOLVED,
+            report.getString("raw_to_linear_composition_status"),
+        )
+        assertFalse(report.getBoolean("full_raw_to_linear_mapping_validated"))
+        assertFalse(report.getBoolean("creates_new_evidence"))
+    }
+
+    @Test
     fun duplicateIfdIdentityContradictsRatherThanSelectingSilently() {
         val linearization = linearization()
         val duplicated = JSONObject(linearization.toString())
@@ -148,6 +192,11 @@ class SourceCapabilityRadiometricRawToLinearContractValidatorV01Test {
         val report = compose(duplicated, normalization())
 
         assertEquals(1, report.getInt("linearization_duplicate_ifd_identity_count"))
+        assertEquals(
+            SourceCapabilityRadiometricRawToLinearContractValidatorV01.IFD_IDENTITY_INTEGRITY_CONTRADICTED,
+            report.getString("dependency_ifd_identity_integrity_status"),
+        )
+        assertFalse(report.getBoolean("all_existing_dependency_ifd_identities_unique"))
         assertEquals(
             SourceCapabilityRadiometricRawToLinearContractValidatorV01.CONTRADICTED,
             report.getString("raw_to_linear_composition_status"),
@@ -197,6 +246,8 @@ class SourceCapabilityRadiometricRawToLinearContractValidatorV01Test {
         ).forEach { key -> assertFalse("Expected $key=false", report.getBoolean(key)) }
 
         assertTrue(report.getBoolean("all_existing_dependency_reports_bind_same_source"))
+        assertTrue(report.getBoolean("all_existing_dependency_ifd_identities_well_formed"))
+        assertTrue(report.getBoolean("all_existing_dependency_ifd_identities_unique"))
         val stages = report.getJSONArray("ordered_stages")
         assertEquals("LINEARIZATION", stages.getString(0))
         assertEquals("BLACK_SUBTRACTION", stages.getString(1))
