@@ -149,3 +149,38 @@ No pixel effect or Scientific Master writeback is authorized by the current meta
 ## Historical discoverability
 
 All older dated handoffs, state snapshots and document indexes remain provenance and must not be rewritten to pretend they knew later results. In particular, the 2026-10-06 PR #131 bootstrap, the 2026-10-02 44488 state and earlier September states are historical overlays, not current routing authority.
+
+### Historical governance compatibility pointers
+
+The following paths are preserved here **only** for deterministic documentation-governance discoverability and provenance. They do not override the 2026-10-13 mandatory reading order above and must not be interpreted as current runtime or scientific authority:
+
+- `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
+- `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
+- `docs/handoff/TRUTHRAW_CONSOLIDATED_HANDOFF_2026-09-16.md`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
+- `docs/DOCUMENT_STATUS_INDEX_2026-09-19_MULTIVENDOR.md`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-20.json`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-21.json`
+- `state/CURRENT_PROJECT_STATE_2026-09-24.json`
+- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-25.json`
+- `docs/DRAW_MAIN_PROJECT_STATE_2026-09-25.md`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-25.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-27.json`
+- `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
+- `docs/research/free-world-observation-graph-v0.1/README.md`
+- `state/CURRENT_PROJECT_STATE_2026-09-28.json`
+- `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
+- `state/CURRENT_PROJECT_STATE_2026-10-01.json`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
+- `docs/research/measured-field-support-coordinate-bridge-v0.1/README.md`
+- `docs/research/optical-field-topography-v0.1/README.md`
+- `state/CURRENT_PROJECT_STATE_2026-10-02.json`
+- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
+- `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
