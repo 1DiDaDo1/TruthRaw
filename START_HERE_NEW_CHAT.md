@@ -1,4 +1,4 @@
-# D.RAW / TruthRaw — START HERE — CODE 44489 — 2026-10-12
+# D.RAW / TruthRaw — START HERE — CODE 44489 — 2026-10-13
 
 Continuation code: **44489**
 
@@ -9,16 +9,23 @@ Permanent motto: **One Free World. Many sealed observations. One evidence law.**
 A new chat receiving only `44489` must read, in this order:
 
 1. `docs/handoff/DRAW_44489_MASTER_CAPSULE_CURRENT.md`
-2. resolve the live head of `audit/source-capability-raw-to-linear-contract-v01`
-3. `docs/handoff/DRAW_44489_RAW_TO_LINEAR_CONTRACT_AUDIT_V0_1_2026-10-12.md`
-4. `docs/handoff/DRAW_44489_INTERDISCIPLINARY_OBSERVATION_AUDIT_2026-10-10.md`
-5. only then open older handoffs as directed by the master capsule for the specific subsystem being worked on.
+2. `docs/handoff/DRAW_44489_NEXT_CHAT_2026-10-13.md`
+3. resolve the live head of `audit/source-capability-raw-to-linear-contract-v01`
+4. `state/DRAW_PROJECT_STATE_2026-10-13.json`
+5. `docs/DOCUMENT_STATUS_INDEX_2026-10-13.md`
+6. `docs/handoff/DRAW_44489_RAW_TO_LINEAR_CONTRACT_AUDIT_V0_1_2026-10-12.md`
+7. `docs/handoff/DRAW_44489_INTERDISCIPLINARY_OBSERVATION_AUDIT_2026-10-10.md`
+8. only then open older handoffs as directed by the master capsule for the specific subsystem being worked on.
 
-Do **not** begin from the former 2026-10-06 PR #131 bootstrap. That exact old bootstrap is preserved unchanged as historical provenance at:
+The master capsule remains the broad architecture/evidence-law map. The 2026-10-13 next-chat handoff is the newer delta for the active raw-to-linear line and supersedes only stale current-checkpoint wording in the master.
+
+Do **not** begin from the former 2026-10-06 PR #131 bootstrap. That exact old bootstrap remains historical provenance at:
 
 `docs/handoff/START_HERE_NEW_CHAT_LEGACY_2026-10-06.md`
 
-## Current exact scientific/runtime integration anchor
+## Integrated anchor versus verified candidate
+
+Integrated scientific/runtime anchor remains:
 
 `96be8a23c0d43f5dec304bdeb635824868cc80a7`
 
@@ -33,40 +40,67 @@ Meaning:
 - Observation Evidence Ledger identity is preserved;
 - `full_raw_to_linear_mapping_validated=false`.
 
-Documentation-only commits on the audit branch may be newer than this SHA. Do not reinterpret a newer documentation SHA as new scientific/runtime evidence.
+Verified unintegrated candidate **code** checkpoint:
 
-Also do not confuse tree SHA
+`e6bdbce11c02ccac0e3edf31f39f0eb869105d51`
 
-`29ac59da6c9af3362c2a01c3d57464f2a5012811`
+At that exact SHA the dedicated `Source Capability Raw-to-Linear Contract v0.1 Integrity` workflow is **SUCCESS**, including the single-cable static boundary and raw-to-linear/dependency Gradle regressions.
 
-with a commit. It is the tree of `96be8a23...`.
+PR #136 remains **draft / open / unmerged**. Do not reinterpret `e6bdbce1...` or newer documentation SHAs as integrated scientific authority.
 
-## Current branch / active task
+Also do not confuse tree SHA `29ac59da6c9af3362c2a01c3d57464f2a5012811` with a commit. It is the tree of `96be8a23...`.
+
+## Current active Source Capability cable
 
 Branch:
 
 `audit/source-capability-raw-to-linear-contract-v01`
 
-Active task:
-
-Audit and, only after the read-only boundary is accepted, optionally implement one isolated:
-
-`SourceCapabilityRadiometricRawToLinearContractValidatorV01`
-
-that composes already-existing source-bound validator outcomes in the normative DNG order:
+The existing single runtime envelope now carries one read-only raw-to-linear metadata/specification composition:
 
 `Linearization -> Black Subtraction -> Rescaling / Normalization -> Clipping`
 
-This is **not** a pixel implementation.
+Implementation rule:
 
-Hard current prohibitions:
+- Effective Black/Normalization is computed once in the existing envelope;
+- LinearizationTable is computed once in the existing envelope;
+- the Raw-to-Linear compositor is called once in the existing envelope;
+- the DNG clipping-rule is derived once **inside that compositor** from the already supplied normalization report;
+- there is zero direct clipping-rule call in the envelope;
+- no second parser/read/hash/ledger/Raw-IFD detector/pixel route exists.
+
+The clipping-rule is only:
+
+`D.RAW/SourceCapabilityRadiometricRawToLinearClippingRule/0.1`
+
+with status:
+
+`SHADOW_ONLY_DNG_POST_NORMALIZATION_CLIPPING_RULE_CONTRACT`.
+
+It validates a DNG processing/specification dependency, not observed censoring or physical sensor saturation.
+
+## Never collapse these clipping meanings
+
+1. DNG post-normalization clipping rule.
+2. WhiteLevel metadata / encoding boundary.
+3. Observed clipped/censored sample pattern.
+4. Physical sensor saturation / full-well / scene-radiance censoring.
+5. Appearance/output white, tone mapping and highlight roll-off.
+
+Deep-Censor, TruthRange and Appearance code must not be treated as Source Capability clipping authority merely because the concepts are related.
+
+## Hard current prohibitions
 
 - no second TIFF/DNG parser;
 - no second source read or hash route;
+- no second Observation Evidence Ledger;
+- no second Raw-IFD detector;
 - no parser rename of tag 50712;
 - no ledger canonicalization change;
 - no LinearizationTable sample application;
 - no black subtraction/normalization/clipping change to image samples;
+- no observed-sample censor claim from the clipping-rule contract;
+- no physical sensor saturation/full-well claim from WhiteLevel;
 - no Scientific Master pixel effect;
 - no Appearance pixel effect;
 - no admission/use promotion;
@@ -74,11 +108,23 @@ Hard current prohibitions:
 - no scientific writeback;
 - no AI/ML scientific inference.
 
-Permanent relation:
+Even where the four metadata/specification dependencies validate:
+
+`metadata_ordering_composition_contract_validated=true`
+
+may be true, while the stronger statement remains:
+
+`full_raw_to_linear_mapping_validated=false`.
+
+Permanent relations:
 
 `VALIDATED != ADMITTED != USED`
 
-## Locked PR #135 evidence identities
+and:
+
+`MEASURED != CALIBRATED_ESTIMATE != RECONSTRUCTED != CENSORED != UNKNOWN != APPEARANCE`
+
+## Locked PR #135 identities
 
 For the fixed explicit LinearizationTable regression fixture:
 
@@ -88,80 +134,18 @@ For the fixed explicit LinearizationTable regression fixture:
 - lifecycle = `PARSED`
 - admission = `UNSUPPORTED_SEMANTICS`
 - authority = `UNKNOWN_SEMANTICS`
-- consumers = zero
+- consumers = zero.
 
-Do not change these as a side effect of a read-only composition validator.
-
-## Permanent evidence law
-
-`MEASURED != CALIBRATED_ESTIMATE != RECONSTRUCTED != CENSORED != UNKNOWN != APPEARANCE`
-
-Direct CFA / RAW_SENSOR evidence remains sealed and immutable. One physical frame remains one physical frame. Scientific Master remains separate from View / Appearance / Export. `UNKNOWN` is a valid outcome. Precision, reconstruction, resolution, visual quality, performance and AI confidence never create scientific authority.
-
-## Historical governance discoverability
-
-The following dated files remain explicit historical/governance pointers. Their presence here is **not** a claim that they outrank the 2026-10-12 master capsule; it keeps older provenance discoverable and satisfies the repository's long-lived documentation-governance contract.
-
-- `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-16.json`
-- `docs/DOCUMENT_STATUS_INDEX_2026-09-16.md`
-- `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
-- `docs/handoff/TRUTHRAW_CONSOLIDATED_HANDOFF_2026-09-16.md`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
-- `docs/DOCUMENT_STATUS_INDEX_2026-09-19_MULTIVENDOR.md`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-20.json`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-21.json`
-- `state/CURRENT_PROJECT_STATE_2026-09-24.json`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-25.json`
-- `docs/DRAW_MAIN_PROJECT_STATE_2026-09-25.md`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-25.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-27.json`
-- `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
-- `docs/research/free-world-observation-graph-v0.1/README.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-28.json`
-- `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
-- `state/CURRENT_PROJECT_STATE_2026-10-01.json`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
-- `docs/research/measured-field-support-coordinate-bridge-v0.1/README.md`
-- `docs/research/optical-field-topography-v0.1/README.md`
-- `state/CURRENT_PROJECT_STATE_2026-10-02.json`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
-
-These are historical overlays/provenance. The **current** operational reading order remains the five-step sequence at the top of this file.
-
-## Where the rest now lives
-
-The master capsule contains the readable current map for:
-
-- complete architecture;
-- Evidence Law;
-- Source Capability contract inventory;
-- current interdisciplinary scientific foundation;
-- reconstruction state;
-- Exact Gauge/performance state;
-- T5 / Deep Scene / Room Capsule cable;
-- Workspace / Free Raster / high-fidelity output;
-- Natural Appearance checkpoints;
-- emissive-display research;
-- broader image-quality route map;
-- chronological project history;
-- old plans labelled as completed, historical, paused or still relevant later;
-- PR/SHA/hash quick index;
-- exact new-chat protocol;
-- pointers to preserved historical handoffs.
-
-The older `DRAW_44489_KNOWLEDGE_CAPSULE.md` and all dated handoffs remain repository provenance. They are no longer the first document a new chat should expand blindly.
+These may not change as a side effect of the current read-only contracts.
 
 ## Immediate next action
 
-Read the raw-to-linear audit document completely, inspect the existing validator APIs on the live audit branch, and only then decide whether the proposed read-only composition validator can be implemented without touching parser identity, ledger identity, image samples, Scientific Master, Appearance, admission or use.
+Do **not** implement another raw-to-linear pixel pipeline.
 
-If those boundaries cannot be proven, stop fail-closed at the audit layer.
+Perform a read-only sample-domain execution audit of the actual existing RAW route. Trace whether LinearizationTable application, effective-black subtraction, normalization and upper clipping already exist in the real sample path. Reuse/bind existing execution where it exists; only design a new isolated candidate when a required operation is demonstrably absent.
+
+No pixel effect or Scientific Master writeback is authorized by the current metadata-ordering validation.
+
+## Historical discoverability
+
+All older dated handoffs, state snapshots and document indexes remain provenance and must not be rewritten to pretend they knew later results. In particular, the 2026-10-06 PR #131 bootstrap, the 2026-10-02 44488 state and earlier September states are historical overlays, not current routing authority.
