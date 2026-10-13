@@ -15,22 +15,41 @@
     "base_branch": "fix/android-exact-gauge-pass-artifact-v03",
     "base_sha": "96be8a23c0d43f5dec304bdeb635824868cc80a7"
   },
-  "verified_candidate_code_checkpoint": {
-    "sha": "e6bdbce11c02ccac0e3edf31f39f0eb869105d51",
+  "authoritative_previous_chat_endpoint": {
+    "content_scientific_apk_test_checkpoint": "f7a25cf1c8b9c98c4d7b02654868cf11af4f5ade",
+    "checkpoint_role": "READ_ONLY_SHADOW_RAW_TO_LINEAR_REAL_DEVICE_APK_TEST_CANDIDATE",
     "integrated": false,
-    "workflow": "Source Capability Raw-to-Linear Contract v0.1 Integrity",
-    "workflow_conclusion": "SUCCESS",
-    "single_cable_static_boundary": "SUCCESS",
-    "raw_to_linear_dependency_regressions": "SUCCESS"
+    "source_capability_raw_to_linear_contract_integrity": "SUCCESS",
+    "supporting_workflows_green": [
+      "Source Capability Runtime Evidence Envelope",
+      "Source Capability LinearizationTable",
+      "D.RAW Suite Universal Intake",
+      "D.RAW Android DngCreator Compatibility",
+      "Canonical Integrity"
+    ]
   },
-  "audit_roadmap_recovery": {
-    "status": "RESTORED_FROM_PRECEDING_CHAT",
-    "roadmap_document": "docs/handoff/DRAW_44489_AUDIT_REMAINING_STEPS_2026-10-13.md",
-    "roadmap_document_commit": "f1743d4b3913e702630f3ad4532ebfeee0870952",
-    "start_here_routing_commit": "53e415730c53571c1593d7d7280a4123e5e6928c",
-    "recent_cable_tests_role": "REGRESSION_AND_FOUNDATION_EVIDENCE_NOT_AUDIT_COMPLETION",
-    "active_audit_phase": "READ_ONLY_REAL_SAMPLE_DOMAIN_EXECUTION_TRACE",
-    "full_raw_to_linear_mapping_may_be_claimed_complete": false
+  "stable_signed_apk_build_provenance": {
+    "temporary_audit_branch_trigger_commit": "86519dee1c0f97398870d67ff4414f9f096b4f1a",
+    "workflow": "D.RAW Free World Research APK",
+    "workflow_conclusion": "SUCCESS",
+    "trigger_cleanup_commit": "30d68684df0e347a8ae2bf52bf50650da8bfd25c",
+    "persistent_content_tree_difference_from_f7a25cf1_after_cleanup": false,
+    "scientific_promotion": false
+  },
+  "current_active_phase": {
+    "name": "REAL_DEVICE_READ_ONLY_RAW_TO_LINEAR_CABLE_VALIDATION",
+    "handoff": "docs/handoff/DRAW_44489_REAL_DEVICE_RAW_TO_LINEAR_TEST_CHECKPOINT_2026-10-13.md",
+    "route": [
+      "RAW_DNG",
+      "EXISTING_PARSER_EVIDENCE",
+      "EFFECTIVE_BLACK_NORMALIZATION_PLUS_LINEARIZATIONTABLE",
+      "RAW_TO_LINEAR_COMPOSITOR",
+      "RUNTIME_EVIDENCE_ENVELOPE"
+    ],
+    "primary_goal": "VALIDATE_SINGLE_SOURCE_BOUND_METADATA_AUTHORITY_CABLE_ON_REAL_DEVICE_RAW_DNG",
+    "expected_visual_change_from_new_wiring": false,
+    "visual_change_caused_solely_by_new_wiring_is_regression_signal": true,
+    "tele_or_main_camera_real_raw_records_should_be_inspected": true
   },
   "raw_to_linear_metadata_contract": {
     "schema": "D.RAW/SourceCapabilityRadiometricRawToLinearContract/0.1",
@@ -65,7 +84,6 @@
     "status": "SHADOW_ONLY_DNG_POST_NORMALIZATION_CLIPPING_RULE_CONTRACT",
     "claim_scope": "DNG_POST_NORMALIZATION_SAMPLE_DOMAIN_CLIPPING_RULE_ONLY",
     "normalized_upper_clip_threshold": 1.0,
-    "upper_rule": "NORMALIZED_LINEAR_REFERENCE_VALUE_GT_1_CLIP_TO_1",
     "white_level_role": "DNG_PROCESSING_ENCODING_BOUNDARY_NOT_INDEPENDENT_PHYSICAL_SATURATION_CALIBRATION",
     "observed_sample_censoring_validated": false,
     "physical_sensor_saturation_calibrated": false,
@@ -74,28 +92,12 @@
     "scene_radiance_above_censor_recovered": false,
     "truthrange_censor_authority_created": false
   },
-  "remaining_sample_domain_audit": {
-    "status": "OPEN",
-    "steps": [
-      "TRACE_REAL_RAW_SAMPLE_ROUTE_END_TO_END",
-      "PROVE_OR_REFUTE_LINEARIZATIONTABLE_NUMERICAL_APPLICATION",
-      "PROVE_OR_REFUTE_EFFECTIVE_BLACK_SUBTRACTION_EXECUTION",
-      "PROVE_OR_REFUTE_NORMALIZATION_EXECUTION",
-      "PROVE_OR_REFUTE_UPPER_CLIPPING_EXECUTION_AND_EXACT_AUTHORITY",
-      "PROVE_SOURCE_IFD_CFA_SAMPLE_DOMAIN_PROVENANCE",
-      "PROVE_MALFORMED_DUPLICATE_DEPENDENCIES_CANNOT_BYPASS_FAIL_CLOSED_EXECUTION",
-      "ONLY_THEN_DECIDE_WHETHER_ANY_OPERATION_IS_ACTUALLY_MISSING"
-    ],
-    "reuse_existing_execution_before_new_implementation": true,
-    "second_raw_to_linear_pipeline_allowed": false,
-    "pixel_changes_allowed": false
-  },
   "authority_firewall": {
     "metadata_ordering_composition_contract_may_validate_for_qualifying_ifds": true,
     "metadata_ordering_validation_implies_sample_execution": false,
     "table_application_to_image_samples_validated": false,
     "full_raw_to_linear_mapping_validated": false,
-    "image_sample_payload_read": false,
+    "image_sample_payload_read_by_metadata_contract": false,
     "linearization_applied_to_image_samples": false,
     "black_subtraction_applied_to_image_samples": false,
     "normalization_applied_to_image_samples": false,
@@ -121,21 +123,39 @@
     "PHYSICAL_SENSOR_SATURATION_OR_SCENE_RADIANCE_CENSORING",
     "APPEARANCE_OUTPUT_WHITE_AND_HIGHLIGHT_ROLLOFF"
   ],
-  "known_invalid_intermediate_checkpoint": {
-    "sha": "c9604cc602817ca9f82a46bda33d1e593c6dd700",
-    "reason": "COMPOSITOR_REQUIRED_FOURTH_CLIPPING_REPORT_WHILE_RUNTIME_ENVELOPE_STILL_USED_THREE_ARGUMENT_CALL",
-    "may_be_used_as_checkpoint": false
+  "recent_field_geometry_calibration_tests": {
+    "role_in_current_phase": "SUPPORTING_REGRESSION_EVIDENCE_FOR_THEIR_OWN_SUBSYSTEMS_ONLY",
+    "primary_validation_target_of_current_apk_checkpoint": false
+  },
+  "superseded_later_chat_reconstruction": {
+    "document": "docs/handoff/DRAW_44489_AUDIT_REMAINING_STEPS_2026-10-13.md",
+    "current_routing_authority": false,
+    "reason": "INCORRECTLY_MOVED_SAMPLE_DOMAIN_AUDIT_BEFORE_ALREADY_AUTHORIZED_REAL_DEVICE_APK_VALIDATION"
+  },
+  "next_phase_after_successful_device_validation": {
+    "name": "SAMPLE_DOMAIN_EXECUTION_BINDING_OR_IMPLEMENTATION",
+    "ordered_stages": [
+      "LINEARIZATION",
+      "EFFECTIVE_BLACK_SUBTRACTION",
+      "NORMALIZATION",
+      "CLIPPING"
+    ],
+    "authorized_now": false,
+    "rule": "REUSE_AND_BIND_EXISTING_NUMERICAL_EXECUTION_WHERE_PRESENT_BEFORE_DESIGNING_ANY_NEW_ISOLATED_CANDIDATE",
+    "requires_source_ifd_cfa_sample_domain_provenance": true,
+    "requires_target_independent_regressions": true,
+    "requires_fail_closed_authority": true,
+    "scientific_master_writeback_pre_authorized": false
   },
   "next_task": {
-    "name": "READ_ONLY_SAMPLE_DOMAIN_EXECUTION_AUDIT",
-    "rule": "TRACE_AND_REUSE_EXISTING_SAMPLE_CABLES_BEFORE_ANY_NEW_IMPLEMENTATION",
+    "name": "INSPECT_REAL_DEVICE_SOURCE_CAPABILITY_RUNTIME_RECORDS",
+    "rule": "VALIDATE_READ_ONLY_SINGLE_CABLE_BEFORE_SAMPLE_FEEDING",
     "questions": [
-      "Does the real sample path already apply LinearizationTable semantics?",
-      "Does it already apply effective-black subtraction?",
-      "Does it already apply normalization?",
-      "Does it already apply upper clipping, and under what authority?",
-      "Are source/IFD/CFA/sample-domain provenance and malformed/duplicate fail-closed semantics preserved in the actual execution path?",
-      "Can existing execution be bound without a second cable?"
+      "Does a real tele/main RAW or DNG traverse the existing Runtime Evidence Envelope exactly once?",
+      "Do Effective Black/Normalization, LinearizationTable and Raw-to-Linear compositor reports stay source-bound to the same observation?",
+      "Do unsupported or malformed dependencies remain fail-closed on real device data?",
+      "Do all sample-application and full-mapping fields remain false?",
+      "Does the new wiring leave Scientific Master and Appearance pixels unchanged?"
     ],
     "pixel_changes_allowed_by_this_state": false
   },
