@@ -10,14 +10,15 @@ A new chat receiving only `44489` must read, in this order:
 
 1. `docs/handoff/DRAW_44489_MASTER_CAPSULE_CURRENT.md`
 2. `docs/handoff/DRAW_44489_NEXT_CHAT_2026-10-13.md`
-3. resolve the live head of `audit/source-capability-raw-to-linear-contract-v01`
-4. `state/DRAW_PROJECT_STATE_2026-10-13.json`
-5. `docs/DOCUMENT_STATUS_INDEX_2026-10-13.md`
-6. `docs/handoff/DRAW_44489_RAW_TO_LINEAR_CONTRACT_AUDIT_V0_1_2026-10-12.md`
-7. `docs/handoff/DRAW_44489_INTERDISCIPLINARY_OBSERVATION_AUDIT_2026-10-10.md`
-8. only then open older handoffs as directed by the master capsule for the specific subsystem being worked on.
+3. `docs/handoff/DRAW_44489_AUDIT_REMAINING_STEPS_2026-10-13.md`
+4. resolve the live head of `audit/source-capability-raw-to-linear-contract-v01`
+5. `state/DRAW_PROJECT_STATE_2026-10-13.json`
+6. `docs/DOCUMENT_STATUS_INDEX_2026-10-13.md`
+7. `docs/handoff/DRAW_44489_RAW_TO_LINEAR_CONTRACT_AUDIT_V0_1_2026-10-12.md`
+8. `docs/handoff/DRAW_44489_INTERDISCIPLINARY_OBSERVATION_AUDIT_2026-10-10.md`
+9. only then open older handoffs as directed by the master capsule for the specific subsystem being worked on.
 
-The master capsule remains the broad architecture/evidence-law map. The 2026-10-13 next-chat handoff is the newer delta for the active raw-to-linear line and supersedes only stale current-checkpoint wording in the master.
+The master capsule remains the broad architecture/evidence-law map. The 2026-10-13 next-chat handoff is the newer delta for the active raw-to-linear line. The new remaining-steps document restores the audit roadmap from the preceding chat and is authoritative for distinguishing supporting cable/regression tests from actual audit completion.
 
 Do **not** begin from the former 2026-10-06 PR #131 bootstrap. That exact old bootstrap remains historical provenance at:
 
@@ -142,9 +143,13 @@ These may not change as a side effect of the current read-only contracts.
 
 Do **not** implement another raw-to-linear pixel pipeline.
 
-Perform a read-only sample-domain execution audit of the actual existing RAW route. Trace whether LinearizationTable application, effective-black subtraction, normalization and upper clipping already exist in the real sample path. Reuse/bind existing execution where it exists; only design a new isolated candidate when a required operation is demonstrably absent.
+Continue the restored read-only sample-domain execution audit in:
 
-No pixel effect or Scientific Master writeback is authorized by the current metadata-ordering validation.
+`docs/handoff/DRAW_44489_AUDIT_REMAINING_STEPS_2026-10-13.md`
+
+The required audit is not replaced by older cable/regression checks. Trace the actual existing RAW numerical path and prove, separately, whether LinearizationTable application, effective-black subtraction, normalization and upper clipping already execute there, with correct source/CFA/domain provenance and fail-closed dependency behavior. Reuse/bind existing execution where present; only design the smallest isolated candidate if an operation is demonstrably absent.
+
+No pixel effect, admission, promotion or Scientific Master writeback is authorized by the current metadata-ordering validation.
 
 ## Historical discoverability
 
