@@ -10,7 +10,7 @@ A new chat receiving only `44489` must read, in this order:
 
 1. `docs/handoff/DRAW_44489_MASTER_CAPSULE_CURRENT.md`
 2. `docs/handoff/DRAW_44489_NEXT_CHAT_2026-10-13.md`
-3. `docs/handoff/DRAW_44489_AUDIT_REMAINING_STEPS_2026-10-13.md`
+3. `docs/handoff/DRAW_44489_REAL_DEVICE_RAW_TO_LINEAR_TEST_CHECKPOINT_2026-10-13.md`
 4. resolve the live head of `audit/source-capability-raw-to-linear-contract-v01`
 5. `state/DRAW_PROJECT_STATE_2026-10-13.json`
 6. `docs/DOCUMENT_STATUS_INDEX_2026-10-13.md`
@@ -18,69 +18,68 @@ A new chat receiving only `44489` must read, in this order:
 8. `docs/handoff/DRAW_44489_INTERDISCIPLINARY_OBSERVATION_AUDIT_2026-10-10.md`
 9. only then open older handoffs as directed by the master capsule for the specific subsystem being worked on.
 
-The master capsule remains the broad architecture/evidence-law map. The 2026-10-13 next-chat handoff is the newer delta for the active raw-to-linear line. The new remaining-steps document restores the audit roadmap from the preceding chat and is authoritative for distinguishing supporting cable/regression tests from actual audit completion.
+`docs/handoff/DRAW_44489_AUDIT_REMAINING_STEPS_2026-10-13.md` is explicitly superseded as current routing; it records a later-chat reconstruction mistake and must not replace the real-device checkpoint above.
 
-Do **not** begin from the former 2026-10-06 PR #131 bootstrap. That exact old bootstrap remains historical provenance at:
+Do **not** begin from the former 2026-10-06 PR #131 bootstrap. That exact old bootstrap remains historical provenance at `docs/handoff/START_HERE_NEW_CHAT_LEGACY_2026-10-06.md`.
 
-`docs/handoff/START_HERE_NEW_CHAT_LEGACY_2026-10-06.md`
-
-## Integrated anchor versus verified candidate
+## Authority anchors
 
 Integrated scientific/runtime anchor remains:
 
 `96be8a23c0d43f5dec304bdeb635824868cc80a7`
 
-Meaning:
+PR #136 remains draft / open / unmerged.
 
-- PR #135 is integrated there;
-- LinearizationTable is exposed only as a read-only runtime diagnostic;
-- it is not ADMITTED;
-- it is not USED;
-- it is not applied to RAW image samples;
-- parser semantic key remains `TAG_50712`;
-- Observation Evidence Ledger identity is preserved;
-- `full_raw_to_linear_mapping_validated=false`.
+Exact content/scientific candidate checkpoint selected for the real-device APK test:
 
-Verified unintegrated candidate **code** checkpoint:
+`f7a25cf1c8b9c98c4d7b02654868cf11af4f5ade`
 
-`e6bdbce11c02ccac0e3edf31f39f0eb869105d51`
+On that SHA the Source Capability Raw-to-Linear Contract v0.1 Integrity workflow was SUCCESS. Relevant Runtime Evidence Envelope, LinearizationTable, Universal Intake, DngCreator Compatibility and Canonical checks were also green.
 
-At that exact SHA the dedicated `Source Capability Raw-to-Linear Contract v0.1 Integrity` workflow is **SUCCESS**, including the single-cable static boundary and raw-to-linear/dependency Gradle regressions.
+Temporary APK-CI trigger commit:
 
-PR #136 remains **draft / open / unmerged**. Do not reinterpret `e6bdbce1...` or newer documentation SHAs as integrated scientific authority.
+`86519dee1c0f97398870d67ff4414f9f096b4f1a`
 
-Also do not confuse tree SHA `29ac59da6c9af3362c2a01c3d57464f2a5012811` with a commit. It is the tree of `96be8a23...`.
+The `D.RAW Free World Research APK` workflow completed SUCCESS there.
+
+The trigger was removed again at:
+
+`30d68684df0e347a8ae2bf52bf50650da8bfd25c`
+
+There is no persistent file-tree difference from `f7a25cf1...` to `30d68684...`; those two intervening commits were CI-trigger plumbing only. Later documentation/governance SHAs are not new scientific/runtime authority.
 
 ## Current active Source Capability cable
 
-Branch:
+The APK test phase exercises the one existing read-only/shadow route:
 
-`audit/source-capability-raw-to-linear-contract-v01`
+`RAW/DNG -> existing parser/evidence -> Effective Black/Normalization + LinearizationTable -> Raw-to-Linear compositor -> Runtime Evidence Envelope`
 
-The existing single runtime envelope now carries one read-only raw-to-linear metadata/specification composition:
+The represented metadata/specification order remains:
 
 `Linearization -> Black Subtraction -> Rescaling / Normalization -> Clipping`
 
-Implementation rule:
+The DNG clipping-rule validates only the specification dependency. It is not observed censoring and not physical sensor saturation/full-well calibration.
 
-- Effective Black/Normalization is computed once in the existing envelope;
-- LinearizationTable is computed once in the existing envelope;
-- the Raw-to-Linear compositor is called once in the existing envelope;
-- the DNG clipping-rule is derived once **inside that compositor** from the already supplied normalization report;
-- there is zero direct clipping-rule call in the envelope;
-- no second parser/read/hash/ledger/Raw-IFD detector/pixel route exists.
+## What must remain false during this APK test
 
-The clipping-rule is only:
+- `linearization_applied_to_image_samples=false`
+- `black_subtraction_applied_to_image_samples=false`
+- `normalization_applied_to_image_samples=false`
+- `clipping_applied_to_image_samples=false`
+- `full_raw_to_linear_mapping_validated=false`
+- no Scientific Master pixel effect
+- no Appearance pixel effect
+- no source mutation
+- no lifecycle/admission/use promotion
+- no new MEASURED evidence
+- no scientific writeback
+- no AI/ML scientific inference
 
-`D.RAW/SourceCapabilityRadiometricRawToLinearClippingRule/0.1`
+Therefore this new wiring should **not** make PURE / ADVANCED / PRO visually different. A visual change caused solely by the new read-only cable is a regression signal.
 
-with status:
+## Permanent authority distinctions
 
-`SHADOW_ONLY_DNG_POST_NORMALIZATION_CLIPPING_RULE_CONTRACT`.
-
-It validates a DNG processing/specification dependency, not observed censoring or physical sensor saturation.
-
-## Never collapse these clipping meanings
+Never collapse:
 
 1. DNG post-normalization clipping rule.
 2. WhiteLevel metadata / encoding boundary.
@@ -88,104 +87,32 @@ It validates a DNG processing/specification dependency, not observed censoring o
 4. Physical sensor saturation / full-well / scene-radiance censoring.
 5. Appearance/output white, tone mapping and highlight roll-off.
 
-Deep-Censor, TruthRange and Appearance code must not be treated as Source Capability clipping authority merely because the concepts are related.
-
-## Hard current prohibitions
-
-- no second TIFF/DNG parser;
-- no second source read or hash route;
-- no second Observation Evidence Ledger;
-- no second Raw-IFD detector;
-- no parser rename of tag 50712;
-- no ledger canonicalization change;
-- no LinearizationTable sample application;
-- no black subtraction/normalization/clipping change to image samples;
-- no observed-sample censor claim from the clipping-rule contract;
-- no physical sensor saturation/full-well claim from WhiteLevel;
-- no Scientific Master pixel effect;
-- no Appearance pixel effect;
-- no admission/use promotion;
-- no new MEASURED evidence;
-- no scientific writeback;
-- no AI/ML scientific inference.
-
-Even where the four metadata/specification dependencies validate:
-
-`metadata_ordering_composition_contract_validated=true`
-
-may be true, while the stronger statement remains:
-
-`full_raw_to_linear_mapping_validated=false`.
-
 Permanent relations:
 
 `VALIDATED != ADMITTED != USED`
 
-and:
-
 `MEASURED != CALIBRATED_ESTIMATE != RECONSTRUCTED != CENSORED != UNKNOWN != APPEARANCE`
-
-## Locked PR #135 identities
-
-For the fixed explicit LinearizationTable regression fixture:
-
-- `ledger_digest_sha256 = 6740e6e04c18797e8b57604f30c1884c6e8428e9a469e53cb139c26abe59afb3`
-- `observation_evidence_digest_sha256 = 2bdaa44fe3435929310b79fa38d6ce3b0aa0cc05ef68f9522b4554c6862b38e6`
-- semantic key = `TAG_50712`
-- lifecycle = `PARSED`
-- admission = `UNSUPPORTED_SEMANTICS`
-- authority = `UNKNOWN_SEMANTICS`
-- consumers = zero.
-
-These may not change as a side effect of the current read-only contracts.
 
 ## Immediate next action
 
-Do **not** implement another raw-to-linear pixel pipeline.
+Use the stable-signed test APK on real tele and/or main-camera RAW/DNG input and inspect the resulting Source Capability runtime records/diagnostics.
 
-Continue the restored read-only sample-domain execution audit in:
+Primary success criteria are wiring and authority, not image enhancement:
 
-`docs/handoff/DRAW_44489_AUDIT_REMAINING_STEPS_2026-10-13.md`
+- the single existing parser/evidence/envelope route is used;
+- source/observation identity stays stable;
+- real-device metadata dependencies resolve or fail closed correctly;
+- no duplicate parser/read/hash/ledger/pixel route appears;
+- no Scientific Master or Appearance pixel effect occurs;
+- all sample-application fields above remain false;
+- `full_raw_to_linear_mapping_validated=false` remains false.
 
-The required audit is not replaced by older cable/regression checks. Trace the actual existing RAW numerical path and prove, separately, whether LinearizationTable application, effective-black subtraction, normalization and upper clipping already execute there, with correct source/CFA/domain provenance and fail-closed dependency behavior. Reuse/bind existing execution where present; only design the smallest isolated candidate if an operation is demonstrably absent.
+Only **after** this real-device validation is reviewed may the next phase consider binding/implementing actual sample-domain execution for `Linearization -> effective black subtraction -> normalization -> clipping`.
 
-No pixel effect, admission, promotion or Scientific Master writeback is authorized by the current metadata-ordering validation.
+Do not start that sample-feeding phase merely because the APK installs or older field/geometry/calibration tests pass.
 
 ## Historical discoverability
 
 All older dated handoffs, state snapshots and document indexes remain provenance and must not be rewritten to pretend they knew later results. In particular, the 2026-10-06 PR #131 bootstrap, the 2026-10-02 44488 state and earlier September states are historical overlays, not current routing authority.
 
-### Historical governance compatibility pointers
-
-The following paths are preserved here **only** for deterministic documentation-governance discoverability and provenance. They do not override the 2026-10-13 mandatory reading order above and must not be interpreted as current runtime or scientific authority:
-
-- `docs/CURRENT_SCIENTIFIC_ARCHITECTURE_2026-09-16.md`
-- `docs/PROJECT_HISTORY_AND_CHANGES_2026-09-16.md`
-- `docs/handoff/TRUTHRAW_CONSOLIDATED_HANDOFF_2026-09-16.md`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-19.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-19.json`
-- `docs/DOCUMENT_STATUS_INDEX_2026-09-19_MULTIVENDOR.md`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-20.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-20.json`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-21.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-21.json`
-- `state/CURRENT_PROJECT_STATE_2026-09-24.json`
-- `docs/handoff/TRUTHRAW_NEXT_CHAT_HANDOFF_2026-09-24.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-25.json`
-- `docs/DRAW_MAIN_PROJECT_STATE_2026-09-25.md`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-25.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-27.json`
-- `docs/DRAW_KNOWLEDGE_GROWTH_INTEGRATION_2026-09-27.md`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-09-27.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-09-27.md`
-- `docs/research/free-world-observation-graph-v0.1/README.md`
-- `state/CURRENT_PROJECT_STATE_2026-09-28.json`
-- `docs/DRAW_CORE_VISION_REALIGNMENT_2026-09-28.md`
-- `state/CURRENT_PROJECT_STATE_2026-10-01.json`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-01.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-10-01.md`
-- `docs/research/measured-field-support-coordinate-bridge-v0.1/README.md`
-- `docs/research/optical-field-topography-v0.1/README.md`
-- `state/CURRENT_PROJECT_STATE_2026-10-02.json`
-- `docs/handoff/DRAW_NEXT_CHAT_HANDOFF_2026-10-02.md`
-- `docs/DOCUMENT_STATUS_INDEX_2026-10-02.md`
+Historical governance compatibility pointers remain available under the older dated documents and indexes referenced by the master capsule.
