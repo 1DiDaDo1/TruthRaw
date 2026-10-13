@@ -32,6 +32,10 @@ object SourceCapabilityRadiometricRawToLinearContractValidatorV01 {
     const val COMPONENT_SCHEMA_UNRESOLVED = "UNRESOLVED_COMPONENT_REPORT_SCHEMA_OR_STATUS_FAIL_CLOSED"
     const val COMPONENT_SOURCE_CONTRADICTED = "CONTRADICTED_COMPONENT_SOURCE_BINDING_FAIL_CLOSED"
 
+    const val IFD_IDENTITY_INTEGRITY_VALIDATED = "VALIDATED_COMPONENT_IFD_IDENTITY_INTEGRITY"
+    const val IFD_IDENTITY_INTEGRITY_UNRESOLVED = "UNRESOLVED_MALFORMED_COMPONENT_IFD_IDENTITY_FAIL_CLOSED"
+    const val IFD_IDENTITY_INTEGRITY_CONTRADICTED = "CONTRADICTED_DUPLICATE_COMPONENT_IFD_IDENTITY_FAIL_CLOSED"
+
     private data class ComponentIndex(
         val byIdentity: Map<String, JSONObject>,
         val duplicateIdentities: Set<String>,
@@ -65,6 +69,16 @@ object SourceCapabilityRadiometricRawToLinearContractValidatorV01 {
 
         val linearizationIndex = componentIndex(linearizationReport, linearizationBinding)
         val normalizationIndex = componentIndex(effectiveBlackNormalizationReport, normalizationBinding)
+        val duplicateDependencyIdentityCount =
+            linearizationIndex.duplicateIdentities.size + normalizationIndex.duplicateIdentities.size
+        val malformedDependencyIdentityCount =
+            linearizationIndex.malformedIdentityCount + normalizationIndex.malformedIdentityCount
+        val dependencyIfdIdentityIntegrityStatus =
+            when {
+                duplicateDependencyIdentityCount > 0 -> IFD_IDENTITY_INTEGRITY_CONTRADICTED
+                malformedDependencyIdentityCount > 0 -> IFD_IDENTITY_INTEGRITY_UNRESOLVED
+                else -> IFD_IDENTITY_INTEGRITY_VALIDATED
+            }
         val identities =
             (linearizationIndex.byIdentity.keys + normalizationIndex.byIdentity.keys)
                 .toSortedSet()
@@ -177,8 +191,7 @@ object SourceCapabilityRadiometricRawToLinearContractValidatorV01 {
         val envelopeContradicted =
             linearizationBinding.getString("binding_status") == COMPONENT_SOURCE_CONTRADICTED ||
                 normalizationBinding.getString("binding_status") == COMPONENT_SOURCE_CONTRADICTED ||
-                linearizationIndex.duplicateIdentities.isNotEmpty() ||
-                normalizationIndex.duplicateIdentities.isNotEmpty()
+                duplicateDependencyIdentityCount > 0
         val reportStatus = if (envelopeContradicted || contradictedCount > 0) CONTRADICTED else UNRESOLVED
 
         return JSONObject()
@@ -196,6 +209,9 @@ object SourceCapabilityRadiometricRawToLinearContractValidatorV01 {
             )
             .put("linearization_report_binding", linearizationBinding)
             .put("effective_black_normalization_report_binding", normalizationBinding)
+            .put("dependency_ifd_identity_integrity_status", dependencyIfdIdentityIntegrityStatus)
+            .put("all_existing_dependency_ifd_identities_well_formed", malformedDependencyIdentityCount == 0)
+            .put("all_existing_dependency_ifd_identities_unique", duplicateDependencyIdentityCount == 0)
             .put("clipping_component_validator_present", false)
             .put("clipping_component_status", CLIPPING_UNRESOLVED)
             .put("raw_to_linear_composition_status", reportStatus)
