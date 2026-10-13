@@ -1,0 +1,123 @@
+{
+  "schema": "D.RAW/ProjectState/44489/2026-10-13",
+  "continuation_code": 44489,
+  "date": "2026-10-13",
+  "motto": "One Free World. Many sealed observations. One evidence law.",
+  "integrated_scientific_runtime_anchor": "96be8a23c0d43f5dec304bdeb635824868cc80a7",
+  "integrated_anchor_meaning": "PR_135_INTEGRATED_LINEARIZATIONTABLE_READ_ONLY_RUNTIME_DIAGNOSTIC",
+  "active_candidate_branch": "audit/source-capability-raw-to-linear-contract-v01",
+  "candidate_pr": {
+    "number": 136,
+    "title": "Source Capability: raw-to-linear ordering contract v0.1",
+    "draft": true,
+    "open": true,
+    "merged": false,
+    "base_branch": "fix/android-exact-gauge-pass-artifact-v03",
+    "base_sha": "96be8a23c0d43f5dec304bdeb635824868cc80a7"
+  },
+  "verified_candidate_code_checkpoint": {
+    "sha": "e6bdbce11c02ccac0e3edf31f39f0eb869105d51",
+    "integrated": false,
+    "workflow": "Source Capability Raw-to-Linear Contract v0.1 Integrity",
+    "workflow_conclusion": "SUCCESS",
+    "single_cable_static_boundary": "SUCCESS",
+    "raw_to_linear_dependency_regressions": "SUCCESS"
+  },
+  "raw_to_linear_metadata_contract": {
+    "schema": "D.RAW/SourceCapabilityRadiometricRawToLinearContract/0.1",
+    "status": "SHADOW_ONLY_RAW_TO_LINEAR_ORDERING_COMPOSITION_CONTRACT",
+    "ordered_stages": [
+      "LINEARIZATION",
+      "BLACK_SUBTRACTION",
+      "RESCALING_NORMALIZATION",
+      "CLIPPING"
+    ],
+    "runtime_envelope_schema": "D.RAW/SourceCapabilityRuntimeEvidenceEnvelope/0.1",
+    "single_cable": {
+      "effective_black_normalization_describe_calls_in_runtime_envelope": 1,
+      "linearization_table_describe_calls_in_runtime_envelope": 1,
+      "raw_to_linear_compositor_describe_calls_in_runtime_envelope": 1,
+      "clipping_rule_describe_calls_in_runtime_envelope": 0,
+      "clipping_rule_describe_calls_in_raw_to_linear_compositor_default_path": 1,
+      "clipping_rule_derived_from_existing_effective_black_normalization_report": true,
+      "second_parser": false,
+      "second_source_read": false,
+      "second_source_hash": false,
+      "second_observation_evidence_ledger": false,
+      "second_raw_ifd_detector": false,
+      "second_pixel_route": false
+    },
+    "malformed_dependency_ifd_identity_semantics": "UNRESOLVED_FAIL_CLOSED",
+    "duplicate_dependency_ifd_identity_semantics": "CONTRADICTED_FAIL_CLOSED",
+    "source_sha_mismatch_semantics": "CONTRADICTED_FAIL_CLOSED"
+  },
+  "dng_post_normalization_clipping_rule": {
+    "schema": "D.RAW/SourceCapabilityRadiometricRawToLinearClippingRule/0.1",
+    "status": "SHADOW_ONLY_DNG_POST_NORMALIZATION_CLIPPING_RULE_CONTRACT",
+    "claim_scope": "DNG_POST_NORMALIZATION_SAMPLE_DOMAIN_CLIPPING_RULE_ONLY",
+    "normalized_upper_clip_threshold": 1.0,
+    "upper_rule": "NORMALIZED_LINEAR_REFERENCE_VALUE_GT_1_CLIP_TO_1",
+    "white_level_role": "DNG_PROCESSING_ENCODING_BOUNDARY_NOT_INDEPENDENT_PHYSICAL_SATURATION_CALIBRATION",
+    "observed_sample_censoring_validated": false,
+    "physical_sensor_saturation_calibrated": false,
+    "physical_full_well_capacity_calibrated": false,
+    "absolute_scene_radiance_boundary_calibrated": false,
+    "scene_radiance_above_censor_recovered": false,
+    "truthrange_censor_authority_created": false
+  },
+  "authority_firewall": {
+    "metadata_ordering_composition_contract_may_validate_for_qualifying_ifds": true,
+    "metadata_ordering_validation_implies_sample_execution": false,
+    "table_application_to_image_samples_validated": false,
+    "full_raw_to_linear_mapping_validated": false,
+    "image_sample_payload_read": false,
+    "linearization_applied_to_image_samples": false,
+    "black_subtraction_applied_to_image_samples": false,
+    "normalization_applied_to_image_samples": false,
+    "clipping_applied_to_image_samples": false,
+    "observed_sample_censoring_validated": false,
+    "physical_sensor_saturation_calibrated": false,
+    "record_lifecycle_effect": false,
+    "scientific_admission_effect": false,
+    "downstream_scientific_consumer_enabled": false,
+    "pixel_route_effect": false,
+    "scientific_master_pixel_effect": false,
+    "appearance_pixel_effect": false,
+    "source_values_modified": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false,
+    "parser_tag_rename_performed": false,
+    "observation_evidence_ledger_identity_changed": false
+  },
+  "clipping_authority_separation": [
+    "DNG_POST_NORMALIZATION_SPECIFICATION_RULE",
+    "WHITELEVEL_METADATA_ENCODING_BOUNDARY",
+    "OBSERVED_SAMPLE_CENSORING_PATTERN",
+    "PHYSICAL_SENSOR_SATURATION_OR_SCENE_RADIANCE_CENSORING",
+    "APPEARANCE_OUTPUT_WHITE_AND_HIGHLIGHT_ROLLOFF"
+  ],
+  "known_invalid_intermediate_checkpoint": {
+    "sha": "c9604cc602817ca9f82a46bda33d1e593c6dd700",
+    "reason": "COMPOSITOR_REQUIRED_FOURTH_CLIPPING_REPORT_WHILE_RUNTIME_ENVELOPE_STILL_USED_THREE_ARGUMENT_CALL",
+    "may_be_used_as_checkpoint": false
+  },
+  "next_task": {
+    "name": "READ_ONLY_SAMPLE_DOMAIN_EXECUTION_AUDIT",
+    "rule": "TRACE_AND_REUSE_EXISTING_SAMPLE_CABLES_BEFORE_ANY_NEW_IMPLEMENTATION",
+    "questions": [
+      "Does the real sample path already apply LinearizationTable semantics?",
+      "Does it already apply effective-black subtraction?",
+      "Does it already apply normalization?",
+      "Does it already apply upper clipping, and under what authority?",
+      "Can existing execution be bound without a second cable?"
+    ],
+    "pixel_changes_allowed_by_this_state": false
+  },
+  "evidence_law": {
+    "classes": "MEASURED != CALIBRATED_ESTIMATE != RECONSTRUCTED != CENSORED != UNKNOWN != APPEARANCE",
+    "lifecycle": "VALIDATED != ADMITTED != USED",
+    "sealed_direct_raw_cfa_immutable": true,
+    "unknown_is_valid": true,
+    "ai_ml_scientific_authority_allowed": false
+  }
+}
