@@ -1,0 +1,81 @@
+name: Source Capability Raw-to-Linear Contract v0.1 Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricRawToLinearContractValidatorV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricLinearizationTableValidatorV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricRawToLinearContractValidatorV01Test.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRuntimeEvidenceEnvelopeV01Test.kt'
+      - 'docs/handoff/DRAW_44489_RAW_TO_LINEAR_CONTRACT_AUDIT_V0_1_2026-10-12.md'
+      - '.github/workflows/source-capability-raw-to-linear-contract-v01-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-raw-to-linear-contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Enforce single-cable read-only composition boundary
+        run: |
+          set -euo pipefail
+          SRC='suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricRawToLinearContractValidatorV01.kt'
+          ENV='suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
+          PARSER='suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
+
+          test "$(grep -F 'SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01.describe(' "$ENV" | wc -l)" -eq 1
+          test "$(grep -F 'SourceCapabilityRadiometricLinearizationTableValidatorV01.describe(' "$ENV" | wc -l)" -eq 1
+          test "$(grep -F 'SourceCapabilityRadiometricRawToLinearContractValidatorV01.describe(' "$ENV" | wc -l)" -le 1
+
+          ! grep -F 'DngContainerMetadataParser' "$SRC"
+          ! grep -F '50712 to "LinearizationTable"' "$PARSER"
+
+          grep -F 'NO_SEPARATE_SOURCE_CAPABILITY_CLIPPING_VALIDATOR_V01' "$SRC"
+          grep -F 'UNRESOLVED_CLIPPING_COMPONENT_NOT_VALIDATED' "$SRC"
+          grep -F 'UNRESOLVED_MALFORMED_COMPONENT_IFD_IDENTITY_FAIL_CLOSED' "$SRC"
+          grep -F 'CONTRADICTED_DUPLICATE_COMPONENT_IFD_IDENTITY_FAIL_CLOSED' "$SRC"
+
+          grep -F '.put("metadata_ordering_composition_contract_validated", false)' "$SRC"
+          grep -F '.put("table_application_to_image_samples_validated", false)' "$SRC"
+          grep -F '.put("full_raw_to_linear_mapping_validated", false)' "$SRC"
+          grep -F '.put("image_sample_payload_read", false)' "$SRC"
+          grep -F '.put("linearization_applied_to_image_samples", false)' "$SRC"
+          grep -F '.put("black_subtraction_applied_to_image_samples", false)' "$SRC"
+          grep -F '.put("normalization_applied_to_image_samples", false)' "$SRC"
+          grep -F '.put("clipping_applied_to_image_samples", false)' "$SRC"
+          grep -F '.put("record_lifecycle_effect", false)' "$SRC"
+          grep -F '.put("scientific_admission_effect", false)' "$SRC"
+          grep -F '.put("downstream_scientific_consumer_enabled", false)' "$SRC"
+          grep -F '.put("pixel_route_effect", false)' "$SRC"
+          grep -F '.put("scientific_master_pixel_effect", false)' "$SRC"
+          grep -F '.put("appearance_pixel_effect", false)' "$SRC"
+          grep -F '.put("source_values_modified", false)' "$SRC"
+          grep -F '.put("creates_new_evidence", false)' "$SRC"
+          grep -F '.put("scientific_writeback_allowed", false)' "$SRC"
+          grep -F '.put("parser_tag_rename_performed", false)' "$SRC"
+          grep -F '.put("observation_evidence_ledger_identity_changed", false)' "$SRC"
+
+      - name: Run raw-to-linear and dependency regressions
+        working-directory: suite_android
+        run: >-
+          gradle --no-daemon :app:testDebugUnitTest
+          --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricRawToLinearContractValidatorV01Test
+          --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricLinearizationTableValidatorV01Test
+          --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01Test
+          --tests com.truthraw.adaptiveui.SourceCapabilityRuntimeEvidenceEnvelopeV01Test
