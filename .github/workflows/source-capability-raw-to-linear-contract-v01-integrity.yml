@@ -46,13 +46,15 @@ jobs:
           test "$(grep -F 'SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01.describe(' "$ENV" | wc -l)" -eq 1
           test "$(grep -F 'SourceCapabilityRadiometricLinearizationTableValidatorV01.describe(' "$ENV" | wc -l)" -eq 1
           test "$(grep -F 'SourceCapabilityRadiometricRawToLinearContractValidatorV01.describe(' "$ENV" | wc -l)" -eq 1
+          test "$(grep -F 'SourceCapabilityRadiometricRawToLinearClippingRuleValidatorV01.describe(' "$ENV" | wc -l)" -eq 0
+          test "$(grep -F 'SourceCapabilityRadiometricRawToLinearClippingRuleValidatorV01.describe(' "$SRC" | wc -l)" -eq 1
 
           ! grep -F 'DngContainerMetadataParser' "$SRC"
           ! grep -F 'DngContainerMetadataParser' "$CLIP"
           ! grep -F '50712 to "LinearizationTable"' "$PARSER"
 
-          grep -F 'SourceCapabilityRadiometricRawToLinearClippingRuleValidatorV01' "$SRC"
-          grep -F 'clippingRuleReport: JSONObject? = null' "$SRC"
+          grep -F 'clippingRuleReport: JSONObject? =' "$SRC"
+          grep -F 'effectiveBlackNormalizationReport = effectiveBlackNormalizationReport' "$SRC"
           grep -F 'UNRESOLVED_CLIPPING_COMPONENT_NOT_VALIDATED' "$SRC"
           grep -F 'UNRESOLVED_MALFORMED_COMPONENT_IFD_IDENTITY_FAIL_CLOSED' "$SRC"
           grep -F 'CONTRADICTED_DUPLICATE_COMPONENT_IFD_IDENTITY_FAIL_CLOSED' "$SRC"
