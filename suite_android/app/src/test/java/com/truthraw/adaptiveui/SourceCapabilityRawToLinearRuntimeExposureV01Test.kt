@@ -4,6 +4,7 @@ import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SourceCapabilityRawToLinearRuntimeExposureV01Test {
@@ -53,10 +54,18 @@ class SourceCapabilityRawToLinearRuntimeExposureV01Test {
                 .getString("binding_status"),
         )
         assertEquals(
+            SourceCapabilityRadiometricRawToLinearContractValidatorV01.COMPONENT_BOUND,
+            rawToLinear.getJSONObject("clipping_rule_report_binding").getString("binding_status"),
+        )
+        assertTrue(rawToLinear.getBoolean("clipping_component_validator_present"))
+        assertEquals(
+            SourceCapabilityRadiometricRawToLinearClippingRuleValidatorV01.UNRESOLVED,
+            rawToLinear.getString("clipping_component_status"),
+        )
+        assertEquals(
             SourceCapabilityRadiometricRawToLinearContractValidatorV01.UNRESOLVED,
             rawToLinear.getString("raw_to_linear_composition_status"),
         )
-        assertFalse(rawToLinear.getBoolean("clipping_component_validator_present"))
         assertFalse(rawToLinear.getBoolean("metadata_ordering_composition_contract_validated"))
         assertFalse(rawToLinear.getBoolean("table_application_to_image_samples_validated"))
         assertFalse(rawToLinear.getBoolean("full_raw_to_linear_mapping_validated"))
@@ -65,6 +74,9 @@ class SourceCapabilityRawToLinearRuntimeExposureV01Test {
         assertFalse(rawToLinear.getBoolean("black_subtraction_applied_to_image_samples"))
         assertFalse(rawToLinear.getBoolean("normalization_applied_to_image_samples"))
         assertFalse(rawToLinear.getBoolean("clipping_applied_to_image_samples"))
+        assertFalse(rawToLinear.getBoolean("observed_sample_censoring_validated"))
+        assertFalse(rawToLinear.getBoolean("physical_sensor_saturation_calibrated"))
+        assertFalse(rawToLinear.getBoolean("scene_radiance_above_censor_recovered"))
         assertFalse(rawToLinear.getBoolean("record_lifecycle_effect"))
         assertFalse(rawToLinear.getBoolean("scientific_admission_effect"))
         assertFalse(rawToLinear.getBoolean("downstream_scientific_consumer_enabled"))
