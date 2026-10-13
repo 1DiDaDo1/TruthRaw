@@ -8,15 +8,17 @@ Permanent motto: **One Free World. Many sealed observations. One evidence law.**
 
 A new chat receiving only `44489` must read, in this order:
 
-1. `docs/handoff/DRAW_44489_MASTER_CAPSULE_CURRENT.md`
-2. `docs/handoff/DRAW_44489_NEXT_CHAT_2026-10-13.md`
-3. `docs/handoff/DRAW_44489_REAL_DEVICE_RAW_TO_LINEAR_TEST_CHECKPOINT_2026-10-13.md`
+1. `docs/handoff/DRAW_44489_NEXT_CHAT_2026-10-13.md`
+2. `docs/handoff/DRAW_44489_REAL_DEVICE_RAW_TO_LINEAR_TEST_CHECKPOINT_2026-10-13.md`
+3. `docs/handoff/DRAW_44489_MASTER_CAPSULE_CURRENT.md` for the broad architecture/evidence-law map
 4. resolve the live head of `audit/source-capability-raw-to-linear-contract-v01`
 5. `state/DRAW_PROJECT_STATE_2026-10-13.json`
 6. `docs/DOCUMENT_STATUS_INDEX_2026-10-13.md`
 7. `docs/handoff/DRAW_44489_RAW_TO_LINEAR_CONTRACT_AUDIT_V0_1_2026-10-12.md`
 8. `docs/handoff/DRAW_44489_INTERDISCIPLINARY_OBSERVATION_AUDIT_2026-10-10.md`
 9. only then open older handoffs as directed by the master capsule for the specific subsystem being worked on.
+
+The `NEXT_CHAT` and `REAL_DEVICE_RAW_TO_LINEAR_TEST_CHECKPOINT` documents are deliberately read **before** the master capsule because the master still contains older checkpoint wording around `062a1dd58...`. The master remains the broad architecture/evidence-law map, but its stale current-checkpoint / immediate-next-step wording is overridden by these newer handoffs.
 
 `docs/handoff/DRAW_44489_AUDIT_REMAINING_STEPS_2026-10-13.md` is explicitly superseded as current routing; it records a later-chat reconstruction mistake and must not replace the real-device checkpoint above.
 
@@ -66,6 +68,7 @@ The DNG clipping-rule validates only the specification dependency. It is not obs
 - `black_subtraction_applied_to_image_samples=false`
 - `normalization_applied_to_image_samples=false`
 - `clipping_applied_to_image_samples=false`
+- `table_application_to_image_samples_validated=false`
 - `full_raw_to_linear_mapping_validated=false`
 - no Scientific Master pixel effect
 - no Appearance pixel effect
