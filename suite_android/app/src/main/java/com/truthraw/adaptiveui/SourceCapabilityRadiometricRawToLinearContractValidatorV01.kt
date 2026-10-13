@@ -48,7 +48,11 @@ object SourceCapabilityRadiometricRawToLinearContractValidatorV01 {
         sourceSha256: String,
         linearizationReport: JSONObject?,
         effectiveBlackNormalizationReport: JSONObject?,
-        clippingRuleReport: JSONObject? = null,
+        clippingRuleReport: JSONObject? =
+            SourceCapabilityRadiometricRawToLinearClippingRuleValidatorV01.describe(
+                sourceSha256 = sourceSha256,
+                effectiveBlackNormalizationReport = effectiveBlackNormalizationReport,
+            ),
     ): JSONObject {
         require(sourceSha256.matches(Regex("[0-9a-fA-F]{64}"))) {
             "Invalid source SHA-256 binding"
