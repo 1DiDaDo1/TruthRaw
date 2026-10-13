@@ -9,6 +9,7 @@ on:
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricRawToLinearContractValidatorV01Test.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRawToLinearRuntimeExposureV01Test.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRuntimeEvidenceEnvelopeV01Test.kt'
       - 'docs/handoff/DRAW_44489_RAW_TO_LINEAR_CONTRACT_AUDIT_V0_1_2026-10-12.md'
       - '.github/workflows/source-capability-raw-to-linear-contract-v01-integrity.yml'
@@ -41,7 +42,7 @@ jobs:
 
           test "$(grep -F 'SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01.describe(' "$ENV" | wc -l)" -eq 1
           test "$(grep -F 'SourceCapabilityRadiometricLinearizationTableValidatorV01.describe(' "$ENV" | wc -l)" -eq 1
-          test "$(grep -F 'SourceCapabilityRadiometricRawToLinearContractValidatorV01.describe(' "$ENV" | wc -l)" -le 1
+          test "$(grep -F 'SourceCapabilityRadiometricRawToLinearContractValidatorV01.describe(' "$ENV" | wc -l)" -eq 1
 
           ! grep -F 'DngContainerMetadataParser' "$SRC"
           ! grep -F '50712 to "LinearizationTable"' "$PARSER"
@@ -76,6 +77,7 @@ jobs:
         run: >-
           gradle --no-daemon :app:testDebugUnitTest
           --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricRawToLinearContractValidatorV01Test
+          --tests com.truthraw.adaptiveui.SourceCapabilityRawToLinearRuntimeExposureV01Test
           --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricLinearizationTableValidatorV01Test
           --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01Test
           --tests com.truthraw.adaptiveui.SourceCapabilityRuntimeEvidenceEnvelopeV01Test
