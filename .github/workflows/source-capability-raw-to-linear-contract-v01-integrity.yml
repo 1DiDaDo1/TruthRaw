@@ -4,11 +4,13 @@ on:
   pull_request:
     paths:
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricRawToLinearContractValidatorV01.kt'
+      - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricRawToLinearClippingRuleValidatorV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricLinearizationTableValidatorV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01.kt'
       - 'suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricRawToLinearContractValidatorV01Test.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricRawToLinearClippingRuleValidatorV01Test.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRawToLinearRuntimeExposureV01Test.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRuntimeEvidenceEnvelopeV01Test.kt'
       - 'docs/handoff/DRAW_44489_RAW_TO_LINEAR_CONTRACT_AUDIT_V0_1_2026-10-12.md'
@@ -37,6 +39,7 @@ jobs:
         run: |
           set -euo pipefail
           SRC='suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricRawToLinearContractValidatorV01.kt'
+          CLIP='suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricRawToLinearClippingRuleValidatorV01.kt'
           ENV='suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
           PARSER='suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
 
@@ -45,14 +48,31 @@ jobs:
           test "$(grep -F 'SourceCapabilityRadiometricRawToLinearContractValidatorV01.describe(' "$ENV" | wc -l)" -eq 1
 
           ! grep -F 'DngContainerMetadataParser' "$SRC"
+          ! grep -F 'DngContainerMetadataParser' "$CLIP"
           ! grep -F '50712 to "LinearizationTable"' "$PARSER"
 
-          grep -F 'NO_SEPARATE_SOURCE_CAPABILITY_CLIPPING_VALIDATOR_V01' "$SRC"
+          grep -F 'SourceCapabilityRadiometricRawToLinearClippingRuleValidatorV01' "$SRC"
+          grep -F 'clippingRuleReport: JSONObject? = null' "$SRC"
           grep -F 'UNRESOLVED_CLIPPING_COMPONENT_NOT_VALIDATED' "$SRC"
           grep -F 'UNRESOLVED_MALFORMED_COMPONENT_IFD_IDENTITY_FAIL_CLOSED' "$SRC"
           grep -F 'CONTRADICTED_DUPLICATE_COMPONENT_IFD_IDENTITY_FAIL_CLOSED' "$SRC"
 
-          grep -F '.put("metadata_ordering_composition_contract_validated", false)' "$SRC"
+          grep -F 'SHADOW_ONLY_DNG_POST_NORMALIZATION_CLIPPING_RULE_CONTRACT' "$CLIP"
+          grep -F '.put("observed_sample_censoring_validated", false)' "$CLIP"
+          grep -F '.put("physical_sensor_saturation_calibrated", false)' "$CLIP"
+          grep -F '.put("truthrange_censor_authority_created", false)' "$CLIP"
+          grep -F '.put("image_sample_payload_read", false)' "$CLIP"
+          grep -F '.put("clipping_applied_to_image_samples", false)' "$CLIP"
+          grep -F '.put("record_lifecycle_effect", false)' "$CLIP"
+          grep -F '.put("scientific_admission_effect", false)' "$CLIP"
+          grep -F '.put("downstream_scientific_consumer_enabled", false)' "$CLIP"
+          grep -F '.put("pixel_route_effect", false)' "$CLIP"
+          grep -F '.put("scientific_master_pixel_effect", false)' "$CLIP"
+          grep -F '.put("appearance_pixel_effect", false)' "$CLIP"
+          grep -F '.put("source_values_modified", false)' "$CLIP"
+          grep -F '.put("creates_new_evidence", false)' "$CLIP"
+          grep -F '.put("scientific_writeback_allowed", false)' "$CLIP"
+
           grep -F '.put("table_application_to_image_samples_validated", false)' "$SRC"
           grep -F '.put("full_raw_to_linear_mapping_validated", false)' "$SRC"
           grep -F '.put("image_sample_payload_read", false)' "$SRC"
@@ -60,6 +80,8 @@ jobs:
           grep -F '.put("black_subtraction_applied_to_image_samples", false)' "$SRC"
           grep -F '.put("normalization_applied_to_image_samples", false)' "$SRC"
           grep -F '.put("clipping_applied_to_image_samples", false)' "$SRC"
+          grep -F '.put("observed_sample_censoring_validated", false)' "$SRC"
+          grep -F '.put("physical_sensor_saturation_calibrated", false)' "$SRC"
           grep -F '.put("record_lifecycle_effect", false)' "$SRC"
           grep -F '.put("scientific_admission_effect", false)' "$SRC"
           grep -F '.put("downstream_scientific_consumer_enabled", false)' "$SRC"
@@ -77,6 +99,7 @@ jobs:
         run: >-
           gradle --no-daemon :app:testDebugUnitTest
           --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricRawToLinearContractValidatorV01Test
+          --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricRawToLinearClippingRuleValidatorV01Test
           --tests com.truthraw.adaptiveui.SourceCapabilityRawToLinearRuntimeExposureV01Test
           --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricLinearizationTableValidatorV01Test
           --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01Test
