@@ -40,6 +40,10 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Run Source Capability diagnostic unit regressions
+        working-directory: suite_android
+        run: gradle --no-daemon :app:testDebugUnitTest --tests com.truthraw.adaptiveui.SourceCapabilityRealDeviceDiagnosticV01Test
+
       - name: Materialize stable D.RAW development signing identity
         env:
           DRAW_DEBUG_KEYSTORE_B64: ${{ secrets.DRAW_DEBUG_KEYSTORE_B64 }}
