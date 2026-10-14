@@ -48,8 +48,7 @@ object SourceCapabilityRealDeviceDiagnosticV01 {
         buildGitSha: String? = null,
     ): JSONObject {
         val sourceSha256 = runtimeEnvelope.optString("source_sha256", "").lowercase()
-        val rawToLinear =
-            runtimeEnvelope.optJSONObject("radiometric_raw_to_linear_contract_v0_1")
+        val rawToLinear = runtimeEnvelope.optJSONObject("radiometric_raw_to_linear_contract_v0_1")
         val sourceBindingStatus =
             when {
                 !sourceSha256.matches(Regex("[0-9a-f]{64}")) ->
@@ -64,11 +63,9 @@ object SourceCapabilityRealDeviceDiagnosticV01 {
         val safeguards = JSONObject()
         var allSafeguardsExplicitlyFalse = rawToLinear != null
         for (key in rawToLinearSafeguardKeys) {
-            val explicitlyFalse =
-                rawToLinear?.has(key) == true &&
-                    rawToLinear.opt(key) is Boolean &&
-                    !rawToLinear.optBoolean(key, true)
-            safeguards.put(key, if (rawToLinear?.has(key) == true) rawToLinear.opt(key) else JSONObject.NULL)
+            val observed = rawToLinear?.opt(key)
+            val explicitlyFalse = observed is Boolean && !observed
+            safeguards.put(key, observed ?: JSONObject.NULL)
             if (!explicitlyFalse) allSafeguardsExplicitlyFalse = false
         }
 
@@ -103,7 +100,7 @@ object SourceCapabilityRealDeviceDiagnosticV01 {
         return JSONObject()
             .put("schema", SCHEMA)
             .put("status", STATUS)
-            .put("source_sha256", sourceSha256.ifBlank { JSONObject.NULL })
+            .put("source_sha256", if (sourceSha256.isBlank()) JSONObject.NULL else sourceSha256)
             .put("source_byte_length", runtimeEnvelope.opt("source_byte_length") ?: JSONObject.NULL)
             .put("runtime_envelope_schema", runtimeEnvelope.optString("schema", "UNKNOWN"))
             .put("runtime_envelope_status", runtimeEnvelope.optString("status", "UNKNOWN_FAIL_CLOSED"))
