@@ -299,6 +299,10 @@ object UniversalSourceProfiler {
                 sourceSha256 = sourceSha256,
                 parsedContainerMetadata = parsed,
             )
+        val sourceCapabilityRealDeviceDiagnostic =
+            SourceCapabilityRealDeviceDiagnosticV01.describe(
+                runtimeEnvelope = sourceCapabilityEvidenceLedger,
+            )
 
         val ifds = parsed.optJSONArray("ifds") ?: JSONArray()
         val rawCandidates = parsed.optJSONArray("rawCfaIfdCandidates") ?: JSONArray()
@@ -830,6 +834,10 @@ object UniversalSourceProfiler {
             .put("metadata_parse_status", "PASS_READ_ONLY")
             .put("container_metadata", parsed)
             .put("source_capability_envelope_v0_2", sourceCapabilityEvidenceLedger)
+            .put(
+                "source_capability_real_device_diagnostic_v0_1",
+                sourceCapabilityRealDeviceDiagnostic,
+            )
             .put("source_metadata", metadata)
             .put("primary_raw_raster", raster)
             .put("raster_independent_sample_lattice", sampleLattice)
