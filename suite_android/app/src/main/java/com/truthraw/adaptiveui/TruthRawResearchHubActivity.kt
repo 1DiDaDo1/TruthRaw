@@ -240,7 +240,6 @@ class TruthRawResearchHubActivity : Activity() {
             )
             .put("status", "READ_ONLY_REAL_DEVICE_DIAGNOSTIC_EXPORT")
             .put("test_build_marker", "SOURCE_CAPABILITY_DIAGNOSTIC_EXPORT_V01")
-            .put("app_version_code", BuildConfig.VERSION_CODE)
             .put("diagnostic_count", diagnostics.length())
             .put("diagnostics", diagnostics)
             .put("source_values_modified", false)
