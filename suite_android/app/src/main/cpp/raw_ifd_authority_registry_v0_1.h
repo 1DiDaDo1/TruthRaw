@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdint>
+#include <limits>
 #include <map>
 #include <mutex>
 
@@ -11,7 +12,7 @@ using SourceSha256 = std::array<std::uint8_t, 32>;
 
 struct Authority final {
     SourceSha256 sourceSha256{};
-    std::uint64_t rawIfdOffset = 0;
+    std::uint32_t rawIfdOffset = 0;
 };
 
 inline std::mutex& registryMutex() noexcept {
@@ -19,27 +20,32 @@ inline std::mutex& registryMutex() noexcept {
     return mutex;
 }
 
-inline std::map<SourceSha256, std::uint64_t>& registry() noexcept {
-    static std::map<SourceSha256, std::uint64_t> values;
+inline std::map<SourceSha256, std::uint32_t>& registry() noexcept {
+    static std::map<SourceSha256, std::uint32_t> values;
     return values;
 }
 
 // Idempotent for the same source/offset pair. A conflicting offset for an
 // already-bound sealed source is rejected instead of silently replacing
-// authority. This registry carries identity only; it never grants radiometric
-// or sample-domain authority.
+// authority. Classic-TIFF/DNG raw-IFD offsets are uint32 by construction; a
+// wider value is invalid rather than silently narrowed. This registry carries
+// identity only; it never grants radiometric or sample-domain authority.
 inline bool registerValidated(
     const SourceSha256& sourceSha256,
     std::uint64_t rawIfdOffset) noexcept {
-    if (rawIfdOffset == 0u) return false;
+    if (rawIfdOffset == 0u ||
+        rawIfdOffset > static_cast<std::uint64_t>(std::numeric_limits<std::uint32_t>::max())) {
+        return false;
+    }
+    const auto boundedOffset = static_cast<std::uint32_t>(rawIfdOffset);
     std::lock_guard<std::mutex> lock(registryMutex());
     auto& values = registry();
     const auto found = values.find(sourceSha256);
     if (found == values.end()) {
-        values.emplace(sourceSha256, rawIfdOffset);
+        values.emplace(sourceSha256, boundedOffset);
         return true;
     }
-    return found->second == rawIfdOffset;
+    return found->second == boundedOffset;
 }
 
 inline bool lookupValidated(

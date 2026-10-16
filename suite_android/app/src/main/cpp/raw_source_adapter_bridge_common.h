@@ -49,17 +49,23 @@ inline multivendor_raw_source_adapter::v0_1::AdapterStatus openDngViaAdapter(
             "Android DNG adapter bridge requires admitted source seal and color");
     }
 
+    // A validated Source-Capability authority, when present, overrides only the
+    // raw-IFD identity. If none was supplied, preserve the pre-existing DNG open
+    // behavior: zero means TileNativeDngSource must find one unique supported
+    // raw IFD. An already-prepared explicit offset remains admissible, but may
+    // never contradict a source-SHA-bound validated authority.
+    std::uint32_t explicitRawIfdOffset = admittedDngOptions.explicitRawIfdOffset;
     ifdAuthority::Authority authority;
-    if (!ifdAuthority::lookupValidated(sourceSeal.sha256, authority)) {
-        return adapter::AdapterStatus::error(
-            adapter::AdapterStatusCode::InvalidArgument,
-            "Android DNG adapter bridge requires validated source-bound raw IFD authority");
-    }
-    if (admittedDngOptions.explicitRawIfdOffset != 0u &&
-        admittedDngOptions.explicitRawIfdOffset != authority.rawIfdOffset) {
-        return adapter::AdapterStatus::error(
-            adapter::AdapterStatusCode::SourceSealMismatch,
-            "prepared DNG raw IFD offset contradicts validated source-bound authority");
+    const bool hasValidatedAuthority =
+        ifdAuthority::lookupValidated(sourceSeal.sha256, authority);
+    if (hasValidatedAuthority) {
+        if (explicitRawIfdOffset != 0u &&
+            explicitRawIfdOffset != authority.rawIfdOffset) {
+            return adapter::AdapterStatus::error(
+                adapter::AdapterStatusCode::SourceSealMismatch,
+                "prepared DNG raw IFD offset contradicts validated source-bound authority");
+        }
+        explicitRawIfdOffset = authority.rawIfdOffset;
     }
 
     adapter::RawSourceOpenRequest request;
@@ -71,7 +77,7 @@ inline multivendor_raw_source_adapter::v0_1::AdapterStatus openDngViaAdapter(
     request.color.valid = admittedDngOptions.color.valid;
     request.color.bindingId = admittedDngOptions.color.bindingId;
     request.color.cameraToXyzD50 = admittedDngOptions.color.cameraToXyzD50;
-    request.explicitRawIfdOffset = authority.rawIfdOffset;
+    request.explicitRawIfdOffset = explicitRawIfdOffset;
     request.maxResidentBytes = admittedDngOptions.maxResidentBytes;
 
     adapter::RawSourceAdapterRegistry registry;
@@ -96,7 +102,12 @@ inline multivendor_raw_source_adapter::v0_1::AdapterStatus openDngViaAdapter(
             "DNG adapter did not return TileNativeDngSource implementation");
     }
 
-    if (out.dngAuditSource->audit().rawIfdOffset != request.explicitRawIfdOffset) {
+    // When an explicit authority was supplied, verify it against the audit of
+    // this exact opened decoder instance. A missing/mismatched identity is a
+    // hard failure. With no explicit authority, this check is intentionally not
+    // promoted into a new selection rule; legacy unique-IFD behavior remains.
+    if (request.explicitRawIfdOffset != 0u &&
+        out.dngAuditSource->audit().rawIfdOffset != request.explicitRawIfdOffset) {
         out.source.reset();
         out.dngAuditSource = nullptr;
         out.descriptor = {};
