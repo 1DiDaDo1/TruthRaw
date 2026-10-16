@@ -14,6 +14,11 @@ on:
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRawToLinearRuntimeExposureV01Test.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRawIfdRuntimeAuthorityV01Test.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRuntimeEvidenceEnvelopeV01Test.kt'
+      - 'suite_android/app/src/main/cpp/raw_source_adapter_bridge_common.h'
+      - 'suite_android/app/src/main/cpp/raw_ifd_authority_registry_v0_1.h'
+      - 'suite_android/app/src/test/native/raw_ifd_authority_bridge_v0_1/**'
+      - 'docs/research/multivendor-raw-source-adapter-v0.1/native/multivendor_raw_source_adapter_v0_1.h'
+      - 'docs/research/multivendor-raw-source-adapter-v0.1/native/multivendor_raw_source_adapter_v0_1.cpp'
       - 'docs/handoff/DRAW_44489_RAW_TO_LINEAR_CONTRACT_AUDIT_V0_1_2026-10-12.md'
       - '.github/workflows/source-capability-raw-to-linear-contract-v01-integrity.yml'
   workflow_dispatch:
@@ -43,6 +48,7 @@ jobs:
           CLIP='suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricRawToLinearClippingRuleValidatorV01.kt'
           ENV='suite_android/app/src/main/java/com/truthraw/adaptiveui/SourceCapabilityEnvelopeV02.kt'
           PARSER='suite_android/app/src/main/java/com/truthraw/adaptiveui/DngContainerMetadataParser.kt'
+          BRIDGE='suite_android/app/src/main/cpp/raw_source_adapter_bridge_common.h'
 
           test "$(grep -F 'SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01.describe(' "$ENV" | wc -l)" -eq 1
           test "$(grep -F 'SourceCapabilityRadiometricLinearizationTableValidatorV01.describe(' "$ENV" | wc -l)" -eq 1
@@ -97,6 +103,11 @@ jobs:
           grep -F '.put("parser_tag_rename_performed", false)' "$SRC"
           grep -F '.put("observation_evidence_ledger_identity_changed", false)' "$SRC"
 
+          grep -F 'request.explicitRawIfdOffset = explicitRawIfdOffset;' "$BRIDGE"
+          grep -F 'verifyOpenedRawIfdAuthority(' "$BRIDGE"
+          grep -F 'out.dngAuditSource->audit().rawIfdOffset' "$BRIDGE"
+          grep -F 'AdapterStatusCode::SourceSealMismatch' "$BRIDGE"
+
       - name: Run raw-to-linear and dependency regressions
         working-directory: suite_android
         run: >-
@@ -108,3 +119,12 @@ jobs:
           --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricLinearizationTableValidatorV01Test
           --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01Test
           --tests com.truthraw.adaptiveui.SourceCapabilityRuntimeEvidenceEnvelopeV01Test
+
+      - name: Run native raw-IFD authority bridge regression
+        run: |
+          set -euo pipefail
+          TEST_ROOT='suite_android/app/src/test/native/raw_ifd_authority_bridge_v0_1'
+          BUILD_ROOT="${RUNNER_TEMP}/raw_ifd_authority_bridge_v0_1"
+          cmake -S "$TEST_ROOT" -B "$BUILD_ROOT" -DCMAKE_BUILD_TYPE=Release
+          cmake --build "$BUILD_ROOT" --config Release --parallel 2
+          "$BUILD_ROOT/test_raw_ifd_authority_bridge_v0_1"
