@@ -1,0 +1,66 @@
+name: Tile-Native DNG Raw-to-Linear Dependency Guard v0.1
+
+on:
+  push:
+    paths:
+      - 'docs/research/tile-native-dng-source-v0.2/**'
+      - '.github/workflows/tile-native-dng-raw-to-linear-dependency-guard-v01.yml'
+  pull_request:
+    paths:
+      - 'docs/research/tile-native-dng-source-v0.2/**'
+      - '.github/workflows/tile-native-dng-raw-to-linear-dependency-guard-v01.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-guard:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: gcc-release
+            cxx: g++
+            flags: '-O2'
+          - name: clang-release
+            cxx: clang++
+            flags: '-O2'
+          - name: clang-asan-ubsan
+            cxx: clang++
+            flags: '-O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer'
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify dependency gate is detection-only
+        run: |
+          set -euo pipefail
+          HDR='docs/research/tile-native-dng-source-v0.2/native/tile_native_dng_source_v0_1_internal.h'
+          SRC='docs/research/tile-native-dng-source-v0.2/native/tile_native_dng_source_v0_1.cpp'
+          TEST='docs/research/tile-native-dng-source-v0.2/tests/test_tile_native_dng_raw_to_linear_dependency_guard_v0_1.cpp'
+          grep -F 'TIFF_SRATIONAL=10' "$HDR"
+          grep -F 'TAG_LinearizationTable=50712' "$HDR"
+          grep -F 'TAG_BlackLevelDeltaH=50715' "$HDR"
+          grep -F 'TAG_BlackLevelDeltaV=50716' "$HDR"
+          grep -F 'selected Raw IFD has unsupported raw-to-linear dependency tag=' "$SRC"
+          grep -F 'RAW_TO_LINEAR_UNSUPPORTED_DEPENDENCY_GUARD_V0_1_PASS' "$TEST"
+
+      - name: Build and run native dependency guard
+        env:
+          CXX: ${{ matrix.cxx }}
+          CXXFLAGS: ${{ matrix.flags }}
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/raw_to_linear_dependency_guard_v0_1"
+          $CXX -std=c++17 -Wall -Wextra -Werror $CXXFLAGS \
+            -I docs/research/tile-native-dng-source-v0.2/native \
+            -I docs/research/full-frame-streaming-v0.1/native \
+            -I canonical/reconstruction/v4.7i/native/include \
+            docs/research/tile-native-dng-source-v0.2/tests/test_tile_native_dng_raw_to_linear_dependency_guard_v0_1.cpp \
+            docs/research/tile-native-dng-source-v0.2/native/tile_native_dng_source_v0_1.cpp \
+            docs/research/tile-native-dng-source-v0.2/native/tile_native_dng_source_v0_1_bind.cpp \
+            docs/research/tile-native-dng-source-v0.2/native/tile_native_dng_source_v0_1_read.cpp \
+            -o "$OUT"
+          "$OUT"
