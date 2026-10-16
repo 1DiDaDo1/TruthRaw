@@ -12,6 +12,7 @@ on:
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricRawToLinearContractValidatorV01Test.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRadiometricRawToLinearClippingRuleValidatorV01Test.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRawToLinearRuntimeExposureV01Test.kt'
+      - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRawIfdRuntimeAuthorityV01Test.kt'
       - 'suite_android/app/src/test/java/com/truthraw/adaptiveui/SourceCapabilityRuntimeEvidenceEnvelopeV01Test.kt'
       - 'docs/handoff/DRAW_44489_RAW_TO_LINEAR_CONTRACT_AUDIT_V0_1_2026-10-12.md'
       - '.github/workflows/source-capability-raw-to-linear-contract-v01-integrity.yml'
@@ -103,6 +104,7 @@ jobs:
           --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricRawToLinearContractValidatorV01Test
           --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricRawToLinearClippingRuleValidatorV01Test
           --tests com.truthraw.adaptiveui.SourceCapabilityRawToLinearRuntimeExposureV01Test
+          --tests com.truthraw.adaptiveui.SourceCapabilityRawIfdRuntimeAuthorityV01Test
           --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricLinearizationTableValidatorV01Test
           --tests com.truthraw.adaptiveui.SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01Test
           --tests com.truthraw.adaptiveui.SourceCapabilityRuntimeEvidenceEnvelopeV01Test
