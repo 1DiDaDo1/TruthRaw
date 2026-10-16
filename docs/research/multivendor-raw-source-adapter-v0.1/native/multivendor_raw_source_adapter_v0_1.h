@@ -147,6 +147,10 @@ struct RawSourceOpenRequest final {
     RawSourceSeal sourceSeal;
     RawColorBinding color;
     RawRadiometricBinding radiometric;
+    // Identity-only authority for DNG raw-IFD selection. Zero means no explicit
+    // authority was supplied. This field does not validate any sample-domain
+    // raw-to-linear operation.
+    std::uint64_t explicitRawIfdOffset = 0u;
     std::size_t maxResidentBytes = 8u * 1024u * 1024u;
 };
 

@@ -1,0 +1,139 @@
+package com.truthraw.adaptiveui
+
+import org.json.JSONArray
+import org.json.JSONObject
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertNotNull
+import org.junit.Test
+
+class SourceCapabilityRawIfdRuntimeAuthorityV01Test {
+    private val source = "a".repeat(64)
+
+    @Test
+    fun acceptsExactlyOneSourceBoundValidatedIfdWithoutPromotingSampleMapping() {
+        val authority =
+            SourceCapabilityRawIfdRuntimeAuthorityBinderV01.extract(
+                profile(offsets = listOf(25373814L)),
+            )
+
+        assertNotNull(authority)
+        requireNotNull(authority)
+        assertEquals(source, authority.sourceSha256)
+        assertEquals("IFD0", authority.ifdPath)
+        assertEquals(25373814L, authority.ifdOffset)
+    }
+
+    @Test
+    fun rejectsCrossSourceContract() {
+        val profile = profile(offsets = listOf(25373814L))
+        profile
+            .getJSONObject("source_capability_envelope_v0_2")
+            .getJSONObject("radiometric_raw_to_linear_contract_v0_1")
+            .put("source_sha256", "b".repeat(64))
+
+        assertNull(SourceCapabilityRawIfdRuntimeAuthorityBinderV01.extract(profile))
+    }
+
+    @Test
+    fun rejectsMultipleValidatedRawIfdsInsteadOfGuessing() {
+        assertNull(
+            SourceCapabilityRawIfdRuntimeAuthorityBinderV01.extract(
+                profile(offsets = listOf(100L, 200L)),
+            ),
+        )
+    }
+
+    @Test
+    fun rejectsAnyAccidentalSampleDomainPromotion() {
+        val profile = profile(offsets = listOf(25373814L))
+        profile
+            .getJSONObject("source_capability_envelope_v0_2")
+            .getJSONObject("radiometric_raw_to_linear_contract_v0_1")
+            .put("full_raw_to_linear_mapping_validated", true)
+
+        assertNull(SourceCapabilityRawIfdRuntimeAuthorityBinderV01.extract(profile))
+    }
+
+    private fun profile(offsets: List<Long>): JSONObject {
+        val rawDomainIfds = JSONArray()
+        val contractIfds = JSONArray()
+        offsets.forEachIndexed { index, offset ->
+            val path = if (index == 0) "IFD0" else "IFD$index"
+            rawDomainIfds.put(
+                JSONObject()
+                    .put("ifd_path", path)
+                    .put("ifd_offset", offset)
+                    .put(
+                        "domain_status",
+                        SourceCapabilityRawIfdDomainValidatorV01.VALIDATED_RAW_DOMAIN,
+                    ),
+            )
+            contractIfds.put(
+                JSONObject()
+                    .put("ifd_identity", "$path@$offset")
+                    .put("ifd_path", path)
+                    .put("ifd_offset", offset)
+                    .put(
+                        "raw_to_linear_composition_status",
+                        SourceCapabilityRadiometricRawToLinearContractValidatorV01.VALIDATED,
+                    )
+                    .put("metadata_ordering_composition_contract_validated", true)
+                    .put("full_raw_to_linear_mapping_validated", false),
+            )
+        }
+
+        val rawDomain =
+            JSONObject()
+                .put("schema", SourceCapabilityRawIfdDomainValidatorV01.SCHEMA)
+                .put("status", SourceCapabilityRawIfdDomainValidatorV01.STATUS)
+                .put("source_sha256", source)
+                .put("ifds", rawDomainIfds)
+
+        val contract =
+            JSONObject()
+                .put("schema", SourceCapabilityRadiometricRawToLinearContractValidatorV01.SCHEMA)
+                .put("status", SourceCapabilityRadiometricRawToLinearContractValidatorV01.STATUS)
+                .put("source_sha256", source)
+                .put(
+                    "dependency_ifd_identity_integrity_status",
+                    SourceCapabilityRadiometricRawToLinearContractValidatorV01.IFD_IDENTITY_INTEGRITY_VALIDATED,
+                )
+                .put(
+                    "raw_to_linear_composition_status",
+                    SourceCapabilityRadiometricRawToLinearContractValidatorV01.VALIDATED,
+                )
+                .put("all_existing_dependency_reports_bind_same_source", true)
+                .put("metadata_ordering_composition_contract_validated", true)
+                .put("table_application_to_image_samples_validated", false)
+                .put("full_raw_to_linear_mapping_validated", false)
+                .put("image_sample_payload_read", false)
+                .put("linearization_applied_to_image_samples", false)
+                .put("black_subtraction_applied_to_image_samples", false)
+                .put("normalization_applied_to_image_samples", false)
+                .put("clipping_applied_to_image_samples", false)
+                .put("observed_sample_censoring_validated", false)
+                .put("physical_sensor_saturation_calibrated", false)
+                .put("scene_radiance_above_censor_recovered", false)
+                .put("record_lifecycle_effect", false)
+                .put("scientific_admission_effect", false)
+                .put("downstream_scientific_consumer_enabled", false)
+                .put("pixel_route_effect", false)
+                .put("scientific_master_pixel_effect", false)
+                .put("appearance_pixel_effect", false)
+                .put("source_values_modified", false)
+                .put("creates_new_evidence", false)
+                .put("scientific_writeback_allowed", false)
+                .put("ifds", contractIfds)
+
+        val envelope =
+            JSONObject()
+                .put("source_sha256", source)
+                .put("raw_ifd_domain_validation_v0_1", rawDomain)
+                .put("radiometric_raw_to_linear_contract_v0_1", contract)
+
+        return JSONObject()
+            .put("source_sha256", source)
+            .put("source_capability_envelope_v0_2", envelope)
+    }
+}

@@ -1,5 +1,6 @@
 #include <jni.h>
 
+#include "raw_ifd_authority_registry_v0_1.h"
 #include "tile_native_dng_source_v0_1.h"
 
 #include <algorithm>
@@ -13,6 +14,7 @@
 namespace {
 
 using truthraw::TileRect;
+using truthraw::raw_ifd_authority::v0_1::SourceSha256;
 using truthraw::tile_dng_v0_1::ColorBinding;
 using truthraw::tile_dng_v0_1::DngSourceCode;
 using truthraw::tile_dng_v0_1::OpenOptions;
@@ -48,7 +50,52 @@ int sample_x(int previewX, int previewWidth, int sourceWidth) {
     return std::clamp(static_cast<int>(x), 0, sourceWidth - 1);
 }
 
+int hex_value(char c) noexcept {
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return 10 + (c - 'a');
+    if (c >= 'A' && c <= 'F') return 10 + (c - 'A');
+    return -1;
+}
+
+bool parse_source_sha256(JNIEnv* env, jstring text, SourceSha256& out) noexcept {
+    if (text == nullptr || env->GetStringUTFLength(text) != 64) return false;
+    const char* chars = env->GetStringUTFChars(text, nullptr);
+    if (chars == nullptr) return false;
+
+    bool valid = true;
+    SourceSha256 parsed{};
+    for (std::size_t i = 0; i < parsed.size(); ++i) {
+        const int hi = hex_value(chars[i * 2u]);
+        const int lo = hex_value(chars[i * 2u + 1u]);
+        if (hi < 0 || lo < 0) {
+            valid = false;
+            break;
+        }
+        parsed[i] = static_cast<std::uint8_t>((hi << 4) | lo);
+    }
+    env->ReleaseStringUTFChars(text, chars);
+    if (!valid) return false;
+    out = parsed;
+    return true;
+}
+
 } // namespace
+
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_truthraw_adaptiveui_RawIfdAuthorityBridgeV01_registerValidatedRawIfdAuthority(
+    JNIEnv* env,
+    jobject,
+    jstring sourceSha256,
+    jlong rawIfdOffset) {
+    if (rawIfdOffset <= 0) return JNI_FALSE;
+    SourceSha256 source{};
+    if (!parse_source_sha256(env, sourceSha256, source)) return JNI_FALSE;
+    const bool registered =
+        truthraw::raw_ifd_authority::v0_1::registerValidated(
+            source,
+            static_cast<std::uint64_t>(rawIfdOffset));
+    return registered ? JNI_TRUE : JNI_FALSE;
+}
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_probeDngSourceOpenDetail(
