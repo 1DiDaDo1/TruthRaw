@@ -86,6 +86,7 @@ public:
         options.color.valid = true;
         options.color.bindingId = request.color.bindingId;
         options.color.cameraToXyzD50 = request.color.cameraToXyzD50;
+        options.explicitRawIfdOffset = request.explicitRawIfdOffset;
         options.maxResidentBytes = request.maxResidentBytes;
 
         std::unique_ptr<TileNativeDngSource> dng;
