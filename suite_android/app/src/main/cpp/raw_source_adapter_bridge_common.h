@@ -34,6 +34,18 @@ struct OpenedDngSource final {
     multivendor_raw_source_adapter::v0_1::RawSourceDescriptor descriptor{};
 };
 
+inline multivendor_raw_source_adapter::v0_1::AdapterStatus verifyOpenedRawIfdAuthority(
+    std::uint32_t expectedRawIfdOffset,
+    std::uint32_t actualRawIfdOffset) noexcept {
+    namespace adapter = multivendor_raw_source_adapter::v0_1;
+    if (expectedRawIfdOffset != 0u && actualRawIfdOffset != expectedRawIfdOffset) {
+        return adapter::AdapterStatus::error(
+            adapter::AdapterStatusCode::SourceSealMismatch,
+            "opened DNG raw IFD differs from validated source-bound authority");
+    }
+    return adapter::AdapterStatus::ok();
+}
+
 inline multivendor_raw_source_adapter::v0_1::AdapterStatus openDngViaAdapter(
     std::shared_ptr<tile_dng_v0_1::IRandomAccessByteSource> bytes,
     const scientific_preview_binding_v0_1::SourceSeal& sourceSeal,
@@ -106,14 +118,14 @@ inline multivendor_raw_source_adapter::v0_1::AdapterStatus openDngViaAdapter(
     // this exact opened decoder instance. A missing/mismatched identity is a
     // hard failure. With no explicit authority, this check is intentionally not
     // promoted into a new selection rule; legacy unique-IFD behavior remains.
-    if (request.explicitRawIfdOffset != 0u &&
-        out.dngAuditSource->audit().rawIfdOffset != request.explicitRawIfdOffset) {
+    const auto rawIfdAuthorityStatus = verifyOpenedRawIfdAuthority(
+        request.explicitRawIfdOffset,
+        out.dngAuditSource->audit().rawIfdOffset);
+    if (!rawIfdAuthorityStatus) {
         out.source.reset();
         out.dngAuditSource = nullptr;
         out.descriptor = {};
-        return adapter::AdapterStatus::error(
-            adapter::AdapterStatusCode::SourceSealMismatch,
-            "opened DNG raw IFD differs from validated source-bound authority");
+        return rawIfdAuthorityStatus;
     }
 
     // The research adapter keeps its sealed v0.1 interface, while the Android
