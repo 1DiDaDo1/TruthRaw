@@ -1,6 +1,7 @@
 #pragma once
 
 #include "multivendor_raw_source_adapter_v0_1.h"
+#include "raw_ifd_authority_registry_v0_1.h"
 #include "scientific_preview_source_binding_v0_1.h"
 #include "tile_native_dng_source_v0_1.h"
 
@@ -39,12 +40,26 @@ inline multivendor_raw_source_adapter::v0_1::AdapterStatus openDngViaAdapter(
     const tile_dng_v0_1::OpenOptions& admittedDngOptions,
     OpenedDngSource& out) noexcept {
     namespace adapter = multivendor_raw_source_adapter::v0_1;
+    namespace ifdAuthority = raw_ifd_authority::v0_1;
 
     out = {};
     if (!bytes || sourceSeal.sourceEvidenceId.empty() || !admittedDngOptions.color.valid) {
         return adapter::AdapterStatus::error(
             adapter::AdapterStatusCode::InvalidArgument,
             "Android DNG adapter bridge requires admitted source seal and color");
+    }
+
+    ifdAuthority::Authority authority;
+    if (!ifdAuthority::lookupValidated(sourceSeal.sha256, authority)) {
+        return adapter::AdapterStatus::error(
+            adapter::AdapterStatusCode::InvalidArgument,
+            "Android DNG adapter bridge requires validated source-bound raw IFD authority");
+    }
+    if (admittedDngOptions.explicitRawIfdOffset != 0u &&
+        admittedDngOptions.explicitRawIfdOffset != authority.rawIfdOffset) {
+        return adapter::AdapterStatus::error(
+            adapter::AdapterStatusCode::SourceSealMismatch,
+            "prepared DNG raw IFD offset contradicts validated source-bound authority");
     }
 
     adapter::RawSourceOpenRequest request;
@@ -56,6 +71,7 @@ inline multivendor_raw_source_adapter::v0_1::AdapterStatus openDngViaAdapter(
     request.color.valid = admittedDngOptions.color.valid;
     request.color.bindingId = admittedDngOptions.color.bindingId;
     request.color.cameraToXyzD50 = admittedDngOptions.color.cameraToXyzD50;
+    request.explicitRawIfdOffset = authority.rawIfdOffset;
     request.maxResidentBytes = admittedDngOptions.maxResidentBytes;
 
     adapter::RawSourceAdapterRegistry registry;
@@ -78,6 +94,15 @@ inline multivendor_raw_source_adapter::v0_1::AdapterStatus openDngViaAdapter(
         return adapter::AdapterStatus::error(
             adapter::AdapterStatusCode::DecodeFailed,
             "DNG adapter did not return TileNativeDngSource implementation");
+    }
+
+    if (out.dngAuditSource->audit().rawIfdOffset != request.explicitRawIfdOffset) {
+        out.source.reset();
+        out.dngAuditSource = nullptr;
+        out.descriptor = {};
+        return adapter::AdapterStatus::error(
+            adapter::AdapterStatusCode::SourceSealMismatch,
+            "opened DNG raw IFD differs from validated source-bound authority");
     }
 
     // The research adapter keeps its sealed v0.1 interface, while the Android
