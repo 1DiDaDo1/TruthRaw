@@ -111,9 +111,21 @@ object SourceCapabilityRawIfdRuntimeAuthorityBinderV01 {
 
     fun bindIfAvailable(profile: JSONObject): Boolean {
         val authority = extract(profile)
+        val runtimeObservation =
+            if (authority == null) {
+                null
+            } else {
+                runCatching {
+                    RawIfdAuthorityBridgeV01.readRawIfdRuntimeObservation(
+                        authority.sourceSha256,
+                    )
+                }.getOrNull()
+            }
+
         SourceCapabilityRawIfdDependencyDiagnosticV01.attach(
             profile = profile,
             authority = authority,
+            runtimeObservation = runtimeObservation,
         )
         if (authority == null) return false
         return runCatching {
