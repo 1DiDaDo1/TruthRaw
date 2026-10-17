@@ -58,6 +58,13 @@ jobs:
           test "$ACTUAL_KEYSTORE_SHA256" = "eaddcb4abdab1353a5cd15d71d52ea373abbabc46459ed7f2c8c08acf15d1137"
           keytool -list -keystore "$RUNNER_TEMP/draw-debug.jks" -storepass "$DRAW_DEBUG_STORE_PASSWORD" -alias "$DRAW_DEBUG_KEY_ALIAS" >/dev/null
 
+      - name: Run Raw-IFD diagnostic unit regressions
+        working-directory: suite_android
+        run: |
+          gradle --no-daemon :app:testDebugUnitTest \
+            --tests com.truthraw.adaptiveui.SourceCapabilityRawIfdDependencyDiagnosticV01Test \
+            --tests com.truthraw.adaptiveui.SourceCapabilityRawIfdRuntimeAuthorityV01Test
+
       - name: Assemble debug APK
         working-directory: suite_android
         env:
