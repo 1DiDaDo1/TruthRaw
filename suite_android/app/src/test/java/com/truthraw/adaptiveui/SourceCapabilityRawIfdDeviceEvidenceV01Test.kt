@@ -78,6 +78,71 @@ class SourceCapabilityRawIfdDeviceEvidenceV01Test {
         assertNull(SourceCapabilityRawIfdDeviceEvidenceV01.build(invalidSource))
     }
 
+    @Test
+    fun lastAdapterOpenForAnotherSourceNeverResolvesNotObserved() {
+        val otherSource = "b".repeat(64)
+        val packet =
+            "1|1|128|0|1|$otherSource|0|0|8|1|0|1|-1"
+        val probe =
+            RawIfdNativeRegistryProbeV01.parse(source, packet)
+        requireNotNull(probe)
+        assertTrue(probe.authorityRegisteredForRequestedSource)
+        assertFalse(probe.exactSourceObservationPresent)
+        assertEquals(otherSource, probe.lastAdapterOpenSourceSha256)
+
+        val exported =
+            SourceCapabilityRawIfdDeviceEvidenceV01.build(
+                profile("NOT_OBSERVED"),
+                nativeRegistryProbe = probe,
+            )
+        requireNotNull(exported)
+        val exact =
+            exported.getJSONObject("raw_ifd_dependency_diagnostic_v0_1")
+        val processMemory = exported.getJSONObject("native_registry_probe_v0_1")
+        assertEquals("NOT_OBSERVED", exact.getString("source_open_result"))
+        assertFalse(exact.getBoolean("runtime_open_observation_available"))
+        assertEquals(otherSource, processMemory.getString("last_adapter_open_source_sha256"))
+        assertFalse(processMemory.getBoolean("last_adapter_open_source_matches_requested"))
+        assertFalse(processMemory.getBoolean("last_adapter_is_source_evidence"))
+        assertFalse(exported.getBoolean("scientific_writeback_allowed"))
+    }
+
+    @Test
+    fun nativeRegistryProbeSeparatesRegisteredSourceFromNoRecordedOpen() {
+        val probe = RawIfdNativeRegistryProbeV01.parse(
+            source, "1|1|128|0|0|-|0|0|0|0|-1|0|-1",
+        )
+        requireNotNull(probe)
+        assertTrue(probe.authorityRegisteredForRequestedSource)
+        assertEquals(128L, probe.registeredRawIfdOffset)
+        assertFalse(probe.exactSourceObservationPresent)
+        assertFalse(probe.lastAdapterOpenRecorded)
+        val report = probe.toJson()
+        assertTrue(report.isNull("last_adapter_open_source_sha256"))
+        assertTrue(report.isNull("last_adapter_open_succeeded"))
+        assertFalse(report.getBoolean("creates_new_evidence"))
+    }
+
+    @Test
+    fun registryProbeRejectsMalformedOrCrossBoundPackets() {
+        assertNull(RawIfdNativeRegistryProbeV01.parse(source, "1|1|128"))
+        assertNull(RawIfdNativeRegistryProbeV01.parse(source, "1|1|128|0|1|-|0|0|0|0|-1|0|-1"))
+        assertNull(RawIfdNativeRegistryProbeV01.parse(source, "1|0|128|0|0|-|0|0|0|0|-1|0|-1"))
+        assertNull(RawIfdNativeRegistryProbeV01.parse("not-sha", "1|1|128|0|0|-|0|0|0|0|-1|0|-1"))
+
+        val otherRequested = "b".repeat(64)
+        val otherProbe = RawIfdNativeRegistryProbeV01.parse(
+            otherRequested, "1|1|128|0|0|-|0|0|0|0|-1|0|-1",
+        )
+        requireNotNull(otherProbe)
+        assertNull(
+            SourceCapabilityRawIfdDeviceEvidenceV01.build(
+                profile("NOT_OBSERVED"),
+                nativeRegistryProbe = otherProbe,
+            ),
+        )
+    }
+
     private fun profile(sourceOpenResult: String): JSONObject {
         val observed = sourceOpenResult == "SUCCESS"
         val diagnostic =
