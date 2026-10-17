@@ -73,6 +73,15 @@ inline multivendor_raw_source_adapter::v0_1::AdapterStatus openDngViaAdapter(
     if (hasValidatedAuthority) {
         if (explicitRawIfdOffset != 0u &&
             explicitRawIfdOffset != authority.rawIfdOffset) {
+            ifdAuthority::RuntimeObservation observation;
+            observation.validatedRawIfdOffset = authority.rawIfdOffset;
+            observation.requestedRawIfdOffset = explicitRawIfdOffset;
+            observation.authorityMatchState = 0;
+            observation.decoderOpenObserved = false;
+            observation.sourceOpenSucceeded = false;
+            observation.sourceOpenResultCode =
+                static_cast<std::int32_t>(adapter::AdapterStatusCode::SourceSealMismatch);
+            ifdAuthority::recordRuntimeObservation(sourceSeal.sha256, observation);
             return adapter::AdapterStatus::error(
                 adapter::AdapterStatusCode::SourceSealMismatch,
                 "prepared DNG raw IFD offset contradicts validated source-bound authority");
@@ -92,9 +101,34 @@ inline multivendor_raw_source_adapter::v0_1::AdapterStatus openDngViaAdapter(
     request.explicitRawIfdOffset = explicitRawIfdOffset;
     request.maxResidentBytes = admittedDngOptions.maxResidentBytes;
 
+    const auto recordOpenObservation = [&](std::uint32_t actualRawIfdOffset,
+                                           bool decoderOpenObserved,
+                                           bool sourceOpenSucceeded,
+                                           adapter::AdapterStatusCode resultCode) noexcept {
+        ifdAuthority::RuntimeObservation observation;
+        observation.validatedRawIfdOffset =
+            hasValidatedAuthority ? authority.rawIfdOffset : 0u;
+        observation.requestedRawIfdOffset = request.explicitRawIfdOffset;
+        observation.decoderSourceAuditRawIfdOffset = actualRawIfdOffset;
+        observation.authorityMatchState =
+            request.explicitRawIfdOffset == 0u
+                ? -1
+                : (actualRawIfdOffset != 0u &&
+                           actualRawIfdOffset == request.explicitRawIfdOffset
+                       ? 1
+                       : (decoderOpenObserved ? 0 : -1));
+        observation.decoderOpenObserved = decoderOpenObserved;
+        observation.sourceOpenSucceeded = sourceOpenSucceeded;
+        observation.sourceOpenResultCode = static_cast<std::int32_t>(resultCode);
+        ifdAuthority::recordRuntimeObservation(sourceSeal.sha256, observation);
+    };
+
     adapter::RawSourceAdapterRegistry registry;
     const auto registered = registry.registerAdapter(adapter::makeDngAdapter());
-    if (!registered) return registered;
+    if (!registered) {
+        recordOpenObservation(0u, false, false, registered.code);
+        return registered;
+    }
 
     auto genericBytes = std::make_shared<RawByteSourceView>(bytes);
     const auto opened = registry.open(
@@ -102,17 +136,27 @@ inline multivendor_raw_source_adapter::v0_1::AdapterStatus openDngViaAdapter(
         request,
         out.source,
         out.descriptor);
-    if (!opened) return opened;
+    if (!opened) {
+        recordOpenObservation(0u, false, false, opened.code);
+        return opened;
+    }
 
     out.dngAuditSource =
         dynamic_cast<tile_dng_v0_1::TileNativeDngSource*>(out.source.get());
     if (out.dngAuditSource == nullptr) {
         out.source.reset();
         out.descriptor = {};
+        recordOpenObservation(
+            0u,
+            false,
+            false,
+            adapter::AdapterStatusCode::DecodeFailed);
         return adapter::AdapterStatus::error(
             adapter::AdapterStatusCode::DecodeFailed,
             "DNG adapter did not return TileNativeDngSource implementation");
     }
+
+    const std::uint32_t actualRawIfdOffset = out.dngAuditSource->audit().rawIfdOffset;
 
     // When an explicit authority was supplied, verify it against the audit of
     // this exact opened decoder instance. A missing/mismatched identity is a
@@ -120,13 +164,24 @@ inline multivendor_raw_source_adapter::v0_1::AdapterStatus openDngViaAdapter(
     // promoted into a new selection rule; legacy unique-IFD behavior remains.
     const auto rawIfdAuthorityStatus = verifyOpenedRawIfdAuthority(
         request.explicitRawIfdOffset,
-        out.dngAuditSource->audit().rawIfdOffset);
+        actualRawIfdOffset);
     if (!rawIfdAuthorityStatus) {
+        recordOpenObservation(
+            actualRawIfdOffset,
+            true,
+            false,
+            rawIfdAuthorityStatus.code);
         out.source.reset();
         out.dngAuditSource = nullptr;
         out.descriptor = {};
         return rawIfdAuthorityStatus;
     }
+
+    recordOpenObservation(
+        actualRawIfdOffset,
+        true,
+        true,
+        adapter::AdapterStatusCode::Ok);
 
     // The research adapter keeps its sealed v0.1 interface, while the Android
     // integration deliberately selects the v0.2 container implementation.
