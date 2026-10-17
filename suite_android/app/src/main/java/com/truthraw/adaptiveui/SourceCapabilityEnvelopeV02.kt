@@ -341,18 +341,32 @@ object SourceCapabilityEnvelopeV02 {
                 parsedContainerMetadata = parsedContainerMetadata,
             ),
         )
-        envelope.put(
-            "effective_black_normalization_v0_1",
+
+        val effectiveBlackNormalizationReport =
             SourceCapabilityRadiometricEffectiveBlackNormalizationValidatorV01.describe(
                 sourceSha256 = sourceSha256,
                 parsedContainerMetadata = parsedContainerMetadata,
-            ),
-        )
+            )
         envelope.put(
-            "radiometric_linearization_table_v0_1",
+            "effective_black_normalization_v0_1",
+            effectiveBlackNormalizationReport,
+        )
+
+        val linearizationReport =
             SourceCapabilityRadiometricLinearizationTableValidatorV01.describe(
                 sourceSha256 = sourceSha256,
                 parsedContainerMetadata = parsedContainerMetadata,
+            )
+        envelope.put(
+            "radiometric_linearization_table_v0_1",
+            linearizationReport,
+        )
+        envelope.put(
+            "radiometric_raw_to_linear_contract_v0_1",
+            SourceCapabilityRadiometricRawToLinearContractValidatorV01.describe(
+                sourceSha256 = sourceSha256,
+                linearizationReport = linearizationReport,
+                effectiveBlackNormalizationReport = effectiveBlackNormalizationReport,
             ),
         )
         return envelope.put(

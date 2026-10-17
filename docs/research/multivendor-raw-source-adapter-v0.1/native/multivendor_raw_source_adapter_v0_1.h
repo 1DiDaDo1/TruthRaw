@@ -147,6 +147,11 @@ struct RawSourceOpenRequest final {
     RawSourceSeal sourceSeal;
     RawColorBinding color;
     RawRadiometricBinding radiometric;
+    // Identity-only authority for DNG raw-IFD selection. Zero means no explicit
+    // authority was supplied. Classic-TIFF/DNG IFD offsets are uint32; keeping
+    // the transport type identical to TileNative prevents silent narrowing.
+    // This field does not validate any sample-domain raw-to-linear operation.
+    std::uint32_t explicitRawIfdOffset = 0u;
     std::size_t maxResidentBytes = 8u * 1024u * 1024u;
 };
 

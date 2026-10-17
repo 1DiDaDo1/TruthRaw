@@ -27,6 +27,12 @@ object ResearchUniversalProfileStoreV01 {
         require(isCurrentProfile(profile)) {
             "Refusing to persist a UniversalSourceProfile from a stale profiler cache generation."
         }
+
+        // Runtime-only identity handoff. Persistence remains valid if the native
+        // library is unavailable (for example in host JVM tests); every native
+        // scientific DNG open still fails closed until this binding exists.
+        SourceCapabilityRawIfdRuntimeAuthorityBinderV01.bindIfAvailable(profile)
+
         val dir =
             File(
                 filesDir,
@@ -138,9 +144,12 @@ object ResearchUniversalProfileStoreV01 {
         ) {
             return null
         }
-        return JSONObject(
-            profile.toString(),
-        )
+        val restored =
+            JSONObject(
+                profile.toString(),
+            )
+        SourceCapabilityRawIfdRuntimeAuthorityBinderV01.bindIfAvailable(restored)
+        return restored
     }
 
     fun load(
@@ -214,10 +223,12 @@ object ResearchUniversalProfileStoreV01 {
             ) {
                 continue
             }
-            out[job.id] =
+            val restored =
                 JSONObject(
                     profile.toString(),
                 )
+            SourceCapabilityRawIfdRuntimeAuthorityBinderV01.bindIfAvailable(restored)
+            out[job.id] = restored
         }
         return out
     }

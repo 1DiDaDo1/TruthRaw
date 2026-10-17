@@ -1,10 +1,12 @@
 name: D.RAW Free World Research APK
 
+# Temporary no-science build trigger for the PR #136 real-device diagnostic APK.
 on:
   push:
     branches:
       - research/free-world-radiometric-noise-transport-v01-2026-09-30
       - fix/android-exact-gauge-pass-artifact-v03
+      - audit/source-capability-raw-to-linear-contract-v01
     paths:
       - 'suite_android/**'
       - '.github/workflows/android-free-world-research-apk.yml'
@@ -56,6 +58,14 @@ jobs:
           ACTUAL_KEYSTORE_SHA256=$(sha256sum "$RUNNER_TEMP/draw-debug.jks" | awk '{print $1}')
           test "$ACTUAL_KEYSTORE_SHA256" = "eaddcb4abdab1353a5cd15d71d52ea373abbabc46459ed7f2c8c08acf15d1137"
           keytool -list -keystore "$RUNNER_TEMP/draw-debug.jks" -storepass "$DRAW_DEBUG_STORE_PASSWORD" -alias "$DRAW_DEBUG_KEY_ALIAS" >/dev/null
+
+      - name: Run Raw-IFD diagnostic unit regressions
+        working-directory: suite_android
+        run: |
+          gradle --no-daemon :app:testDebugUnitTest \
+            --tests com.truthraw.adaptiveui.SourceCapabilityRawIfdDependencyDiagnosticV01Test \
+            --tests com.truthraw.adaptiveui.SourceCapabilityRawIfdRuntimeAuthorityV01Test \
+            --tests com.truthraw.adaptiveui.SourceCapabilityRawIfdDeviceEvidenceV01Test
 
       - name: Assemble debug APK
         working-directory: suite_android

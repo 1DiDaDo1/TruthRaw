@@ -1,5 +1,6 @@
 #include <jni.h>
 
+#include "raw_ifd_authority_registry_v0_1.h"
 #include "tile_native_dng_source_v0_1.h"
 
 #include <algorithm>
@@ -13,6 +14,7 @@
 namespace {
 
 using truthraw::TileRect;
+using truthraw::raw_ifd_authority::v0_1::SourceSha256;
 using truthraw::tile_dng_v0_1::ColorBinding;
 using truthraw::tile_dng_v0_1::DngSourceCode;
 using truthraw::tile_dng_v0_1::OpenOptions;
@@ -48,7 +50,123 @@ int sample_x(int previewX, int previewWidth, int sourceWidth) {
     return std::clamp(static_cast<int>(x), 0, sourceWidth - 1);
 }
 
+int hex_value(char c) noexcept {
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return 10 + (c - 'a');
+    if (c >= 'A' && c <= 'F') return 10 + (c - 'A');
+    return -1;
+}
+
+bool parse_source_sha256(JNIEnv* env, jstring text, SourceSha256& out) noexcept {
+    if (text == nullptr || env->GetStringUTFLength(text) != 64) return false;
+    const char* chars = env->GetStringUTFChars(text, nullptr);
+    if (chars == nullptr) return false;
+
+    bool valid = true;
+    SourceSha256 parsed{};
+    for (std::size_t i = 0; i < parsed.size(); ++i) {
+        const int hi = hex_value(chars[i * 2u]);
+        const int lo = hex_value(chars[i * 2u + 1u]);
+        if (hi < 0 || lo < 0) {
+            valid = false;
+            break;
+        }
+        parsed[i] = static_cast<std::uint8_t>((hi << 4) | lo);
+    }
+    env->ReleaseStringUTFChars(text, chars);
+    if (!valid) return false;
+    out = parsed;
+    return true;
+}
+
 } // namespace
+
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_truthraw_adaptiveui_RawIfdAuthorityBridgeV01_registerValidatedRawIfdAuthority(
+    JNIEnv* env,
+    jobject,
+    jstring sourceSha256,
+    jlong rawIfdOffset) {
+    if (rawIfdOffset <= 0) return JNI_FALSE;
+    SourceSha256 source{};
+    if (!parse_source_sha256(env, sourceSha256, source)) return JNI_FALSE;
+    const bool registered =
+        truthraw::raw_ifd_authority::v0_1::registerValidated(
+            source,
+            static_cast<std::uint64_t>(rawIfdOffset));
+    return registered ? JNI_TRUE : JNI_FALSE;
+}
+
+extern "C" JNIEXPORT jlongArray JNICALL
+Java_com_truthraw_adaptiveui_RawIfdAuthorityBridgeV01_nativeReadRawIfdRuntimeObservationPacket(
+    JNIEnv* env,
+    jobject,
+    jstring sourceSha256) {
+    SourceSha256 source{};
+    if (!parse_source_sha256(env, sourceSha256, source)) return nullptr;
+
+    truthraw::raw_ifd_authority::v0_1::RuntimeObservation observation;
+    if (!truthraw::raw_ifd_authority::v0_1::lookupRuntimeObservation(source, observation)) {
+        return nullptr;
+    }
+
+    const jlong values[] = {
+        1,
+        static_cast<jlong>(observation.validatedRawIfdOffset),
+        static_cast<jlong>(observation.requestedRawIfdOffset),
+        static_cast<jlong>(observation.decoderSourceAuditRawIfdOffset),
+        static_cast<jlong>(observation.authorityMatchState),
+        observation.decoderOpenObserved ? 1 : 0,
+        observation.sourceOpenSucceeded ? 1 : 0,
+        static_cast<jlong>(observation.sourceOpenResultCode),
+    };
+    constexpr jsize count = static_cast<jsize>(sizeof(values) / sizeof(values[0]));
+    jlongArray out = env->NewLongArray(count);
+    if (out != nullptr) env->SetLongArrayRegion(out, 0, count, values);
+    return out;
+}
+
+// A passive, atomic view of native registry keys and the last adapter-open.
+// Crucially this does not look up another source's observation as evidence for
+// the requested source. Last-open identity can only diagnose a lost/mismatched
+// cable; it never supplies requested-source authority or a scientific claim.
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_truthraw_adaptiveui_RawIfdAuthorityBridgeV01_nativeReadRawIfdRegistryProbePacket(
+    JNIEnv* env,
+    jobject,
+    jstring sourceSha256) {
+    SourceSha256 requested{};
+    if (!parse_source_sha256(env, sourceSha256, requested)) return nullptr;
+
+    truthraw::raw_ifd_authority::v0_1::RegistryProbe probe;
+    truthraw::raw_ifd_authority::v0_1::lookupRegistryProbe(requested, probe);
+    std::string lastSha = "-";
+    if (probe.lastOpen.present) {
+        constexpr char digits[] = "0123456789abcdef";
+        lastSha.clear();
+        lastSha.reserve(64);
+        for (const std::uint8_t byte : probe.lastOpen.sourceSha256) {
+            lastSha += digits[(byte >> 4u) & 0x0fu];
+            lastSha += digits[byte & 0x0fu];
+        }
+    }
+    const auto& last = probe.lastOpen.observation;
+    const std::string packet =
+        "1|" +
+        std::to_string(probe.validatedAuthorityRegistered ? 1 : 0) + "|" +
+        std::to_string(probe.validatedRawIfdOffset) + "|" +
+        std::to_string(probe.requestedSourceObservationPresent ? 1 : 0) + "|" +
+        std::to_string(probe.lastOpen.present ? 1 : 0) + "|" +
+        lastSha + "|" +
+        std::to_string(probe.lastOpen.present ? last.validatedRawIfdOffset : 0u) + "|" +
+        std::to_string(probe.lastOpen.present ? last.requestedRawIfdOffset : 0u) + "|" +
+        std::to_string(probe.lastOpen.present ? last.decoderSourceAuditRawIfdOffset : 0u) + "|" +
+        std::to_string(probe.lastOpen.present && last.sourceOpenSucceeded ? 1 : 0) + "|" +
+        std::to_string(probe.lastOpen.present ? last.sourceOpenResultCode : -1) + "|" +
+        std::to_string(probe.lastOpen.present && last.decoderOpenObserved ? 1 : 0) + "|" +
+        std::to_string(probe.lastOpen.present ? last.authorityMatchState : -1);
+    return env->NewStringUTF(packet.c_str());
+}
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_probeDngSourceOpenDetail(

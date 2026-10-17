@@ -64,7 +64,22 @@ DngSourceStatus TileNativeDngSource::parseIfd(std::uint32_t offset,const OpenOpt
     std::uint64_t bytes=0;if(!mul_ok(n,12,bytes))return DngSourceStatus::error(DngSourceCode::InvalidTiff,"IFD size overflow");std::uint64_t base=offset+2,end=0;if(!add_ok(base,bytes+4,end)||end>bytes_->sizeBytes())return DngSourceStatus::error(DngSourceCode::InvalidTiff,"truncated IFD");
     out=Ifd{};out.offset=offset;out.tags.reserve(n);
     for(std::uint16_t i=0;i<n;++i){std::uint8_t e[12];std::uint64_t q=base+12ull*i;if(!readBytes(q,e,12))return DngSourceStatus::error(DngSourceCode::IoError,"cannot read IFD entry");std::uint16_t tag=dec16(e,littleEndian_),type=dec16(e+2,littleEndian_);std::uint32_t count=dec32(e+4,littleEndian_);auto ts=type_size(type);if(!ts)continue;std::uint64_t sz=0;if(!mul_ok(count,ts,sz))return DngSourceStatus::error(DngSourceCode::InvalidTag,"tag size overflow");std::uint64_t dataOff=(sz<=4)?q+8:dec32(e+8,littleEndian_);if(dataOff>bytes_->sizeBytes()||sz>bytes_->sizeBytes()-dataOff)return DngSourceStatus::error(DngSourceCode::InvalidTag,"tag payload out of range");out.tags.push_back({tag,type,count,dataOff,sz});}
-    std::uint8_t nb[4];if(!readBytes(base+bytes,nb,4))return DngSourceStatus::error(DngSourceCode::IoError,"cannot read next IFD");out.next=dec32(nb,littleEndian_);return DngSourceStatus::ok();
+    std::uint8_t nb[4];if(!readBytes(base+bytes,nb,4))return DngSourceStatus::error(DngSourceCode::IoError,"cannot read next IFD");out.next=dec32(nb,littleEndian_);
+
+    const auto* photometric=findTag(out,TAG_Photometric);
+    std::uint32_t photometricValue=0;
+    const bool canBeSelected=(options.explicitRawIfdOffset==0u||offset==options.explicitRawIfdOffset);
+    if(canBeSelected&&photometric&&photometric->count==1&&readUnsigned(*photometric,0,photometricValue)&&photometricValue==PHOTO_CFA){
+        constexpr std::uint16_t unsupportedDependencies[]={TAG_LinearizationTable,TAG_BlackLevelDeltaH,TAG_BlackLevelDeltaV};
+        for(const auto tag:unsupportedDependencies){
+            if(findTag(out,tag)!=nullptr){
+                return DngSourceStatus::error(
+                    DngSourceCode::UnsupportedTopology,
+                    "selected Raw IFD has unsupported raw-to-linear dependency tag="+std::to_string(tag));
+            }
+        }
+    }
+    return DngSourceStatus::ok();
 }
 
 DngSourceStatus TileNativeDngSource::discoverIfds(const OpenOptions&options,std::vector<Ifd>&out){

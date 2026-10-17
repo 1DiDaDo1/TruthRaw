@@ -1,0 +1,122 @@
+{
+  "schema": "D.RAW/ProjectState/44489/2026-10-16",
+  "continuation_code": 44489,
+  "date": "2026-10-16",
+  "motto": "One Free World. Many sealed observations. One evidence law.",
+  "integrated_scientific_runtime_anchor": "96be8a23c0d43f5dec304bdeb635824868cc80a7",
+  "active_candidate": {
+    "branch": "audit/source-capability-raw-to-linear-contract-v01",
+    "pr": 136,
+    "title": "Source Capability: raw-to-linear ordering contract v0.1",
+    "draft": true,
+    "open": true,
+    "merged": false,
+    "base_branch": "fix/android-exact-gauge-pass-artifact-v03",
+    "base_sha": "96be8a23c0d43f5dec304bdeb635824868cc80a7",
+    "source_runtime_head_before_documentation_refresh": "dfa80b2a5bfae587689b83c9c932c9f6658dd38b",
+    "scientific_code_safety_checkpoint": "5ea0eb94a4659eaacc03e53d1d9904bdd2d98925",
+    "raw_ifd_authority_bridge_proof_checkpoint": "2f08e15163377672d7b8d15894d8657dccd951f1"
+  },
+  "latest_stable_signed_apk": {
+    "build_checkpoint": "ec29f23a8c8ce407f1fdd4f83f6e9d4d9b921e6c",
+    "workflow": "D.RAW Free World Research APK",
+    "workflow_conclusion": "SUCCESS",
+    "sha256": "28a0eb22cc773852af7c65529593b1072b008c5345a91763a9a66c403cf94141",
+    "temporary_trigger_removed_at": "dfa80b2a5bfae587689b83c9c932c9f6658dd38b",
+    "scientific_promotion": false
+  },
+  "raw_ifd_authority_cable": {
+    "validated_authority_to_open_request_executed": true,
+    "actual_decoder_raw_ifd_audited": true,
+    "expected_actual_equality_required": true,
+    "mismatch_semantics": "SOURCE_SEAL_MISMATCH_FAIL_CLOSED",
+    "zero_authority_unique_ifd_legacy_compatibility": true
+  },
+  "unsupported_dependency_guard": {
+    "status": "PROVEN_CANDIDATE_FAIL_CLOSED",
+    "selected_raw_ifd_tags": {
+      "50712": "LinearizationTable",
+      "50715": "BlackLevelDeltaH",
+      "50716": "BlackLevelDeltaV"
+    },
+    "scientific_code_checkpoint": "5ea0eb94a4659eaacc03e53d1d9904bdd2d98925",
+    "gcc_release": "SUCCESS",
+    "clang_release": "SUCCESS",
+    "clang_asan_ubsan": "SUCCESS",
+    "refusal_means_implemented": false
+  },
+  "tile_native_dng_supported_subset": {
+    "classic_tiff": true,
+    "bits_per_sample": 16,
+    "compression": 1,
+    "photometric_cfa_required": true,
+    "samples_per_pixel": 1,
+    "black_level_scalar_or_four_phase": true,
+    "white_level_scalar": true,
+    "residual_black_hv_executed": false,
+    "linearization_table_executed": false,
+    "row_bias_provider": "ZERO_VECTOR",
+    "col_bias_provider": "ZERO_VECTOR",
+    "has_residual_black": false
+  },
+  "hard_false_firewall": {
+    "linearization_applied_to_image_samples": false,
+    "black_subtraction_applied_to_image_samples": false,
+    "normalization_applied_to_image_samples": false,
+    "clipping_applied_to_image_samples": false,
+    "table_application_to_image_samples_validated": false,
+    "full_raw_to_linear_mapping_validated": false,
+    "record_lifecycle_effect": false,
+    "scientific_admission_effect": false,
+    "downstream_scientific_consumer_enabled": false,
+    "scientific_master_pixel_effect": false,
+    "appearance_pixel_effect": false,
+    "source_values_modified": false,
+    "creates_new_evidence": false,
+    "scientific_writeback_allowed": false
+  },
+  "current_phase": {
+    "name": "REAL_DEVICE_SOURCE_IFD_AND_DEPENDENCY_GUARD_VALIDATION",
+    "primary_artifact": "stable-signed APK from ec29f23a...",
+    "success_is_visual_improvement": false,
+    "targets": [
+      "TELE_RAW_DNG",
+      "MAIN_RAW_DNG"
+    ],
+    "inspect": [
+      "SOURCE_SHA",
+      "VALIDATED_RAW_IFD_AUTHORITY",
+      "DECODER_SOURCE_AUDIT_RAW_IFD_OFFSET",
+      "TAG_50712_OCCURRENCE",
+      "TAG_50715_OCCURRENCE",
+      "TAG_50716_OCCURRENCE",
+      "FAIL_CLOSED_BEHAVIOR",
+      "NO_SCIENTIFIC_MASTER_AUTHORITY_INFLATION",
+      "NO_APPEARANCE_AUTHORITY_INFLATION"
+    ]
+  },
+  "ci": {
+    "raw_to_linear_dependency_guard": "SUCCESS",
+    "tile_native_dng_android_compatibility": "SUCCESS",
+    "source_capability_raw_to_linear_contract": "SUCCESS",
+    "documentation_governance_2026_09_10": "KNOWN_SEPARATE_FAILURE_CLASS",
+    "all_ci_green_claim_allowed": false
+  },
+  "routing": {
+    "start_here": "START_HERE_NEW_CHAT.md",
+    "next_chat": "docs/handoff/DRAW_44489_NEXT_CHAT_2026-10-16.md",
+    "cable_map": "docs/handoff/DRAW_44489_CABLE_MAP_AND_PROJECT_STATE_2026-10-16.md",
+    "document_index": "docs/DOCUMENT_STATUS_INDEX_2026-10-16.md",
+    "master_capsule": "docs/handoff/DRAW_44489_MASTER_CAPSULE_CURRENT.md",
+    "raw_to_linear_audit": "docs/handoff/DRAW_44489_RAW_TO_LINEAR_CONTRACT_AUDIT_V0_1_2026-10-12.md",
+    "interdisciplinary_audit": "docs/handoff/DRAW_44489_INTERDISCIPLINARY_OBSERVATION_AUDIT_2026-10-10.md"
+  },
+  "evidence_law": {
+    "classes": "MEASURED != CALIBRATED_ESTIMATE != RECONSTRUCTED != CENSORED != UNKNOWN != APPEARANCE",
+    "lifecycle": "VALIDATED != ADMITTED != USED",
+    "sealed_direct_raw_cfa_immutable": true,
+    "unknown_is_valid": true,
+    "ai_ml_scientific_authority_allowed": false,
+    "free_raster_density_creates_measured_detail": false
+  }
+}

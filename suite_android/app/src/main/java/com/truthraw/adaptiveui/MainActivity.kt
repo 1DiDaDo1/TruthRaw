@@ -101,6 +101,10 @@ class MainActivity : Activity() {
     private var pendingUniversalCalibrationAtlasJobId: String? = null
     private var pendingUniversalCalibrationAtlasJson: String? = null
     private var universalCalibrationAtlasStatus: String? = null
+    private var pendingRawIfdDeviceEvidenceJobId: String? = null
+    private var pendingRawIfdDeviceEvidenceSourceSha: String? = null
+    private var pendingRawIfdDeviceEvidenceSourceUri: String? = null
+    private var rawIfdDeviceEvidenceStatus: String? = null
     private var pendingFieldResponseRepeatabilityJson: String? = null
     private var fieldResponseRepeatabilityStatus: String? = null
     private val fieldResponseBatchPendingJobIds = linkedSetOf<String>()
@@ -2235,6 +2239,63 @@ class MainActivity : Activity() {
         )
     }
 
+    private fun buildRawIfdDeviceEvidenceWithNativeProbe(
+        profile: JSONObject,
+    ): JSONObject? {
+        // Diagnostic read only: no native open, parser, source reread or
+        // scientific-admission side effect. An unavailable probe is explicit.
+        val sourceSha256 = profile.optString("source_sha256", "")
+        val nativeProbe = runCatching {
+            RawIfdAuthorityBridgeV01.readRawIfdNativeRegistryProbe(sourceSha256)
+        }.getOrNull()
+        return SourceCapabilityRawIfdDeviceEvidenceV01.build(
+            profile = profile,
+            nativeRegistryProbe = nativeProbe,
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchRawIfdDeviceEvidenceExport(job: RawJob) {
+        if (activeJobId != job.id) return
+        val profile = universalProfiles[job.id]
+        if (profile == null) {
+            rawIfdDeviceEvidenceStatus =
+                "Raw-IFD diagnostiek vereist eerst een succesvolle Universele Ingang-analyse."
+            render()
+            return
+        }
+        // Fresh passive read of the registry only. Never opens the source,
+        // changes validated authority, or touches image/sample values.
+        SourceCapabilityRawIfdRuntimeAuthorityBinderV01
+            .refreshRuntimeDiagnosticIfAvailable(profile)
+        if (buildRawIfdDeviceEvidenceWithNativeProbe(profile) == null) {
+            rawIfdDeviceEvidenceStatus =
+                "Raw-IFD diagnostiek fail-closed: bronbinding of safety-contract ongeldig."
+            render()
+            return
+        }
+
+        pendingRawIfdDeviceEvidenceJobId = job.id
+        pendingRawIfdDeviceEvidenceSourceSha =
+            profile.optString("source_sha256").trim().lowercase()
+        pendingRawIfdDeviceEvidenceSourceUri = job.source.uri.toString()
+        rawIfdDeviceEvidenceStatus = null
+
+        val stem =
+            job.source.displayName.substringBeforeLast('.', job.source.displayName)
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+            putExtra(
+                Intent.EXTRA_TITLE,
+                stem + "_draw_raw_ifd_runtime_infofull_v0_1.json",
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        }
+        startActivityForResult(intent, REQUEST_SAVE_RAW_IFD_DEVICE_EVIDENCE)
+    }
+
     private fun currentMeasuredFieldCharts(): List<JSONObject> =
         session.jobs.mapNotNull { job ->
             universalProfiles[job.id]
@@ -2880,7 +2941,7 @@ class MainActivity : Activity() {
                 onUnexpected = { jpegStatus = it },
             ) {
                 val dir = File(filesDir, "photo_export/$expectedJob").apply { mkdirs() }
-                val rendered = FullResJpegExporter.renderToPrivateJpeg(
+                val rendered = renderFullResWithRawIfdDiagnosticRefresh(
                     contentResolver, job, flags, quarterTurns, dir,
                     presentationHeadroomMode = binding.presentationHeadroomMode,
                 )
@@ -3014,7 +3075,7 @@ class MainActivity : Activity() {
                 onUnexpected = { fullColourMasterStatus = it },
             ) {
                 val dir = File(filesDir, "full_colour_scientific_master/$expectedJob").apply { mkdirs() }
-                val previewResult = FullResJpegExporter.renderToPrivateJpeg(
+                val previewResult = renderFullResWithRawIfdDiagnosticRefresh(
                     contentResolver,
                     job,
                     flags,
@@ -3130,7 +3191,7 @@ class MainActivity : Activity() {
                     filesDir,
                     "truthnegative_200mp_full_colour/$expectedJob",
                 ).apply { mkdirs() }
-                val previewResult = FullResJpegExporter.renderToPrivateJpeg(
+                val previewResult = renderFullResWithRawIfdDiagnosticRefresh(
                     contentResolver,
                     job,
                     0,
@@ -3249,7 +3310,7 @@ class MainActivity : Activity() {
                     "advanced_render_edit/$expectedJob",
                 ).apply { mkdirs() }
 
-                val previewResult = FullResJpegExporter.renderToPrivateJpeg(
+                val previewResult = renderFullResWithRawIfdDiagnosticRefresh(
                     contentResolver,
                     job,
                     flags,
@@ -3359,7 +3420,7 @@ class MainActivity : Activity() {
                 onUnexpected = { pureFloatDngStatus = it },
             ) {
                 val dir = File(filesDir, "pure_float32/$expectedJob").apply { mkdirs() }
-                val previewResult = FullResJpegExporter.renderToPrivateJpeg(
+                val previewResult = renderFullResWithRawIfdDiagnosticRefresh(
                     contentResolver,
                     job,
                     0,
@@ -4315,6 +4376,69 @@ class MainActivity : Activity() {
                     " · correction=false · writeback=false."
             } catch (error: Exception) {
                 "Observation Optical Field Chart v0.1 export faalde: " +
+                    (error.message ?: error.javaClass.simpleName)
+            }
+            render()
+            return
+        }
+
+        if (requestCode == REQUEST_SAVE_RAW_IFD_DEVICE_EVIDENCE) {
+            val expectedJob = pendingRawIfdDeviceEvidenceJobId
+            val expectedSha = pendingRawIfdDeviceEvidenceSourceSha
+            val expectedUri = pendingRawIfdDeviceEvidenceSourceUri
+            pendingRawIfdDeviceEvidenceJobId = null
+            pendingRawIfdDeviceEvidenceSourceSha = null
+            pendingRawIfdDeviceEvidenceSourceUri = null
+
+            val destination = data?.data
+            if (resultCode != RESULT_OK || destination == null) {
+                rawIfdDeviceEvidenceStatus = "Raw-IFD infofull-export geannuleerd."
+                render()
+                return
+            }
+            val job = session.jobs.firstOrNull {
+                it.id == expectedJob && it.source.uri.toString() == expectedUri
+            }
+            val profile = job?.let { universalProfiles[it.id] }
+            if (
+                expectedJob == null ||
+                expectedSha.isNullOrBlank() ||
+                expectedSha != profile?.optString("source_sha256", "")?.trim()?.lowercase() ||
+                expectedJob != activeJobId ||
+                job == null ||
+                profile == null
+            ) {
+                rawIfdDeviceEvidenceStatus =
+                    "Raw-IFD infofull-export geblokkeerd: actieve sealed bron veranderde."
+                render()
+                return
+            }
+
+            SourceCapabilityRawIfdRuntimeAuthorityBinderV01
+                .refreshRuntimeDiagnosticIfAvailable(profile)
+            val report = buildRawIfdDeviceEvidenceWithNativeProbe(profile)
+            if (report == null) {
+                rawIfdDeviceEvidenceStatus =
+                    "Raw-IFD infofull-export fail-closed: diagnostic/authority-binding ongeldig."
+                render()
+                return
+            }
+            rawIfdDeviceEvidenceStatus = try {
+                val stream =
+                    contentResolver.openOutputStream(destination, "w")
+                        ?: throw IOException("Documentprovider gaf geen outputstream.")
+                stream.bufferedWriter(Charsets.UTF_8).use {
+                    it.write(report.toString(2) + "\n")
+                }
+                val diagnostic =
+                    report.getJSONObject("raw_ifd_dependency_diagnostic_v0_1")
+                "Raw-IFD infofull JSON opgeslagen · native open=" +
+                    diagnostic.optString("source_open_result", "NOT_OBSERVED") +
+                    " · source-bound=" +
+                    diagnostic.optBoolean("runtime_open_observation_available", false) +
+                    " · writeback=false."
+            } catch (error: Exception) {
+                "Raw-IFD infofull-export faalde: " +
                     (error.message ?: error.javaClass.simpleName)
             }
             render()
@@ -5920,6 +6044,23 @@ class MainActivity : Activity() {
                     muted = true,
                 ))
 
+                addView(space(5))
+                addView(actionButton(
+                    "Export Raw-IFD runtime / infofull · JSON",
+                ) {
+                    launchRawIfdDeviceEvidenceExport(job)
+                })
+                rawIfdDeviceEvidenceStatus?.let { status ->
+                    addView(label(status, 10f, muted = true))
+                }
+                addView(label(
+                    "Read-only bron-SHA + gevalideerde Raw-IFD + passieve native " +
+                        "SourceAudit. NOT_OBSERVED en mismatch blijven fail-closed; " +
+                        "geen CFA-pixelwijziging, calibratie of Scientific Master-writeback.",
+                    10f,
+                    muted = true,
+                ))
+
                 val observationOpticalFieldChart =
                     profile.optJSONObject(
                         "observation_optical_field_chart",
@@ -7112,6 +7253,60 @@ class MainActivity : Activity() {
         }
     }
 
+    /**
+     * Re-snapshot only the derived Raw-IFD diagnostic after the native DNG
+     * processing call has returned. UI-thread ownership, active job identity
+     * and source URI prevent an old job from replacing a new session's profile.
+     * The native observation is still checked by its validated source SHA.
+     */
+    private fun refreshRawIfdDiagnosticAfterNativeOpen(job: RawJob): Boolean {
+        if (activeJobId != job.id ||
+            session.jobs.none {
+                it.id == job.id && it.source.uri == job.source.uri
+            }
+        ) {
+            return false
+        }
+        val profile = universalProfiles[job.id] ?: return false
+        if (profile.optString("source_sha256").isBlank()) return false
+
+        return runCatching {
+            SourceCapabilityRawIfdRuntimeAuthorityBinderV01
+                .refreshRuntimeDiagnosticIfAvailable(profile)
+            // Derived diagnostic cache only; save rechecks the same authority
+            // and never writes sealed evidence or Scientific Master pixels.
+            ResearchUniversalProfileStoreV01.save(
+                filesDir = filesDir,
+                job = job,
+                profile = profile,
+            )
+            true
+        }.getOrDefault(false)
+    }
+
+    private fun renderFullResWithRawIfdDiagnosticRefresh(
+        resolver: android.content.ContentResolver,
+        job: RawJob,
+        flags: Int,
+        userQuarterTurns: Int,
+        workingDir: File,
+        presentationHeadroomMode: Int = PresentationHeadroomModeV01.OFF,
+    ): FullResJpegResult {
+        val rendered = FullResJpegExporter.renderToPrivateJpeg(
+            resolver,
+            job,
+            flags,
+            userQuarterTurns,
+            workingDir,
+            presentationHeadroomMode = presentationHeadroomMode,
+        )
+        // All full-resolution export callers share this one post-native hook.
+        runOnUiThread {
+            if (refreshRawIfdDiagnosticAfterNativeOpen(job)) render()
+        }
+        return rendered
+    }
+
     private fun requestPreview(job: RawJob) {
         if (!job.source.format.nativeProcessingReady) {
             previewState = TilePreviewUiState.Failed(
@@ -7195,6 +7390,7 @@ class MainActivity : Activity() {
                         (state as? TilePreviewUiState.Ready)?.bitmap?.recycle()
                         return@runOnUiThread
                     }
+                    refreshRawIfdDiagnosticAfterNativeOpen(job)
                     loadingStartedAtElapsedMs = null
                     previewState = state
                     empiricalAudit = null
@@ -7231,6 +7427,7 @@ class MainActivity : Activity() {
                         (result.state as? TilePreviewUiState.Ready)?.bitmap?.recycle()
                         return@runOnUiThread
                     }
+                    refreshRawIfdDiagnosticAfterNativeOpen(job)
                     loadingStartedAtElapsedMs = null
                     previewState = result.state
                     empiricalAudit = result.audit.copy(framePacing = pacing)
@@ -9453,6 +9650,7 @@ class MainActivity : Activity() {
         private const val REQUEST_SAVE_UNIVERSAL_MODEL_BANK_HOLDOUT_V03 = 4125
         private const val REQUEST_SAVE_OBSERVATION_OPTICAL_FIELD = 4126
         private const val REQUEST_SAVE_UNIVERSAL_CALIBRATION_ATLAS = 4127
+        private const val REQUEST_SAVE_RAW_IFD_DEVICE_EVIDENCE = 4128
         private const val REQUEST_SAVE_FIELD_RESPONSE_REPEATABILITY = 4128
         private const val REQUEST_SAVE_OBSERVATION_WORLD_FIELD_SEPARATION = 4129
         private const val REQUEST_SAVE_FREE_WORLD_FOUNDATION = 4130
