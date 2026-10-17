@@ -136,6 +136,63 @@ class SourceCapabilityRawIfdRuntimeAuthorityV01Test {
     }
 
     @Test
+    fun postNativeOpenRefreshReplacesStaleNotObservedDiagnosticInSameProfile() {
+        val profile = profile(offsets = listOf(25373814L))
+        val port = RecordingPort()
+
+        // A pre-open cache snapshot cannot claim to have seen the decoder.
+        assertTrue(
+            SourceCapabilityRawIfdRuntimeAuthorityBinderV01.bindIfAvailable(
+                profile = profile,
+                port = port,
+            ),
+        )
+        val before = profile.getJSONObject(SourceCapabilityRawIfdDependencyDiagnosticV01.KEY)
+        assertEquals("NOT_OBSERVED", before.getString("source_open_result"))
+        assertFalse(before.getBoolean("runtime_open_observation_available"))
+
+        // The same source-bound native registry now reports the completed open.
+        port.runtimeObservation = runtimeObservation()
+        assertTrue(
+            SourceCapabilityRawIfdRuntimeAuthorityBinderV01.refreshRuntimeDiagnosticIfAvailable(
+                profile = profile,
+                port = port,
+            ),
+        )
+        val after = profile.getJSONObject(SourceCapabilityRawIfdDependencyDiagnosticV01.KEY)
+        assertEquals(listOf("register", "read", "read"), port.calls)
+        assertEquals("SUCCESS", after.getString("source_open_result"))
+        assertEquals(25373814L, after.getLong("decoder_source_audit_raw_ifd_offset"))
+        assertTrue(after.getBoolean("raw_ifd_authority_match"))
+        assertTrue(after.getBoolean("runtime_open_observation_available"))
+        assertFalse(after.getBoolean("full_raw_to_linear_mapping_validated"))
+        assertFalse(after.getBoolean("scientific_master_pixel_effect"))
+        assertFalse(after.getBoolean("creates_new_evidence"))
+        assertFalse(after.getBoolean("scientific_writeback_allowed"))
+    }
+
+    @Test
+    fun postNativeOpenRefreshFailsClosedOnDifferentValidatedIfdOffset() {
+        val profile = profile(offsets = listOf(25373814L))
+        val port = RecordingPort(
+            runtimeObservation = runtimeObservation().copy(
+                validatedRawIfdOffset = 128L,
+                decoderSourceAuditRawIfdOffset = 128L,
+            ),
+        )
+        assertFalse(
+            SourceCapabilityRawIfdRuntimeAuthorityBinderV01.refreshRuntimeDiagnosticIfAvailable(
+                profile = profile,
+                port = port,
+            ),
+        )
+        val diagnostic = profile.getJSONObject(SourceCapabilityRawIfdDependencyDiagnosticV01.KEY)
+        assertEquals("NOT_OBSERVED", diagnostic.getString("source_open_result"))
+        assertFalse(diagnostic.getBoolean("runtime_open_observation_available"))
+        assertFalse(diagnostic.getBoolean("scientific_writeback_allowed"))
+    }
+
+    @Test
     fun refreshRejectsCrossSourceObservationInsteadOfCrossBinding() {
         val profile = profile(offsets = listOf(25373814L))
         val port =
@@ -178,7 +235,7 @@ class SourceCapabilityRawIfdRuntimeAuthorityV01Test {
 
     private class RecordingPort(
         private val registerResult: Boolean = true,
-        private val runtimeObservation: RawIfdRuntimeObservationV01? = null,
+        var runtimeObservation: RawIfdRuntimeObservationV01? = null,
     ) : RawIfdRuntimeAuthorityPortV01 {
         val calls = mutableListOf<String>()
 
