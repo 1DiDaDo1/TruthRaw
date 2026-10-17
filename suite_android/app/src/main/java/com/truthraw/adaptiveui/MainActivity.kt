@@ -3014,7 +3014,7 @@ class MainActivity : Activity() {
                 onUnexpected = { fullColourMasterStatus = it },
             ) {
                 val dir = File(filesDir, "full_colour_scientific_master/$expectedJob").apply { mkdirs() }
-                val previewResult = FullResJpegExporter.renderToPrivateJpeg(
+                val previewResult = renderFullResWithRawIfdDiagnosticRefresh(
                     contentResolver,
                     job,
                     flags,
@@ -3130,7 +3130,7 @@ class MainActivity : Activity() {
                     filesDir,
                     "truthnegative_200mp_full_colour/$expectedJob",
                 ).apply { mkdirs() }
-                val previewResult = FullResJpegExporter.renderToPrivateJpeg(
+                val previewResult = renderFullResWithRawIfdDiagnosticRefresh(
                     contentResolver,
                     job,
                     0,
@@ -3249,7 +3249,7 @@ class MainActivity : Activity() {
                     "advanced_render_edit/$expectedJob",
                 ).apply { mkdirs() }
 
-                val previewResult = FullResJpegExporter.renderToPrivateJpeg(
+                val previewResult = renderFullResWithRawIfdDiagnosticRefresh(
                     contentResolver,
                     job,
                     flags,
@@ -3359,7 +3359,7 @@ class MainActivity : Activity() {
                 onUnexpected = { pureFloatDngStatus = it },
             ) {
                 val dir = File(filesDir, "pure_float32/$expectedJob").apply { mkdirs() }
-                val previewResult = FullResJpegExporter.renderToPrivateJpeg(
+                val previewResult = renderFullResWithRawIfdDiagnosticRefresh(
                     contentResolver,
                     job,
                     0,
@@ -7112,6 +7112,60 @@ class MainActivity : Activity() {
         }
     }
 
+    /**
+     * Re-snapshot only the derived Raw-IFD diagnostic after the native DNG
+     * processing call has returned. UI-thread ownership, active job identity
+     * and source URI prevent an old job from replacing a new session's profile.
+     * The native observation is still checked by its validated source SHA.
+     */
+    private fun refreshRawIfdDiagnosticAfterNativeOpen(job: RawJob): Boolean {
+        if (activeJobId != job.id ||
+            session.jobs.none {
+                it.id == job.id && it.source.uri == job.source.uri
+            }
+        ) {
+            return false
+        }
+        val profile = universalProfiles[job.id] ?: return false
+        if (profile.optString("source_sha256").isBlank()) return false
+
+        return runCatching {
+            SourceCapabilityRawIfdRuntimeAuthorityBinderV01
+                .refreshRuntimeDiagnosticIfAvailable(profile)
+            // Derived diagnostic cache only; save rechecks the same authority
+            // and never writes sealed evidence or Scientific Master pixels.
+            ResearchUniversalProfileStoreV01.save(
+                filesDir = filesDir,
+                job = job,
+                profile = profile,
+            )
+            true
+        }.getOrDefault(false)
+    }
+
+    private fun renderFullResWithRawIfdDiagnosticRefresh(
+        resolver: android.content.ContentResolver,
+        job: RawJob,
+        flags: Int,
+        userQuarterTurns: Int,
+        workingDir: File,
+        presentationHeadroomMode: Int = PresentationHeadroomModeV01.OFF,
+    ): FullResJpegResult {
+        val rendered = renderFullResWithRawIfdDiagnosticRefresh(
+            resolver,
+            job,
+            flags,
+            userQuarterTurns,
+            workingDir,
+            presentationHeadroomMode = presentationHeadroomMode,
+        )
+        // All full-resolution export callers share this one post-native hook.
+        runOnUiThread {
+            if (refreshRawIfdDiagnosticAfterNativeOpen(job)) render()
+        }
+        return rendered
+    }
+
     private fun requestPreview(job: RawJob) {
         if (!job.source.format.nativeProcessingReady) {
             previewState = TilePreviewUiState.Failed(
@@ -7195,6 +7249,7 @@ class MainActivity : Activity() {
                         (state as? TilePreviewUiState.Ready)?.bitmap?.recycle()
                         return@runOnUiThread
                     }
+                    refreshRawIfdDiagnosticAfterNativeOpen(job)
                     loadingStartedAtElapsedMs = null
                     previewState = state
                     empiricalAudit = null
@@ -7231,6 +7286,7 @@ class MainActivity : Activity() {
                         (result.state as? TilePreviewUiState.Ready)?.bitmap?.recycle()
                         return@runOnUiThread
                     }
+                    refreshRawIfdDiagnosticAfterNativeOpen(job)
                     loadingStartedAtElapsedMs = null
                     previewState = result.state
                     empiricalAudit = result.audit.copy(framePacing = pacing)
