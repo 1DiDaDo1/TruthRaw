@@ -1,5 +1,6 @@
 name: D.RAW Free World Research APK
 
+# Temporary no-science build trigger for the PR #136 real-device diagnostic APK.
 on:
   push:
     branches:
