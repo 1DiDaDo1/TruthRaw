@@ -15,6 +15,21 @@ struct Authority final {
     std::uint32_t rawIfdOffset = 0;
 };
 
+// Read-only observation of what the native DNG open boundary actually did for
+// one sealed source. This state never participates in source selection or
+// scientific admission; it exists only so the already-enforced runtime checks
+// can be exported for real-device diagnostics.
+struct RuntimeObservation final {
+    std::uint32_t validatedRawIfdOffset = 0;
+    std::uint32_t requestedRawIfdOffset = 0;
+    std::uint32_t decoderSourceAuditRawIfdOffset = 0;
+    // -1 = no explicit authority comparison available, 0 = mismatch, 1 = match.
+    std::int32_t authorityMatchState = -1;
+    bool decoderOpenObserved = false;
+    bool sourceOpenSucceeded = false;
+    std::int32_t sourceOpenResultCode = -1;
+};
+
 inline std::mutex& registryMutex() noexcept {
     static std::mutex mutex;
     return mutex;
@@ -22,6 +37,11 @@ inline std::mutex& registryMutex() noexcept {
 
 inline std::map<SourceSha256, std::uint32_t>& registry() noexcept {
     static std::map<SourceSha256, std::uint32_t> values;
+    return values;
+}
+
+inline std::map<SourceSha256, RuntimeObservation>& runtimeObservationRegistry() noexcept {
+    static std::map<SourceSha256, RuntimeObservation> values;
     return values;
 }
 
@@ -56,6 +76,23 @@ inline bool lookupValidated(
     if (found == registry().end() || found->second == 0u) return false;
     out.sourceSha256 = sourceSha256;
     out.rawIfdOffset = found->second;
+    return true;
+}
+
+inline void recordRuntimeObservation(
+    const SourceSha256& sourceSha256,
+    const RuntimeObservation& observation) noexcept {
+    std::lock_guard<std::mutex> lock(registryMutex());
+    runtimeObservationRegistry()[sourceSha256] = observation;
+}
+
+inline bool lookupRuntimeObservation(
+    const SourceSha256& sourceSha256,
+    RuntimeObservation& out) noexcept {
+    std::lock_guard<std::mutex> lock(registryMutex());
+    const auto found = runtimeObservationRegistry().find(sourceSha256);
+    if (found == runtimeObservationRegistry().end()) return false;
+    out = found->second;
     return true;
 }
 
