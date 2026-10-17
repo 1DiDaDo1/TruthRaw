@@ -2239,6 +2239,21 @@ class MainActivity : Activity() {
         )
     }
 
+    private fun buildRawIfdDeviceEvidenceWithNativeProbe(
+        profile: JSONObject,
+    ): JSONObject? {
+        // Diagnostic read only: no native open, parser, source reread or
+        // scientific-admission side effect. An unavailable probe is explicit.
+        val sourceSha256 = profile.optString("source_sha256", "")
+        val nativeProbe = runCatching {
+            RawIfdAuthorityBridgeV01.readRawIfdNativeRegistryProbe(sourceSha256)
+        }.getOrNull()
+        return SourceCapabilityRawIfdDeviceEvidenceV01.build(
+            profile = profile,
+            nativeRegistryProbe = nativeProbe,
+        )
+    }
+
     @Suppress("DEPRECATION")
     private fun launchRawIfdDeviceEvidenceExport(job: RawJob) {
         if (activeJobId != job.id) return
@@ -2253,7 +2268,7 @@ class MainActivity : Activity() {
         // changes validated authority, or touches image/sample values.
         SourceCapabilityRawIfdRuntimeAuthorityBinderV01
             .refreshRuntimeDiagnosticIfAvailable(profile)
-        if (SourceCapabilityRawIfdDeviceEvidenceV01.build(profile) == null) {
+        if (buildRawIfdDeviceEvidenceWithNativeProbe(profile) == null) {
             rawIfdDeviceEvidenceStatus =
                 "Raw-IFD diagnostiek fail-closed: bronbinding of safety-contract ongeldig."
             render()
@@ -4401,7 +4416,7 @@ class MainActivity : Activity() {
 
             SourceCapabilityRawIfdRuntimeAuthorityBinderV01
                 .refreshRuntimeDiagnosticIfAvailable(profile)
-            val report = SourceCapabilityRawIfdDeviceEvidenceV01.build(profile)
+            val report = buildRawIfdDeviceEvidenceWithNativeProbe(profile)
             if (report == null) {
                 rawIfdDeviceEvidenceStatus =
                     "Raw-IFD infofull-export fail-closed: diagnostic/authority-binding ongeldig."
