@@ -45,6 +45,43 @@ inline std::map<SourceSha256, RuntimeObservation>& runtimeObservationRegistry() 
     return values;
 }
 
+// Last recorded adapter-open observation is diagnostic process state, not
+// source authority. A later open for another source may replace this snapshot.
+// It never participates in source selection or scientific validation.
+struct LastOpenSnapshot final {
+    bool present = false;
+    SourceSha256 sourceSha256{};
+    RuntimeObservation observation{};
+};
+
+inline LastOpenSnapshot& lastOpenSnapshot() noexcept {
+    static LastOpenSnapshot state;
+    return state;
+}
+
+struct RegistryProbe final {
+    bool validatedAuthorityRegistered = false;
+    std::uint32_t validatedRawIfdOffset = 0;
+    bool requestedSourceObservationPresent = false;
+    LastOpenSnapshot lastOpen{};
+};
+
+inline void lookupRegistryProbe(
+    const SourceSha256& sourceSha256,
+    RegistryProbe& out) noexcept {
+    std::lock_guard<std::mutex> lock(registryMutex());
+    out = {};
+    const auto authority = registry().find(sourceSha256);
+    if (authority != registry().end() && authority->second != 0u) {
+        out.validatedAuthorityRegistered = true;
+        out.validatedRawIfdOffset = authority->second;
+    }
+    out.requestedSourceObservationPresent =
+        runtimeObservationRegistry().find(sourceSha256) !=
+        runtimeObservationRegistry().end();
+    out.lastOpen = lastOpenSnapshot();
+}
+
 // Idempotent for the same source/offset pair. A conflicting offset for an
 // already-bound sealed source is rejected instead of silently replacing
 // authority. Classic-TIFF/DNG raw-IFD offsets are uint32 by construction; a
@@ -84,6 +121,12 @@ inline void recordRuntimeObservation(
     const RuntimeObservation& observation) noexcept {
     std::lock_guard<std::mutex> lock(registryMutex());
     runtimeObservationRegistry()[sourceSha256] = observation;
+    // Mirror only the already-recorded adapter result for troubleshooting.
+    // This last-open marker is never read by scientific selection.
+    auto& last = lastOpenSnapshot();
+    last.present = true;
+    last.sourceSha256 = sourceSha256;
+    last.observation = observation;
 }
 
 inline bool lookupRuntimeObservation(
