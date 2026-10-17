@@ -3,8 +3,10 @@ package com.truthraw.adaptiveui
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SourceCapabilityRawIfdRuntimeAuthorityV01Test {
@@ -53,6 +55,147 @@ class SourceCapabilityRawIfdRuntimeAuthorityV01Test {
             .put("full_raw_to_linear_mapping_validated", true)
 
         assertNull(SourceCapabilityRawIfdRuntimeAuthorityBinderV01.extract(profile))
+    }
+
+    @Test
+    fun bindRegistersAuthorityBeforeReadingRuntimeObservation() {
+        val profile = profile(offsets = listOf(25373814L))
+        val port =
+            RecordingPort(
+                runtimeObservation = runtimeObservation(),
+            )
+
+        assertTrue(
+            SourceCapabilityRawIfdRuntimeAuthorityBinderV01.bindIfAvailable(
+                profile = profile,
+                port = port,
+            ),
+        )
+
+        assertEquals(listOf("register", "read"), port.calls)
+        val diagnostic =
+            profile.getJSONObject(SourceCapabilityRawIfdDependencyDiagnosticV01.KEY)
+        assertTrue(diagnostic.getBoolean("runtime_open_observation_available"))
+        assertEquals("SUCCESS", diagnostic.getString("source_open_result"))
+        assertEquals(25373814L, diagnostic.getLong("validated_raw_ifd_offset"))
+        assertEquals(25373814L, diagnostic.getLong("requested_raw_ifd_offset"))
+        assertEquals(25373814L, diagnostic.getLong("decoder_source_audit_raw_ifd_offset"))
+        assertTrue(diagnostic.getBoolean("raw_ifd_authority_match"))
+        assertFalse(diagnostic.getBoolean("image_sample_payload_read"))
+        assertFalse(diagnostic.getBoolean("full_raw_to_linear_mapping_validated"))
+        assertFalse(diagnostic.getBoolean("scientific_master_pixel_effect"))
+        assertFalse(diagnostic.getBoolean("creates_new_evidence"))
+        assertFalse(diagnostic.getBoolean("scientific_writeback_allowed"))
+    }
+
+    @Test
+    fun bindFailsClosedWithoutReadingObservationWhenRegistrationFails() {
+        val profile = profile(offsets = listOf(25373814L))
+        val port =
+            RecordingPort(
+                registerResult = false,
+                runtimeObservation = runtimeObservation(),
+            )
+
+        assertFalse(
+            SourceCapabilityRawIfdRuntimeAuthorityBinderV01.bindIfAvailable(
+                profile = profile,
+                port = port,
+            ),
+        )
+
+        assertEquals(listOf("register"), port.calls)
+        val diagnostic =
+            profile.getJSONObject(SourceCapabilityRawIfdDependencyDiagnosticV01.KEY)
+        assertFalse(diagnostic.getBoolean("runtime_open_observation_available"))
+        assertEquals("NOT_OBSERVED", diagnostic.getString("source_open_result"))
+        assertFalse(diagnostic.getBoolean("scientific_writeback_allowed"))
+    }
+
+    @Test
+    fun refreshReadsPassiveObservationWithoutRegisteringAgain() {
+        val profile = profile(offsets = listOf(25373814L))
+        val port =
+            RecordingPort(
+                runtimeObservation = runtimeObservation(),
+            )
+
+        assertTrue(
+            SourceCapabilityRawIfdRuntimeAuthorityBinderV01.refreshRuntimeDiagnosticIfAvailable(
+                profile = profile,
+                port = port,
+            ),
+        )
+
+        assertEquals(listOf("read"), port.calls)
+        val diagnostic =
+            profile.getJSONObject(SourceCapabilityRawIfdDependencyDiagnosticV01.KEY)
+        assertTrue(diagnostic.getBoolean("runtime_open_observation_available"))
+        assertEquals("SUCCESS", diagnostic.getString("source_open_result"))
+        assertFalse(diagnostic.getBoolean("source_values_modified"))
+    }
+
+    @Test
+    fun refreshRejectsCrossSourceObservationInsteadOfCrossBinding() {
+        val profile = profile(offsets = listOf(25373814L))
+        val port =
+            RecordingPort(
+                runtimeObservation =
+                    runtimeObservation(
+                        sourceSha256 = "b".repeat(64),
+                    ),
+            )
+
+        assertFalse(
+            SourceCapabilityRawIfdRuntimeAuthorityBinderV01.refreshRuntimeDiagnosticIfAvailable(
+                profile = profile,
+                port = port,
+            ),
+        )
+
+        assertEquals(listOf("read"), port.calls)
+        val diagnostic =
+            profile.getJSONObject(SourceCapabilityRawIfdDependencyDiagnosticV01.KEY)
+        assertFalse(diagnostic.getBoolean("runtime_open_observation_available"))
+        assertEquals("NOT_OBSERVED", diagnostic.getString("source_open_result"))
+        assertTrue(diagnostic.isNull("decoder_source_audit_raw_ifd_offset"))
+        assertFalse(diagnostic.getBoolean("scientific_writeback_allowed"))
+    }
+
+    private fun runtimeObservation(
+        sourceSha256: String = source,
+    ): RawIfdRuntimeObservationV01 =
+        RawIfdRuntimeObservationV01(
+            sourceSha256 = sourceSha256,
+            validatedRawIfdOffset = 25373814L,
+            requestedRawIfdOffset = 25373814L,
+            decoderSourceAuditRawIfdOffset = 25373814L,
+            authorityMatch = true,
+            decoderOpenObserved = true,
+            sourceOpenSucceeded = true,
+            sourceOpenResultCode = 0,
+        )
+
+    private class RecordingPort(
+        private val registerResult: Boolean = true,
+        private val runtimeObservation: RawIfdRuntimeObservationV01? = null,
+    ) : RawIfdRuntimeAuthorityPortV01 {
+        val calls = mutableListOf<String>()
+
+        override fun registerValidatedRawIfdAuthority(
+            sourceSha256: String,
+            rawIfdOffset: Long,
+        ): Boolean {
+            calls += "register"
+            return registerResult
+        }
+
+        override fun readRawIfdRuntimeObservation(
+            sourceSha256: String,
+        ): RawIfdRuntimeObservationV01? {
+            calls += "read"
+            return runtimeObservation
+        }
     }
 
     private fun profile(offsets: List<Long>): JSONObject {
