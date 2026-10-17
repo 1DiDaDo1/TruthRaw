@@ -32,6 +32,25 @@ object RawIfdAuthorityBridgeV01 {
         sourceSha256: String,
     ): LongArray?
 
+    private external fun nativeReadRawIfdRegistryProbePacket(
+        sourceSha256: String,
+    ): String?
+
+    /**
+     * Debugging-only native registry snapshot. The last-open entry, if any,
+     * never stands in for this specific source's decoder observation.
+     */
+    fun readRawIfdNativeRegistryProbe(
+        sourceSha256: String,
+    ): RawIfdNativeRegistryProbeV01? {
+        val normalized = sourceSha256.trim().lowercase()
+        if (!normalized.matches(SHA256)) return null
+        return RawIfdNativeRegistryProbeV01.parse(
+            requestedSourceSha256 = normalized,
+            packet = nativeReadRawIfdRegistryProbePacket(normalized),
+        )
+    }
+
     fun readRawIfdRuntimeObservation(
         sourceSha256: String,
     ): RawIfdRuntimeObservationV01? {
