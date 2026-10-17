@@ -11,7 +11,10 @@ object SourceCapabilityRawIfdDeviceEvidenceV01 {
     const val SCHEMA = "D.RAW/SourceCapabilityRawIfdDeviceEvidence/0.1"
     private val SHA256 = Regex("[0-9a-f]{64}")
 
-    fun build(profile: JSONObject): JSONObject? {
+    fun build(
+        profile: JSONObject,
+        nativeRegistryProbe: RawIfdNativeRegistryProbeV01? = null,
+    ): JSONObject? {
         val sourceSha256 = profile.optString("source_sha256", "").trim().lowercase()
         if (!sourceSha256.matches(SHA256)) return null
         val diagnostic =
@@ -24,6 +27,11 @@ object SourceCapabilityRawIfdDeviceEvidenceV01 {
         ) {
             return null
         }
+        // Never accept a last-open probe for another requested identity as
+        // the basis for this export, even as process-memory diagnostics.
+        if (nativeRegistryProbe != null &&
+            nativeRegistryProbe.requestedSourceSha256 != sourceSha256
+        ) return null
         // Fail closed if an accidental promotion flag reaches the export layer.
         val forbidden = listOf(
             "image_sample_payload_read",
@@ -53,6 +61,15 @@ object SourceCapabilityRawIfdDeviceEvidenceV01 {
             .put(
                 "raw_ifd_dependency_diagnostic_v0_1",
                 JSONObject(diagnostic.toString()),
+            )
+            .put(
+                "native_registry_probe_v0_1",
+                nativeRegistryProbe?.toJson() ?: JSONObject()
+                    .put("schema", "D.RAW/RawIfdNativeRegistryProbe/0.1")
+                    .put("status", "UNAVAILABLE_FAIL_CLOSED")
+                    .put("requested_source_sha256", sourceSha256)
+                    .put("creates_new_evidence", false)
+                    .put("scientific_writeback_allowed", false),
             )
             .put("export_is_sealed_source_evidence", false)
             .put("creates_new_evidence", false)
