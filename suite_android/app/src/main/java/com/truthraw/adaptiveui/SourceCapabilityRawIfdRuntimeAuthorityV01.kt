@@ -8,6 +8,33 @@ data class SourceCapabilityRawIfdRuntimeAuthorityV01(
     val ifdOffset: Long,
 )
 
+internal interface RawIfdRuntimeAuthorityPortV01 {
+    fun registerValidatedRawIfdAuthority(
+        sourceSha256: String,
+        rawIfdOffset: Long,
+    ): Boolean
+
+    fun readRawIfdRuntimeObservation(
+        sourceSha256: String,
+    ): RawIfdRuntimeObservationV01?
+}
+
+private object NativeRawIfdRuntimeAuthorityPortV01 : RawIfdRuntimeAuthorityPortV01 {
+    override fun registerValidatedRawIfdAuthority(
+        sourceSha256: String,
+        rawIfdOffset: Long,
+    ): Boolean =
+        RawIfdAuthorityBridgeV01.registerValidatedRawIfdAuthority(
+            sourceSha256 = sourceSha256,
+            rawIfdOffset = rawIfdOffset,
+        )
+
+    override fun readRawIfdRuntimeObservation(
+        sourceSha256: String,
+    ): RawIfdRuntimeObservationV01? =
+        RawIfdAuthorityBridgeV01.readRawIfdRuntimeObservation(sourceSha256)
+}
+
 object SourceCapabilityRawIfdRuntimeAuthorityBinderV01 {
     private val SHA256 = Regex("[0-9a-f]{64}")
 
@@ -109,30 +136,93 @@ object SourceCapabilityRawIfdRuntimeAuthorityBinderV01 {
         return candidates.values.singleOrNull()
     }
 
-    fun bindIfAvailable(profile: JSONObject): Boolean {
-        val authority = extract(profile)
-        val runtimeObservation =
-            if (authority == null) {
-                null
-            } else {
-                runCatching {
-                    RawIfdAuthorityBridgeV01.readRawIfdRuntimeObservation(
-                        authority.sourceSha256,
-                    )
-                }.getOrNull()
-            }
+    fun bindIfAvailable(profile: JSONObject): Boolean =
+        bindIfAvailable(
+            profile = profile,
+            port = NativeRawIfdRuntimeAuthorityPortV01,
+        )
 
+    internal fun bindIfAvailable(
+        profile: JSONObject,
+        port: RawIfdRuntimeAuthorityPortV01,
+    ): Boolean {
+        val authority = extract(profile)
+        if (authority == null) {
+            SourceCapabilityRawIfdDependencyDiagnosticV01.attach(
+                profile = profile,
+                authority = null,
+                runtimeObservation = null,
+            )
+            return false
+        }
+
+        // Authority must exist in the native registry before any authority-bound
+        // DNG open can occur. Reading the passive runtime observation first would
+        // permanently snapshot NOT_OBSERVED into a profile that is about to make
+        // its first native open.
+        val registered =
+            runCatching {
+                port.registerValidatedRawIfdAuthority(
+                    sourceSha256 = authority.sourceSha256,
+                    rawIfdOffset = authority.ifdOffset,
+                )
+            }.getOrDefault(false)
+        if (!registered) {
+            SourceCapabilityRawIfdDependencyDiagnosticV01.attach(
+                profile = profile,
+                authority = authority,
+                runtimeObservation = null,
+            )
+            return false
+        }
+
+        val runtimeObservation =
+            runCatching {
+                port.readRawIfdRuntimeObservation(authority.sourceSha256)
+            }.getOrNull()
         SourceCapabilityRawIfdDependencyDiagnosticV01.attach(
             profile = profile,
             authority = authority,
             runtimeObservation = runtimeObservation,
         )
-        if (authority == null) return false
-        return runCatching {
-            RawIfdAuthorityBridgeV01.registerValidatedRawIfdAuthority(
-                sourceSha256 = authority.sourceSha256,
-                rawIfdOffset = authority.ifdOffset,
+        return true
+    }
+
+    /**
+     * Re-snapshots the passive native open observation after a synchronous DNG
+     * open has returned. This is derived diagnostic refresh only: no source is
+     * reparsed, no authority is minted, and no image/sample value is changed.
+     */
+    fun refreshRuntimeDiagnosticIfAvailable(profile: JSONObject): Boolean =
+        refreshRuntimeDiagnosticIfAvailable(
+            profile = profile,
+            port = NativeRawIfdRuntimeAuthorityPortV01,
+        )
+
+    internal fun refreshRuntimeDiagnosticIfAvailable(
+        profile: JSONObject,
+        port: RawIfdRuntimeAuthorityPortV01,
+    ): Boolean {
+        val authority = extract(profile)
+        if (authority == null) {
+            SourceCapabilityRawIfdDependencyDiagnosticV01.attach(
+                profile = profile,
+                authority = null,
+                runtimeObservation = null,
             )
-        }.getOrDefault(false)
+            return false
+        }
+
+        val runtimeObservation =
+            runCatching {
+                port.readRawIfdRuntimeObservation(authority.sourceSha256)
+            }.getOrNull()
+        val diagnostic =
+            SourceCapabilityRawIfdDependencyDiagnosticV01.attach(
+                profile = profile,
+                authority = authority,
+                runtimeObservation = runtimeObservation,
+            )
+        return diagnostic.optBoolean("runtime_open_observation_available", false)
     }
 }
