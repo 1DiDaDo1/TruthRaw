@@ -64,7 +64,8 @@ jobs:
         run: |
           gradle --no-daemon :app:testDebugUnitTest \
             --tests com.truthraw.adaptiveui.SourceCapabilityRawIfdDependencyDiagnosticV01Test \
-            --tests com.truthraw.adaptiveui.SourceCapabilityRawIfdRuntimeAuthorityV01Test
+            --tests com.truthraw.adaptiveui.SourceCapabilityRawIfdRuntimeAuthorityV01Test \
+            --tests com.truthraw.adaptiveui.SourceCapabilityRawIfdDeviceEvidenceV01Test
 
       - name: Assemble debug APK
         working-directory: suite_android
