@@ -2880,7 +2880,7 @@ class MainActivity : Activity() {
                 onUnexpected = { jpegStatus = it },
             ) {
                 val dir = File(filesDir, "photo_export/$expectedJob").apply { mkdirs() }
-                val rendered = FullResJpegExporter.renderToPrivateJpeg(
+                val rendered = renderFullResWithRawIfdDiagnosticRefresh(
                     contentResolver, job, flags, quarterTurns, dir,
                     presentationHeadroomMode = binding.presentationHeadroomMode,
                 )
@@ -7151,7 +7151,7 @@ class MainActivity : Activity() {
         workingDir: File,
         presentationHeadroomMode: Int = PresentationHeadroomModeV01.OFF,
     ): FullResJpegResult {
-        val rendered = renderFullResWithRawIfdDiagnosticRefresh(
+        val rendered = FullResJpegExporter.renderToPrivateJpeg(
             resolver,
             job,
             flags,
