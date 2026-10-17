@@ -126,6 +126,48 @@ Java_com_truthraw_adaptiveui_RawIfdAuthorityBridgeV01_nativeReadRawIfdRuntimeObs
     return out;
 }
 
+// A passive, atomic view of native registry keys and the last adapter-open.
+// Crucially this does not look up another source's observation as evidence for
+// the requested source. Last-open identity can only diagnose a lost/mismatched
+// cable; it never supplies requested-source authority or a scientific claim.
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_truthraw_adaptiveui_RawIfdAuthorityBridgeV01_nativeReadRawIfdRegistryProbePacket(
+    JNIEnv* env,
+    jobject,
+    jstring sourceSha256) {
+    SourceSha256 requested{};
+    if (!parse_source_sha256(env, sourceSha256, requested)) return nullptr;
+
+    truthraw::raw_ifd_authority::v0_1::RegistryProbe probe;
+    truthraw::raw_ifd_authority::v0_1::lookupRegistryProbe(requested, probe);
+    std::string lastSha = "-";
+    if (probe.lastOpen.present) {
+        constexpr char digits[] = "0123456789abcdef";
+        lastSha.clear();
+        lastSha.reserve(64);
+        for (const std::uint8_t byte : probe.lastOpen.sourceSha256) {
+            lastSha += digits[(byte >> 4u) & 0x0fu];
+            lastSha += digits[byte & 0x0fu];
+        }
+    }
+    const auto& last = probe.lastOpen.observation;
+    const std::string packet =
+        "1|" +
+        std::to_string(probe.validatedAuthorityRegistered ? 1 : 0) + "|" +
+        std::to_string(probe.validatedRawIfdOffset) + "|" +
+        std::to_string(probe.requestedSourceObservationPresent ? 1 : 0) + "|" +
+        std::to_string(probe.lastOpen.present ? 1 : 0) + "|" +
+        lastSha + "|" +
+        std::to_string(probe.lastOpen.present ? last.validatedRawIfdOffset : 0u) + "|" +
+        std::to_string(probe.lastOpen.present ? last.requestedRawIfdOffset : 0u) + "|" +
+        std::to_string(probe.lastOpen.present ? last.decoderSourceAuditRawIfdOffset : 0u) + "|" +
+        std::to_string(probe.lastOpen.present && last.sourceOpenSucceeded ? 1 : 0) + "|" +
+        std::to_string(probe.lastOpen.present ? last.sourceOpenResultCode : -1) + "|" +
+        std::to_string(probe.lastOpen.present && last.decoderOpenObserved ? 1 : 0) + "|" +
+        std::to_string(probe.lastOpen.present ? last.authorityMatchState : -1);
+    return env->NewStringUTF(packet.c_str());
+}
+
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_probeDngSourceOpenDetail(
     JNIEnv* env,
