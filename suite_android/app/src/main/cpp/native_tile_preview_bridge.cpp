@@ -97,6 +97,35 @@ Java_com_truthraw_adaptiveui_RawIfdAuthorityBridgeV01_registerValidatedRawIfdAut
     return registered ? JNI_TRUE : JNI_FALSE;
 }
 
+extern "C" JNIEXPORT jlongArray JNICALL
+Java_com_truthraw_adaptiveui_RawIfdAuthorityBridgeV01_nativeReadRawIfdRuntimeObservationPacket(
+    JNIEnv* env,
+    jobject,
+    jstring sourceSha256) {
+    SourceSha256 source{};
+    if (!parse_source_sha256(env, sourceSha256, source)) return nullptr;
+
+    truthraw::raw_ifd_authority::v0_1::RuntimeObservation observation;
+    if (!truthraw::raw_ifd_authority::v0_1::lookupRuntimeObservation(source, observation)) {
+        return nullptr;
+    }
+
+    const jlong values[] = {
+        1,
+        static_cast<jlong>(observation.validatedRawIfdOffset),
+        static_cast<jlong>(observation.requestedRawIfdOffset),
+        static_cast<jlong>(observation.decoderSourceAuditRawIfdOffset),
+        static_cast<jlong>(observation.authorityMatchState),
+        observation.decoderOpenObserved ? 1 : 0,
+        observation.sourceOpenSucceeded ? 1 : 0,
+        static_cast<jlong>(observation.sourceOpenResultCode),
+    };
+    constexpr jsize count = static_cast<jsize>(sizeof(values) / sizeof(values[0]));
+    jlongArray out = env->NewLongArray(count);
+    if (out != nullptr) env->SetLongArrayRegion(out, 0, count, values);
+    return out;
+}
+
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_truthraw_adaptiveui_NativeTilePreviewBridge_probeDngSourceOpenDetail(
     JNIEnv* env,
